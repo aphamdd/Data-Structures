@@ -153,12 +153,15 @@
   <ItemGroup>
     <ClCompile Include="bars.cpp" />
     <ClCompile Include="common.cpp" />
+    <ClCompile Include="graph.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Bars.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="Container.h" />
     <ClInclude Include="Entity.h" />
+    <ClInclude Include="Graph.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
