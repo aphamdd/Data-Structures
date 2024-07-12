@@ -6,6 +6,7 @@
 class Graph : public Container {
 public:
   Graph(const int size);
+  void sorting();
 
 public:
   std::vector<Bars> m_histogram;

@@ -22,7 +22,22 @@ void Graph::build(const int size) {
     position = sf::Vector2f(xPos, SCREEN_HEIGHT);
     ranSize = sf::Vector2f(barWidth, ranHeight(rng));
   }
+}
 
+void Graph::sorting() {
+  int n = m_histogram.size();
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < n - i - 1; ++j) {
+      int curr = m_histogram[j].m_shape.getSize().y;
+      int adj = m_histogram[j + 1].m_shape.getSize().y;
+      if (curr > adj) {
+        sf::Vector2f temp = m_histogram[j].m_shape.getPosition();
+        m_histogram[j].m_shape.setPosition(m_histogram[j + 1].m_shape.getPosition());
+        m_histogram[j + 1].m_shape.setPosition(temp);
+        std::swap(m_histogram[j], m_histogram[j + 1]);
+      }
+    }
+  }
 }
 
 void Graph::draw(sf::RenderTarget& target, sf::RenderStates states) const {
