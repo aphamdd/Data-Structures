@@ -9,8 +9,8 @@ int main() {
   window.setFramerateLimit(FPS);
 
   // set graph
-  Graph graph(8);
-  graph.structure();
+  const int numBars = 10;
+  Graph graph(numBars);
 
   while (window.isOpen()) {
     sf::Event event;

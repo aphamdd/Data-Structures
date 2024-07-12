@@ -3,30 +3,31 @@
 #include <iostream>
 using namespace std;
 
-Graph::Graph(const int size) : n(size) {
-  m_histogram.reserve(n);
+Graph::Graph(const int size) {
+  build(size);
 }
 
-void Graph::structure() {
+void Graph::build(const int size) {
   std::random_device dev;
   std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> d1(100, 700);
-  std::uniform_int_distribution<std::mt19937::result_type> d2(100, 700);
-  std::uniform_int_distribution<std::mt19937::result_type> d3(0, 100);
-  std::uniform_int_distribution<std::mt19937::result_type> d4(0, 100);
-  sf::Vector2f pos(d1(rng), d2(rng));
-  sf::Vector2f size(d3(rng), d4(rng));
+  std::uniform_int_distribution<std::mt19937::result_type> ranHeight(10, 100);
+  float barWidth = 10;
+  int xPos = 0;
+  sf::Vector2f position(xPos, SCREEN_HEIGHT);
+  sf::Vector2f ranSize(barWidth, ranHeight(rng));
   
-  for (int i = 0; i < n; ++i) {
-    m_histogram.push_back(Bars(sf::Vector2f(d1(rng), d2(rng)), sf::Vector2f(d3(rng), d4(rng))));
-    cout << "test" << endl;
+  for (int i = 0; i < size; ++i) {
+    m_histogram.push_back(Bars(position, ranSize));
+    xPos += barWidth + 1;
+    position = sf::Vector2f(xPos, SCREEN_HEIGHT);
+    ranSize = sf::Vector2f(barWidth, ranHeight(rng));
   }
 
 }
 
 void Graph::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.texture = NULL;
-  for (int i = 0; i < m_histogram.size(); ++i) {
-    target.draw(m_histogram[i], states);
+  for (auto& shape : m_histogram) {
+    target.draw(shape, states);
   }
 }

@@ -6,10 +6,11 @@
 class Graph : public Container {
 public:
   Graph(const int size);
-  void structure();
+
+private:
+  void build(const int size);
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
 private:
   std::vector<Bars> m_histogram;
-  const int n;
 };
