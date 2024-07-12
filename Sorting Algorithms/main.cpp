@@ -13,8 +13,10 @@ int main() {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> num(500, 1000);
-  const int numBars = num(rng);
+  const int numBars = 100;
   Graph graph(numBars);
+
+  sf::Clock clock;
 
   while (window.isOpen()) {
     sf::Event event;
@@ -22,9 +24,21 @@ int main() {
     while (window.pollEvent(event)) {
       if (event.type == sf::Event::Closed)
         window.close();
-      if (event.type == sf::Event::KeyPressed)
-        if (event.key.code == sf::Keyboard::Space)
-          graph.sorting();
+
+      if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::Space) {
+          int n = numBars;
+          for (int i = 0; i < n; ++i) {
+            for (int j = 0; j < n - i - 1; ++j) {
+              graph.sorting(j);
+              window.clear(sf::Color::Black);
+              window.draw(graph);
+              window.display();
+            }
+          }
+        }
+      }
+
     }
 
     // rendering
