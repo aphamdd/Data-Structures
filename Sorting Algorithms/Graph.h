@@ -6,12 +6,12 @@
 class Graph : public Container {
 public:
   Graph(const int size);
-  std::vector<Bars> getBars() const { return m_histogram; };
+
+public:
+  std::vector<Bars> m_histogram;
 
 private:
   void build(const int size);
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
 
-private:
-  std::vector<Bars> m_histogram;
 };

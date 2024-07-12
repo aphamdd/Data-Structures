@@ -25,8 +25,10 @@ int main() {
       if (event.type == sf::Event::Closed)
         window.close();
       if (event.type == sf::Event::KeyPressed)
-        if (event.key.code == sf::Keyboard::Space)
+        if (event.key.code == sf::Keyboard::Space) {
           algo.test(graph);
+          cout << "space" << endl;
+        }
     }
 
     // rendering
