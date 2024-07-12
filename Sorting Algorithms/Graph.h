@@ -6,6 +6,7 @@
 class Graph : public Container {
 public:
   Graph(const int size);
+  std::vector<Bars> getBars() const { return m_histogram; };
 
 private:
   void build(const int size);

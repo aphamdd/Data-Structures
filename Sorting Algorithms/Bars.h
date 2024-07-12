@@ -5,6 +5,7 @@
 class Bars : public Entity {
 public:
   Bars(const sf::Vector2f pos, const sf::Vector2f size);
+  sf::RectangleShape getShape() const { return m_shape; }
 
 private:
   void draw(sf::RenderTarget& target, sf::RenderStates states) const override;

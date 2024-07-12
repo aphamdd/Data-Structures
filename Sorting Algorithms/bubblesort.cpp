@@ -3,6 +3,8 @@
 #include <iostream>
 using namespace std;
 
-void BubbleSort::test(Graph& bars) {
-  cout << "test" << endl;
+void BubbleSort::test(Graph& graph) {
+  for (auto& bar : graph.getBars()) {
+    bar.getShape().setFillColor(sf::Color::Blue);
+  }
 }
