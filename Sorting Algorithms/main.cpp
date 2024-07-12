@@ -15,6 +15,7 @@ int main() {
   std::uniform_int_distribution<std::mt19937::result_type> num(500, 1000);
   const int numBars = 100;
   Graph graph(numBars);
+  BubbleSort algo;
 
   sf::Clock clock;
 
@@ -27,15 +28,7 @@ int main() {
 
       if (event.type == sf::Event::KeyPressed) {
         if (event.key.code == sf::Keyboard::Space) {
-          int n = numBars;
-          for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n - i - 1; ++j) {
-              graph.sorting(j);
-              window.clear(sf::Color::Black);
-              window.draw(graph);
-              window.display();
-            }
-          }
+          algo.test(graph, window);
         }
       }
 

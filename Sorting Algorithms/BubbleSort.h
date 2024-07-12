@@ -8,5 +8,5 @@ public:
   void step() override {};
   bool isComplete() const override { return false; };
 
-  void test(Graph&);
+  void test(Graph& graph, sf::RenderWindow& window);
 };

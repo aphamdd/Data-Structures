@@ -24,7 +24,7 @@ void Graph::build(const int size) {
   }
 }
 
-void Graph::sorting(const int j) {
+void Graph::sorting(const int j, bool& swap) {
   int curr = m_histogram[j].m_shape.getSize().y;
   int adj = m_histogram[j + 1].m_shape.getSize().y;
   if (curr > adj) {
@@ -32,6 +32,7 @@ void Graph::sorting(const int j) {
     m_histogram[j].m_shape.setPosition(m_histogram[j + 1].m_shape.getPosition());
     m_histogram[j + 1].m_shape.setPosition(temp);
     std::swap(m_histogram[j], m_histogram[j + 1]);
+    swap = true;
   }
 }
 
