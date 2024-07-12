@@ -9,7 +9,10 @@ int main() {
   window.setFramerateLimit(FPS);
 
   // set graph
-  const int numBars = 10;
+  std::random_device dev;
+  std::mt19937 rng(dev());
+  std::uniform_int_distribution<std::mt19937::result_type> num(5, 50);
+  const int numBars = num(rng);
   Graph graph(numBars);
 
   while (window.isOpen()) {

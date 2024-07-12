@@ -10,8 +10,8 @@ Graph::Graph(const int size) {
 void Graph::build(const int size) {
   std::random_device dev;
   std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> ranHeight(10, 100);
-  float barWidth = 10;
+  std::uniform_int_distribution<std::mt19937::result_type> ranHeight(10, 600);
+  float barWidth = SCREEN_WIDTH / size;
   int xPos = 0;
   sf::Vector2f position(xPos, SCREEN_HEIGHT);
   sf::Vector2f ranSize(barWidth, ranHeight(rng));
