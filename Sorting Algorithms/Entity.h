@@ -9,7 +9,6 @@ public:
     m_size(size)
   {}
 
-  virtual void update() = 0;
   virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const = 0;
   float dt() { return dtClock.restart().asSeconds(); }
 

@@ -1,6 +1,6 @@
 #include "common.h"
 #include "Graph.h"
-#include "BubbleSort.h"
+#include "Algorithms.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
 using namespace std;
@@ -12,12 +12,10 @@ int main() {
   // set graph
   std::random_device dev;
   std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> num(500, 1000);
-  const int numBars = 100;
+  std::uniform_int_distribution<std::mt19937::result_type> num(100, 500);
+  const int numBars = 150;
   Graph graph(numBars);
-  BubbleSort algo;
-
-  sf::Clock clock;
+  Algorithms algo;
 
   while (window.isOpen()) {
     sf::Event event;
@@ -27,11 +25,13 @@ int main() {
         window.close();
 
       if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::Space) {
-          algo.test(graph, window);
-        }
+        if (event.key.code == sf::Keyboard::B)
+          algo.bubbleSort(graph, window);
       }
-
+      if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::S)
+          algo.selectionSort(graph, window);
+      }
     }
 
     // rendering

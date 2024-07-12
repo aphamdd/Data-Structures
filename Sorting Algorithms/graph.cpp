@@ -24,18 +24,6 @@ void Graph::build(const int size) {
   }
 }
 
-void Graph::sorting(const int j, bool& swap) {
-  int curr = m_histogram[j].m_shape.getSize().y;
-  int adj = m_histogram[j + 1].m_shape.getSize().y;
-  if (curr > adj) {
-    sf::Vector2f temp = m_histogram[j].m_shape.getPosition();
-    m_histogram[j].m_shape.setPosition(m_histogram[j + 1].m_shape.getPosition());
-    m_histogram[j + 1].m_shape.setPosition(temp);
-    std::swap(m_histogram[j], m_histogram[j + 1]);
-    swap = true;
-  }
-}
-
 void Graph::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.texture = NULL;
   for (auto& shape : m_histogram) {
