@@ -13,14 +13,13 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
       if (curr > adj) {
         swap(graph.m_histogram[j], graph.m_histogram[j + 1]);
         flag = true;
-
-        window.clear(sf::Color::Black);
-        window.draw(graph);
-        window.display();
       }
     }
     if (!flag)
       break;
+    window.clear(sf::Color::Black);
+    window.draw(graph);
+    window.display();
   }
 }
 
@@ -50,9 +49,6 @@ void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
     while (key < graph.m_histogram[j].m_shape.getSize().y && j >= 0) {
       copy(graph.m_histogram[j + 1], graph.m_histogram[j]);
       --j;
-      window.clear(sf::Color::Black);
-      window.draw(graph);
-      window.display();
     }
     copy(graph.m_histogram[j + 1], k);
     window.clear(sf::Color::Black);
