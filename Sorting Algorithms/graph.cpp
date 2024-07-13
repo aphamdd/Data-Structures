@@ -42,7 +42,7 @@ void Graph::reset() {
 
 void Graph::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.texture = NULL;
-  for (auto& shape : m_histogram) {
+  for (const auto& shape : m_histogram) {
     target.draw(shape, states);
   }
 }

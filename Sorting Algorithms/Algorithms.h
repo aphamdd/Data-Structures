@@ -10,4 +10,7 @@ public:
   void countingSort(Graph& graph, sf::RenderWindow& window);
   void radixSort(Graph& graph, sf::RenderWindow& window);
   void mergeSort(Graph& graph, sf::RenderWindow& window);
+
+private:
+  void swap(Bars& l, Bars& r);
 };
