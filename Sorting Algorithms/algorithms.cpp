@@ -46,3 +46,28 @@ void Algorithms::selectionSort(Graph& graph, sf::RenderWindow& window) {
     window.display();
   }
 }
+
+// PROBLEM: I think I'm not updating the vector properly when I reassign
+void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
+  int n = graph.m_histogram.size();
+  for (int step = 1; step < n; ++step) {
+    Bars k = graph.m_histogram[step];
+    int key = k.m_shape.getSize().y;
+    int j = step - 1;
+    int curr = graph.m_histogram[j].m_shape.getSize().y;
+    while (key < curr && j >= 0) {
+      graph.m_histogram.at(j + 1).m_shape.setPosition(graph.m_histogram.at(j).m_shape.getPosition());
+      graph.m_histogram.at(j + 1) = graph.m_histogram.at(j);
+      --j;
+      window.clear(sf::Color::Black);
+      window.draw(graph);
+      window.display();
+    }
+    graph.m_histogram[j + 1].m_shape.setPosition(graph.m_histogram[step].m_shape.getPosition());
+    graph.m_histogram[j + 1] = k;
+
+    window.clear(sf::Color::Black);
+    window.draw(graph);
+    window.display();
+  }
+}

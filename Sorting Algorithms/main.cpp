@@ -16,6 +16,7 @@ int main() {
   const int numBars = 150;
   Graph graph(numBars);
   Algorithms algo;
+  Bars x(sf::Vector2f(100.f, 100.f), sf::Vector2f(40.f, 40.f));
 
   while (window.isOpen()) {
     sf::Event event;
@@ -32,11 +33,24 @@ int main() {
         if (event.key.code == sf::Keyboard::S)
           algo.selectionSort(graph, window);
       }
+      if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::I)
+          algo.insertionSort(graph, window);
+      }
+      if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::Escape)
+          graph.reset();
+      }
+      if (event.type == sf::Event::KeyPressed) {
+        if (event.key.code == sf::Keyboard::T)
+          x = x.test(graph.m_histogram[1]);
+      }
     }
 
     // rendering
     window.clear(sf::Color::Black);
     window.draw(graph);
+    window.draw(x);
     window.display();
   }
   return 0;

@@ -24,6 +24,22 @@ void Graph::build(const int size) {
   }
 }
 
+void Graph::reset() {
+  std::random_device dev;
+  std::mt19937 rng(dev());
+  std::uniform_int_distribution<std::mt19937::result_type> num(0, m_histogram.size()-1);
+  for (int i = 0; i < m_histogram.size(); ++i) {
+    int val = num(rng);
+    while (val == i)
+      val = num(rng);
+    std::swap(m_histogram.at(i), m_histogram.at(val));
+    sf::Vector2f temp = m_histogram[i].m_shape.getPosition();
+    m_histogram[i].m_shape.setPosition(m_histogram[val].m_shape.getPosition());
+    m_histogram[val].m_shape.setPosition(temp);
+    //m_histogram.at(i).swap(m_histogram.at(val));
+  }
+}
+
 void Graph::draw(sf::RenderTarget& target, sf::RenderStates states) const {
   states.texture = NULL;
   for (auto& shape : m_histogram) {

@@ -5,6 +5,7 @@
 class Bars : public Entity {
 public:
   Bars(const sf::Vector2f pos, const sf::Vector2f size);
+  Bars test(Bars& bar);
 
 public:
   sf::RectangleShape m_shape;
