@@ -42,45 +42,6 @@ void Algorithms::selectionSort(Graph& graph, sf::RenderWindow& window) {
 }
 
 void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
-  /* THIS SUCCESSFULLY SWAPS 2 BARS
-  cout << "\n" << graph.m_histogram[0].m_shape.getSize().y << "," <<
-                  graph.m_histogram[2].m_shape.getSize().y << "\n";
-
-  swap(graph.m_histogram[0], graph.m_histogram[2]);
-
-  cout << "SWAPPED" << endl;
-  cout << graph.m_histogram[0].m_shape.getSize().y << "," <<
-                  graph.m_histogram[2].m_shape.getSize().y << "\n";
-  */
-
-  /* TODO: HOW DO I COPY AN INDEX WITH ANOTHER?
-  // using std::swap makes the obj at original index and target index properly fill its data
-  // however, when trying to use an assignment =, the original index doesnt draw the shape.
-  cout << "\n" << graph.m_histogram[0].m_shape.getSize().y << "," <<
-                  graph.m_histogram[2].m_shape.getSize().y << "\n";
-
-  // ok so, with the current code below, I'm able to see that index 0 DOES
-  // copy index 2. However, whatever was inside of index 2 disappears.
-  // I expected index 0 to overlap whatever is in index 2, but it just
-  // REPLACED whatever is inside index 2 instead. HMMMM.
-  // index 0 IS index 2, including its position and all that good stuff
-  Bars temp = graph.m_histogram[0];
-  graph.m_histogram[0] = graph.m_histogram[2];
-  for (int i = 0; i < 1000; ++i) {
-    window.clear(sf::Color::Black);
-    window.draw(graph.m_histogram[0].m_shape);
-    window.display();
-  }
-  //
-  
-  //copy(graph.m_histogram[0], graph.m_histogram[2]);
-
-  cout << "COPIED" << endl;
-  cout << graph.m_histogram[0].m_shape.getSize().y << "," <<
-                  graph.m_histogram[2].m_shape.getSize().y << "\n";
-  cout << graph.m_histogram[0].m_shape.getPosition().y << endl;
-  */
-
   int size = graph.m_histogram.size();
   for (int step = 1; step < size; step++) {
     Bars k = graph.m_histogram[step];
