@@ -25,20 +25,21 @@ int main() {
         window.close();
 
       if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::B)
+        switch (event.key.code) {
+        case sf::Keyboard::B:
           algo.bubbleSort(graph, window);
-      }
-      if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::S)
+          break;
+        case sf::Keyboard::S:
           algo.selectionSort(graph, window);
-      }
-      if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::I)
+          break;
+        case sf::Keyboard::I:
           algo.insertionSort(graph, window);
-      }
-      if (event.type == sf::Event::KeyPressed) {
-        if (event.key.code == sf::Keyboard::Escape)
+          break;
+        case sf::Keyboard::Escape:
           graph.reset();
+        default:
+          break;
+        }
       }
     }
 

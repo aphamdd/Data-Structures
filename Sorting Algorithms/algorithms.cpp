@@ -57,6 +57,7 @@ void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
   }
 }
 
+// swap obj in vector & update positions of the drawn entity
 void Algorithms::swap(Bars& l, Bars& r) {
   sf::Vector2f temp = l.m_shape.getPosition();
   l.m_shape.setPosition(r.m_shape.getPosition());
