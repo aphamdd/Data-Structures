@@ -6,7 +6,7 @@ class Bars : public Entity {
 public:
   // parameterized constructor
   Bars(const sf::Vector2f pos, const sf::Vector2f size);
-  // copy constructor
+  /* copy constructor
   Bars(const Bars& other) : m_shape(other.m_shape) {}
   // copy assignment operator
   Bars& operator=(const Bars& other) {
@@ -22,6 +22,7 @@ public:
       m_shape = std::move(other.m_shape);
     return *this;
   }
+  */
 
 public:
   sf::RectangleShape m_shape;

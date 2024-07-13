@@ -13,4 +13,5 @@ public:
 
 private:
   void swap(Bars& l, Bars& r);
+  void copy(Bars& l, const Bars& r);
 };
