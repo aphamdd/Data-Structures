@@ -57,6 +57,34 @@ void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
   }
 }
 
+int Algorithms::partition(Graph& graph, sf::RenderWindow& window, int low, int high) {
+  int pivot = graph.m_histogram[high].m_shape.getSize().y;
+  int i = low - 1;
+
+  for (int j = low; j < high; ++j) {
+    if (graph.m_histogram[j].m_shape.getSize().y <= pivot) {
+      ++i;
+      swap(graph.m_histogram[i], graph.m_histogram[j]);
+      window.clear(sf::Color::Black);
+      window.draw(graph);
+      window.display();
+    }
+  }
+  swap(graph.m_histogram[i + 1], graph.m_histogram[high]);
+  window.clear(sf::Color::Black);
+  window.draw(graph);
+  window.display();
+  return i + 1;
+}
+
+void Algorithms::quickSort(Graph& graph, sf::RenderWindow& window, int low, int high) {
+  if (low < high) {
+    int pivot = partition(graph, window, low, high);
+    quickSort(graph, window, low, pivot - 1);
+    quickSort(graph, window, pivot + 1, high);
+  }
+}
+
 // swap obj in vector & update positions of the drawn entity
 void Algorithms::swap(Bars& l, Bars& r) {
   sf::Vector2f temp = l.m_shape.getPosition();
