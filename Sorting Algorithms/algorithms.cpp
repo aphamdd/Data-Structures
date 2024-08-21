@@ -1,6 +1,7 @@
 #pragma once
 #include "Algorithms.h"
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
@@ -71,9 +72,6 @@ int Algorithms::partition(Graph& graph, sf::RenderWindow& window, int low, int h
     }
   }
   swap(graph.m_histogram[i + 1], graph.m_histogram[high]);
-  window.clear(sf::Color::Black);
-  window.draw(graph);
-  window.display();
   return i + 1;
 }
 

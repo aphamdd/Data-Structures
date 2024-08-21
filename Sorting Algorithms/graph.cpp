@@ -36,7 +36,6 @@ void Graph::reset() {
     sf::Vector2f temp = m_histogram[i].m_shape.getPosition();
     m_histogram[i].m_shape.setPosition(m_histogram[val].m_shape.getPosition());
     m_histogram[val].m_shape.setPosition(temp);
-    //m_histogram.at(i).swap(m_histogram.at(val));
   }
 }
 

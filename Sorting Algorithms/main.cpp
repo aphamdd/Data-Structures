@@ -17,6 +17,7 @@ int main() {
   Graph graph(numBars);
   Algorithms algo;
 
+  cout << "B: Bubble\nS: Selection\nI: Insertion\nQ: Quick\nEsc: Shuffle\n" << endl;
   while (window.isOpen()) {
     sf::Event event;
 
@@ -43,7 +44,7 @@ int main() {
           break;
         case sf::Keyboard::Q:
           cout << "Quick Sort... ";
-          algo.quickSort(graph, window, 0, graph.m_histogram.size()-1);
+          algo.quickSort(graph, window, 0, graph.m_histogram.size() - 1);
           cout << "DONE" << endl;
           break;
         case sf::Keyboard::Escape:
