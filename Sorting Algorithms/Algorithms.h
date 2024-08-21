@@ -10,6 +10,6 @@ public:
   int partition(Graph& graph, sf::RenderWindow& window, int low, int high);
 
 private:
-  void swap(Bars& l, Bars& r);
-  void copy(Bars& l, const Bars& r);
+  void swap(sf::RectangleShape& l, sf::RectangleShape& r);
+  void copy(sf::RectangleShape& l, const sf::RectangleShape& r);
 };

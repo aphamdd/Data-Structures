@@ -1,18 +1,18 @@
 #pragma once
-#include "Container.h"
-#include "Bars.h"
+#include "common.h"
+#include "SFML/Graphics.hpp"
 #include <random>
 
-class Graph : public Container {
+class Graph : public sf::Drawable, public sf::Transformable {
 public:
   Graph(const int size);
   void reset();
 
 public:
-  std::vector<Bars> m_histogram;
+  std::vector<sf::RectangleShape> m_histogram;
 
 private:
   void build(const int size);
-  void draw(sf::RenderTarget& target, sf::RenderStates states) const override;
-
+  sf::RectangleShape initShape(const sf::Vector2f pos, const sf::Vector2f size);
+  void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };
