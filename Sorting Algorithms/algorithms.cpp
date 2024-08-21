@@ -9,8 +9,8 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
   for (int i = 0; i < n; ++i) {
     bool flag = false;
     for (int j = 0; j < n - i - 1; ++j) {
-      int curr = graph.m_histogram[j].m_shape.getSize().y;
-      int adj = graph.m_histogram[j + 1].m_shape.getSize().y;
+      int curr = graph.m_histogram[j].getSize().y;
+      int adj = graph.m_histogram[j + 1].getSize().y;
       if (curr > adj) {
         swap(graph.m_histogram[j], graph.m_histogram[j + 1]);
         flag = true;
@@ -29,8 +29,8 @@ void Algorithms::selectionSort(Graph& graph, sf::RenderWindow& window) {
   for (int i = 0; i < n; ++i) {
     int min = i;
     for (int j = i + 1; j < n; ++j) {
-      int curr = graph.m_histogram[j].m_shape.getSize().y;
-      int compare = graph.m_histogram[min].m_shape.getSize().y;
+      int curr = graph.m_histogram[j].getSize().y;
+      int compare = graph.m_histogram[min].getSize().y;
       if (curr < compare)
         min = j;
     }
@@ -44,10 +44,10 @@ void Algorithms::selectionSort(Graph& graph, sf::RenderWindow& window) {
 void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
   int size = graph.m_histogram.size();
   for (int step = 1; step < size; step++) {
-    Bars k = graph.m_histogram[step];
-    int key = graph.m_histogram[step].m_shape.getSize().y;
+    sf::RectangleShape k = graph.m_histogram[step];
+    int key = graph.m_histogram[step].getSize().y;
     int j = step - 1;
-    while (key < graph.m_histogram[j].m_shape.getSize().y && j >= 0) {
+    while (key < graph.m_histogram[j].getSize().y && j >= 0) {
       copy(graph.m_histogram[j + 1], graph.m_histogram[j]);
       --j;
     }
@@ -59,11 +59,11 @@ void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
 }
 
 int Algorithms::partition(Graph& graph, sf::RenderWindow& window, int low, int high) {
-  int pivot = graph.m_histogram[high].m_shape.getSize().y;
+  int pivot = graph.m_histogram[high].getSize().y;
   int i = low - 1;
 
   for (int j = low; j < high; ++j) {
-    if (graph.m_histogram[j].m_shape.getSize().y <= pivot) {
+    if (graph.m_histogram[j].getSize().y <= pivot) {
       ++i;
       swap(graph.m_histogram[i], graph.m_histogram[j]);
       window.clear(sf::Color::Black);
@@ -84,20 +84,18 @@ void Algorithms::quickSort(Graph& graph, sf::RenderWindow& window, int low, int 
 }
 
 // swap obj in vector & update positions of the drawn entity
-void Algorithms::swap(Bars& l, Bars& r) {
-  sf::Vector2f temp = l.m_shape.getPosition();
-  l.m_shape.setPosition(r.m_shape.getPosition());
-  r.m_shape.setPosition(temp);
+void Algorithms::swap(sf::RectangleShape& l, sf::RectangleShape& r) {
+  sf::Vector2f temp = l.getPosition();
+  l.setPosition(r.getPosition());
+  r.setPosition(temp);
   std::swap(l, r);
 }
 
-// copy the characteristics of a Bars, but not the position
-void Algorithms::copy(Bars& l, const Bars& r) {
-  l.m_pos = r.m_pos;
-  l.m_size = r.m_size;
-  l.m_shape.setFillColor(r.m_shape.getFillColor());
-  l.m_shape.setOutlineThickness(r.m_shape.getOutlineThickness());
-  l.m_shape.setOutlineColor(r.m_shape.getOutlineColor());
-  l.m_shape.setSize(r.m_shape.getSize());
-  l.m_shape.setOrigin(r.m_shape.getOrigin());
+// copy the characteristics of a Bar, but not the position
+void Algorithms::copy(sf::RectangleShape& l, const sf::RectangleShape& r) {
+  l.setFillColor(r.getFillColor());
+  l.setOutlineThickness(r.getOutlineThickness());
+  l.setOutlineColor(r.getOutlineColor());
+  l.setSize(r.getSize());
+  l.setOrigin(r.getOrigin());
 }
