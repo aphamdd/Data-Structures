@@ -13,7 +13,7 @@ int main() {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> num(100, 500);
-  const int numBars = 100;
+  const int numBars = 150;
   Graph graph(numBars);
   Algorithms algo;
 
@@ -48,7 +48,17 @@ int main() {
           cout << "DONE" << endl;
           break;
         case sf::Keyboard::Escape:
+          cout << "Shuffling... ";
           graph.reset();
+          cout << "DONE" << endl;
+          break;
+        case sf::Keyboard::D:
+          cout << "Debug... ";
+          for (int i = 0; i < graph.m_histogram.size(); ++i) {
+            cout << i << " ";
+          }
+          cout << "DONE" << endl;
+          break;
         default:
           break;
         }
