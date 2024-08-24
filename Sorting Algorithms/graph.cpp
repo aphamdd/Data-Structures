@@ -36,6 +36,8 @@ void Graph::build(const int size) {
 }
 
 void Graph::shuffle() {
+  if (m_histogram.size() < 1)
+    return;
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> num(0, m_histogram.size()-1);
@@ -48,6 +50,7 @@ void Graph::shuffle() {
     m_histogram[i].setPosition(m_histogram[val].getPosition());
     m_histogram[val].setPosition(temp);
   }
+  return;
 }
 
 void Graph::draw(sf::RenderTarget& target, sf::RenderStates states) const {

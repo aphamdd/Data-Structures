@@ -1,5 +1,7 @@
 #include "pch.h"
-#include "C:\Users\antho\Documents\Code\Sorting Algorithms\Sorting Algorithms\Graph.h"
+#include <gtest/gtest.h>
+#include "C:\Users\antho\Documents\Code\Sorting Algorithms\Sorting Algorithms\graph.cpp"
+#include "C:\Users\antho\Documents\Code\Sorting Algorithms\Sorting Algorithms\common.cpp"
 
 TEST(TestCaseName, TestName) {
   EXPECT_EQ(1, 1);
