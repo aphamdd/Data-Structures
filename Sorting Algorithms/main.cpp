@@ -49,7 +49,7 @@ int main() {
           break;
         case sf::Keyboard::Escape:
           cout << "Shuffling... ";
-          graph.reset();
+          graph.shuffle();
           cout << "DONE" << endl;
           break;
         case sf::Keyboard::D:

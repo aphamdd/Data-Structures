@@ -6,7 +6,7 @@
 class Graph : public sf::Drawable, public sf::Transformable {
 public:
   Graph(const int size);
-  void reset();
+  void shuffle();
 
 public:
   std::vector<sf::RectangleShape> m_histogram;
