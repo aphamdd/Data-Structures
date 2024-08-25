@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-Graph::Graph(const int size) {
+Graph::Graph(const int size) : m_histogram() {
   build(size);
 }
 
@@ -19,6 +19,8 @@ sf::RectangleShape Graph::initShape(const sf::Vector2f pos, const sf::Vector2f s
 }
 
 void Graph::build(const int size) {
+  if (size <= 0)
+    return;
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> ranHeight(1, SCREEN_HEIGHT-10);
@@ -33,22 +35,28 @@ void Graph::build(const int size) {
     position = sf::Vector2f(xPos, SCREEN_HEIGHT);
     ranSize = sf::Vector2f(barWidth, ranHeight(rng));
   }
+  return;
 }
 
 void Graph::shuffle() {
-  if (m_histogram.size() < 1)
+  if (m_histogram.size() <= 0)
     return;
+  const int length = m_histogram.size() - 1;
   std::random_device dev;
   std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> num(0, m_histogram.size()-1);
-  for (int i = 0; i < m_histogram.size(); ++i) {
+  std::uniform_int_distribution<std::mt19937::result_type> num(0, length);
+  for (int i = 0; i <= length; ++i) {
+    // reroll random value
     int val = num(rng);
-    while (val == i)
+    while (val == i && length > 1)
       val = num(rng);
+
+    // I could use the swap function in algorithms but I'm lazy
     std::swap(m_histogram.at(i), m_histogram.at(val));
     sf::Vector2f temp = m_histogram[i].getPosition();
     m_histogram[i].setPosition(m_histogram[val].getPosition());
     m_histogram[val].setPosition(temp);
+    //
   }
   return;
 }
