@@ -6,7 +6,9 @@ using namespace std;
 
 void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
   int n = graph.m_histogram.size();
+  sf::Clock m_clock; // starts the timer
   for (int i = 0; i < n; ++i) {
+    m_elapsed = m_clock.getElapsedTime();
     bool flag = false;
     for (int j = 0; j < n - i - 1; ++j) {
       int curr = graph.m_histogram[j].getSize().y;
@@ -18,6 +20,10 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
     }
     if (!flag)
       break;
+    while (m_elapsed.asSeconds() < 0.3) {
+      m_elapsed = m_clock.getElapsedTime();
+    }
+    m_elapsed = m_clock.restart();
     window.clear(sf::Color::Black);
     window.draw(graph);
     window.display();

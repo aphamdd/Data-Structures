@@ -12,4 +12,7 @@ public:
 private:
   void swap(sf::RectangleShape& l, sf::RectangleShape& r);
   void copy(sf::RectangleShape& l, const sf::RectangleShape& r);
+
+private:
+  sf::Time m_elapsed;
 };

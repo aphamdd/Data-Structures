@@ -13,12 +13,12 @@ int main() {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> num(100, 500);
-  const int numBars = 150;
+  const int numBars = 10;
   Graph graph(numBars);
   Algorithms algo;
 
   // show timer
-  sf::Clock clock;
+  sf::Clock clock; // declaring clock starts the timer
   sf::Font font;
   if (!font.loadFromFile("./Fonts/Retale-Regular.ttf"))
     throw("COULDN'T LOAD FONT");
@@ -37,40 +37,40 @@ int main() {
 
       if (event.type == sf::Event::KeyPressed) {
         switch (event.key.code) {
-        case sf::Keyboard::B:
-          cout << "Bubble Sort... ";
-          algo.bubbleSort(graph, window);
-          cout << "DONE" << endl;
-          break;
-        case sf::Keyboard::S:
-          cout << "Selection Sort... ";
-          algo.selectionSort(graph, window);
-          cout << "DONE" << endl;
-          break;
-        case sf::Keyboard::I:
-          cout << "Insertion Sort... ";
-          algo.insertionSort(graph, window);
-          cout << "DONE" << endl;
-          break;
-        case sf::Keyboard::Q:
-          cout << "Quick Sort... ";
-          algo.quickSort(graph, window, 0, graph.m_histogram.size() - 1);
-          cout << "DONE" << endl;
-          break;
-        case sf::Keyboard::Escape:
-          cout << "Shuffling... ";
-          graph.shuffle();
-          cout << "DONE" << endl;
-          break;
-        case sf::Keyboard::D:
-          cout << "Debug... ";
-          for (int i = 0; i < graph.m_histogram.size(); ++i) {
-            cout << i << " ";
-          }
-          cout << "DONE" << endl;
-          break;
-        default:
-          break;
+          case sf::Keyboard::B: {
+            cout << "Bubble Sort... ";
+            algo.bubbleSort(graph, window);
+            cout << "DONE" << endl;
+          } break;
+          case sf::Keyboard::S: {
+            cout << "Selection Sort... ";
+            algo.selectionSort(graph, window);
+            cout << "DONE" << endl;
+          } break;
+          case sf::Keyboard::I: {
+            cout << "Insertion Sort... ";
+            algo.insertionSort(graph, window);
+            cout << "DONE" << endl;
+          } break;
+          case sf::Keyboard::Q: {
+            cout << "Quick Sort... ";
+            algo.quickSort(graph, window, 0, graph.m_histogram.size() - 1);
+            cout << "DONE" << endl;
+          } break;
+          case sf::Keyboard::Escape: {
+            cout << "Shuffling... ";
+            graph.shuffle();
+            cout << "DONE" << endl;
+          } break;
+          case sf::Keyboard::D: {
+            cout << "Debug... ";
+            for (int i = 0; i < graph.m_histogram.size(); ++i) {
+              cout << i << " ";
+            }
+            cout << "DONE" << endl;
+          } break;
+          default: {
+          } break;
         }
       }
     }
