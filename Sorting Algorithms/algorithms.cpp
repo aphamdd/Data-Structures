@@ -13,39 +13,29 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
       int curr = graph.m_histogram[j].getSize().y;
       int adj = graph.m_histogram[j + 1].getSize().y;
 
-      graph.m_histogram[j].setFillColor(sf::Color::Green);
-      graph.m_histogram[j + 1].setFillColor(sf::Color::Red);
-
-      aniTimer(m_clock, DELAY);
-      window.clear(sf::Color::Black);
-      window.draw(graph);
-      window.display();
+      // highlight selected bars
+      graph.m_histogram[j].setFillColor(sf::Color::Yellow);
+      graph.m_histogram[j + 1].setFillColor(sf::Color::Yellow);
+      delayRedraw(window, m_clock, graph, DELAY);
 
       if (curr > adj) {
         swap(graph.m_histogram[j], graph.m_histogram[j + 1]);
         flag = true;
       }
 
-      aniTimer(m_clock, DELAY);
-      window.clear(sf::Color::Black);
-      window.draw(graph);
-      window.display();
+      // update with swap/no swap
+      delayRedraw(window, m_clock, graph, DELAY);
 
+      // revert highlight
       graph.m_histogram[j].setFillColor(sf::Color::White);
       graph.m_histogram[j + 1].setFillColor(sf::Color::White);
-      
-      aniTimer(m_clock, DELAY);
-      window.clear(sf::Color::Black);
-      window.draw(graph);
-      window.display();
+      delayRedraw(window, m_clock, graph, DELAY);
     }
     if (!flag)
       break;
 
-    aniTimer(m_clock, DELAY);
-    window.clear(sf::Color::Black);
-    window.draw(graph);
-    window.display();
+    // rerender end of the pass
+    delayRedraw(window, m_clock, graph, DELAY);
   }
 }
 
@@ -108,12 +98,13 @@ void Algorithms::quickSort(Graph& graph, sf::RenderWindow& window, int low, int 
   }
 }
 
-// swap obj in vector & update positions of the drawn entity
+// update positions of the drawn entity & swap obj in vector
 void Algorithms::swap(sf::RectangleShape& l, sf::RectangleShape& r) {
   sf::Vector2f temp = l.getPosition();
   l.setPosition(r.getPosition());
   r.setPosition(temp);
-  std::swap(l, r);
+
+  std::swap(l, r); // the actual swap in memory is done here
 }
 
 // copy the characteristics of a Bar, but not the position
@@ -125,8 +116,11 @@ void Algorithms::copy(sf::RectangleShape& l, const sf::RectangleShape& r) {
   l.setOrigin(r.getOrigin());
 }
 
-// animation delay timer
-void Algorithms::aniTimer(sf::Clock& clock, const float delay) {
-  while (clock.getElapsedTime().asSeconds() < delay) { continue; }
-  clock.restart();
+void Algorithms::delayRedraw(sf::RenderWindow& w, sf::Clock& c, Graph& g, const float d) {
+  while (c.getElapsedTime().asSeconds() < d) { continue; }
+  c.restart();
+
+  w.clear(sf::Color::Black);
+  w.draw(g);
+  w.display();
 }
