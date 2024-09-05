@@ -12,14 +12,37 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
     for (int j = 0; j < n - i - 1; ++j) {
       int curr = graph.m_histogram[j].getSize().y;
       int adj = graph.m_histogram[j + 1].getSize().y;
+
+      graph.m_histogram[j].setFillColor(sf::Color::Green);
+      graph.m_histogram[j + 1].setFillColor(sf::Color::Red);
+
+      aniTimer(m_clock, DELAY);
+      window.clear(sf::Color::Black);
+      window.draw(graph);
+      window.display();
+
       if (curr > adj) {
         swap(graph.m_histogram[j], graph.m_histogram[j + 1]);
         flag = true;
       }
+
+      aniTimer(m_clock, DELAY);
+      window.clear(sf::Color::Black);
+      window.draw(graph);
+      window.display();
+
+      graph.m_histogram[j].setFillColor(sf::Color::White);
+      graph.m_histogram[j + 1].setFillColor(sf::Color::White);
+      
+      aniTimer(m_clock, DELAY);
+      window.clear(sf::Color::Black);
+      window.draw(graph);
+      window.display();
     }
     if (!flag)
       break;
-    aniTimer(m_clock, 0.3);
+
+    aniTimer(m_clock, DELAY);
     window.clear(sf::Color::Black);
     window.draw(graph);
     window.display();
