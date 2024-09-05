@@ -13,9 +13,19 @@ int main() {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> num(100, 500);
-  const int numBars = 2;
+  const int numBars = 150;
   Graph graph(numBars);
   Algorithms algo;
+
+  // show timer
+  sf::Clock clock;
+  sf::Font font;
+  if (!font.loadFromFile("./Fonts/Retale-Regular.ttf"))
+    throw("COULDN'T LOAD FONT");
+  sf::Text elapsedTime;
+  elapsedTime.setFont(font);
+  elapsedTime.setCharacterSize(50);
+  elapsedTime.setFillColor(sf::Color::Cyan);
 
   cout << "B: Bubble\nS: Selection\nI: Insertion\nQ: Quick\nEsc: Shuffle\n" << endl;
   while (window.isOpen()) {
@@ -65,9 +75,13 @@ int main() {
       }
     }
 
+    sf::Time elapsed = clock.getElapsedTime();
+    elapsedTime.setString(to_string(elapsed.asSeconds()));
+
     // rendering
     window.clear(sf::Color::Black);
     window.draw(graph);
+    window.draw(elapsedTime);
     window.display();
   }
   return 0;
