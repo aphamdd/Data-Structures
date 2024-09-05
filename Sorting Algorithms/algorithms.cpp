@@ -8,7 +8,6 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
   int n = graph.m_histogram.size();
   sf::Clock m_clock; // starts the timer
   for (int i = 0; i < n; ++i) {
-    m_elapsed = m_clock.getElapsedTime();
     bool flag = false;
     for (int j = 0; j < n - i - 1; ++j) {
       int curr = graph.m_histogram[j].getSize().y;
@@ -20,10 +19,7 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
     }
     if (!flag)
       break;
-    while (m_elapsed.asSeconds() < 0.3) {
-      m_elapsed = m_clock.getElapsedTime();
-    }
-    m_elapsed = m_clock.restart();
+    aniTimer(m_clock, 0.3);
     window.clear(sf::Color::Black);
     window.draw(graph);
     window.display();
@@ -104,4 +100,10 @@ void Algorithms::copy(sf::RectangleShape& l, const sf::RectangleShape& r) {
   l.setOutlineColor(r.getOutlineColor());
   l.setSize(r.getSize());
   l.setOrigin(r.getOrigin());
+}
+
+// animation delay timer
+void Algorithms::aniTimer(sf::Clock& clock, const float delay) {
+  while (clock.getElapsedTime().asSeconds() < delay) { continue; }
+  clock.restart();
 }
