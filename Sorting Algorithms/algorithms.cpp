@@ -19,7 +19,8 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
       delayRedraw(window, m_clock, graph, DELAY);
 
       if (curr > adj) {
-        swap(graph.m_histogram[j], graph.m_histogram[j + 1]);
+        swapTest(window, m_clock, graph.m_histogram[j], graph.m_histogram[j + 1], graph);
+        //swap(graph.m_histogram[j], graph.m_histogram[j + 1]);
         flag = true;
       }
 
@@ -99,6 +100,32 @@ void Algorithms::quickSort(Graph& graph, sf::RenderWindow& window, int low, int 
 }
 
 // update positions of the drawn entity & swap obj in vector
+void Algorithms::swapTest(sf::RenderWindow& window, sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph) {
+  sf::Vector2f rGoal = l.getPosition(); // r -> l
+  sf::Vector2f lGoal = r.getPosition(); // l -> r
+  sf::Vector2f lPos = rGoal, rPos = lGoal;
+  int lVelocity = 1, rVelocity = 1; // multiply by deltaTime
+  if (lPos.x < rPos.x)
+    rVelocity *= -1;
+  else if (lPos.x > rPos.x)
+    lVelocity *= -1;
+  else
+    std::cout << "erm i'm swapping the same thing" << std::endl;
+
+  while (lPos != lGoal && rPos != rGoal) {
+    //std::cout << "\nlPos: " << lPos.x <<
+                 //"\nrPos: " << rPos.x << std::endl;
+    lPos.x += lVelocity;
+    rPos.x += rVelocity;
+    l.setPosition(lPos);
+    r.setPosition(rPos);
+
+    delayRedraw(window, clock, graph, 0);
+  }
+
+  std::swap(l, r); // the actual swap in memory is done here
+}
+
 void Algorithms::swap(sf::RectangleShape& l, sf::RectangleShape& r) {
   sf::Vector2f temp = l.getPosition();
   l.setPosition(r.getPosition());
