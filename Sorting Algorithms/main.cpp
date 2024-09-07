@@ -3,11 +3,15 @@
 #include "Algorithms.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
+#include "imgui.h"
+#include "imgui-SFML.h"
 using namespace std;
 
 int main() {
   sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
   window.setFramerateLimit(FPS);
+  ImGui::SFML::Init(window);
+  sf::Clock deltaClock;
 
   // set graph
   std::random_device dev;
@@ -32,6 +36,7 @@ int main() {
     sf::Event event;
 
     while (window.pollEvent(event)) {
+      ImGui::SFML::ProcessEvent(event);
       if (event.type == sf::Event::Closed)
         window.close();
 
@@ -78,11 +83,19 @@ int main() {
     sf::Time elapsed = clock.getElapsedTime();
     elapsedTime.setString(to_string(elapsed.asSeconds()));
 
+    ImGui::SFML::Update(window, deltaClock.restart());
+    ImGui::Begin("Window");
+    ImGui::Text("Text");
+    ImGui::End();
+
     // rendering
     window.clear(sf::Color::Black);
     window.draw(graph);
     window.draw(elapsedTime);
+    ImGui::SFML::Render(window);
     window.display();
   }
+
+  ImGui::SFML::Shutdown();
   return 0;
 }
