@@ -67,13 +67,6 @@ int main() {
             graph.shuffle();
             cout << "DONE" << endl;
           } break;
-          case sf::Keyboard::D: {
-            cout << "Debug... ";
-            for (int i = 0; i < graph.m_histogram.size(); ++i) {
-              cout << i << " ";
-            }
-            cout << "DONE" << endl;
-          } break;
           default: {
           } break;
         }
@@ -84,8 +77,9 @@ int main() {
     elapsedTime.setString(to_string(elapsed.asSeconds()));
 
     ImGui::SFML::Update(window, deltaClock.restart());
-    ImGui::Begin("Window");
-    ImGui::Text("Text");
+    ImGui::Begin("Settings");
+    ImGui::SliderFloat("BarSpeed", &algo.m_velocity, 500.f, 1000.f);
+    ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
     ImGui::End();
 
     // rendering

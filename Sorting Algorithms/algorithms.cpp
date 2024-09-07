@@ -105,8 +105,7 @@ void Algorithms::swapAnimate(sf::RenderWindow& window, sf::Clock& clock, sf::Rec
   sf::Vector2f lPos = rGoal, rPos = lGoal;
   sf::Clock dtClock;
   float dt;
-  // TODO: make these values user adjustable
-  float lVelocity = 500, rVelocity = 500;
+  float lVelocity = m_velocity, rVelocity = m_velocity;
 
   // if the r object is on the right of the l object
   if (lPos.x < rPos.x) {
