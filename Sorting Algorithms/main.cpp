@@ -77,8 +77,8 @@ int main() {
     sf::Time elapsed = clock.getElapsedTime();
     elapsedTime.setString(to_string(elapsed.asSeconds()));
 
-    ImGui::SFML::Update(window, deltaClock.restart());
-    /* Enable docking space
+    //ImGui::SFML::Update(window, deltaClock.restart());
+    // Enable docking space
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui::SFML::Update(window, deltaClock.restart());
 
@@ -92,7 +92,6 @@ int main() {
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
     ImGui::End();
-    */
 
     ImGui::Begin("Settings");
     ImGui::SliderFloat("BarSpeed", &algo.mMultiplier, 1.f, 3.f);
