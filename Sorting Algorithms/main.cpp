@@ -73,13 +73,24 @@ int main() {
       }
     }
 
+    // temporary timer
     sf::Time elapsed = clock.getElapsedTime();
     elapsedTime.setString(to_string(elapsed.asSeconds()));
 
+    // Enable docking space
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui::SFML::Update(window, deltaClock.restart());
 
-    // enable docking space
-    //ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
+    ImGui::Begin("DockSpace Demo", nullptr, window_flags);
+
+    // Docking space (full screen minus reserved space for other elements)
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+
+    ImGui::End();
 
     ImGui::Begin("Settings");
     ImGui::SliderFloat("BarSpeed", &algo.mMultiplier, 1.f, 3.f);
