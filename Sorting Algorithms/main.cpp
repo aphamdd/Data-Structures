@@ -77,8 +77,11 @@ int main() {
     elapsedTime.setString(to_string(elapsed.asSeconds()));
 
     ImGui::SFML::Update(window, deltaClock.restart());
+
+    // enable docking space
+
     ImGui::Begin("Settings");
-    ImGui::SliderFloat("BarSpeed", &algo.m_velocity, 500.f, 1000.f);
+    ImGui::SliderFloat("BarSpeed", &algo.mMultiplier, 1.f, 3.f);
     ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
     ImGui::End();
 

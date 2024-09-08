@@ -3,7 +3,7 @@
 
 class Algorithms {
 public:
-  Algorithms() : m_velocity(500) {};
+  Algorithms() : mMultiplier(1) {};
   void bubbleSort(Graph& graph, sf::RenderWindow& window);
   void selectionSort(Graph& graph, sf::RenderWindow& window);
   void insertionSort(Graph& graph, sf::RenderWindow& window);
@@ -11,7 +11,7 @@ public:
   int partition(Graph& graph, sf::RenderWindow& window, int low, int high);
 
 public:
-  float m_velocity;
+  float mMultiplier;
 
 private:
   void swapAnimate(sf::RenderWindow& window, sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph);
