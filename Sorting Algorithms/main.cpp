@@ -36,7 +36,7 @@ int main() {
     sf::Event event;
 
     while (window.pollEvent(event)) {
-      ImGui::SFML::ProcessEvent(event);
+      ImGui::SFML::ProcessEvent(window, event);
       if (event.type == sf::Event::Closed)
         window.close();
 
@@ -79,6 +79,7 @@ int main() {
     ImGui::SFML::Update(window, deltaClock.restart());
 
     // enable docking space
+    //ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     ImGui::Begin("Settings");
     ImGui::SliderFloat("BarSpeed", &algo.mMultiplier, 1.f, 3.f);
