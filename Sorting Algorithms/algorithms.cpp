@@ -4,7 +4,7 @@
 #include <cmath>
 using namespace std;
 
-void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
+void Algorithms::bubbleSort(Graph& graph) {
   int n = graph.m_histogram.size();
   sf::Clock m_clock; // starts the timer
   for (int i = 0; i < n; ++i) {
@@ -16,31 +16,31 @@ void Algorithms::bubbleSort(Graph& graph, sf::RenderWindow& window) {
       // highlight selected bars
       graph.m_histogram[j].setFillColor(sf::Color::Yellow);
       graph.m_histogram[j + 1].setFillColor(sf::Color::Yellow);
-      delayRedraw(window, m_clock, graph, DELAY);
+      delayRedraw(m_clock, graph, DELAY);
 
       if (curr > adj) {
-        delayRedraw(window, m_clock, graph, DELAY); // make this a standalone delay
-        swapAnimate(window, m_clock, graph.m_histogram[j], graph.m_histogram[j + 1], graph);
+        delayRedraw(m_clock, graph, DELAY); // make this a standalone delay
+        swapAnimate(m_clock, graph.m_histogram[j], graph.m_histogram[j + 1], graph);
         flag = true;
       }
 
       // update with swap/no swap
-      delayRedraw(window, m_clock, graph, DELAY);
+      delayRedraw(m_clock, graph, DELAY);
 
       // revert highlight
       graph.m_histogram[j].setFillColor(sf::Color::White);
       graph.m_histogram[j + 1].setFillColor(sf::Color::White);
-      delayRedraw(window, m_clock, graph, DELAY);
+      delayRedraw(m_clock, graph, DELAY);
     }
     if (!flag)
       break;
 
     // rerender end of the pass
-    delayRedraw(window, m_clock, graph, DELAY);
+    delayRedraw(m_clock, graph, DELAY);
   }
 }
 
-void Algorithms::selectionSort(Graph& graph, sf::RenderWindow& window) {
+void Algorithms::selectionSort(Graph& graph) {
   int n = graph.m_histogram.size();
   for (int i = 0; i < n; ++i) {
     int min = i;
@@ -57,7 +57,7 @@ void Algorithms::selectionSort(Graph& graph, sf::RenderWindow& window) {
   }
 }
 
-void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
+void Algorithms::insertionSort(Graph& graph) {
   int size = graph.m_histogram.size();
   for (int step = 1; step < size; step++) {
     sf::RectangleShape k = graph.m_histogram.at(step);
@@ -74,7 +74,7 @@ void Algorithms::insertionSort(Graph& graph, sf::RenderWindow& window) {
   }
 }
 
-int Algorithms::partition(Graph& graph, sf::RenderWindow& window, int low, int high) {
+int Algorithms::partition(Graph& graph, int low, int high) {
   int pivot = graph.m_histogram[high].getSize().y;
   int i = low - 1;
 
@@ -91,21 +91,21 @@ int Algorithms::partition(Graph& graph, sf::RenderWindow& window, int low, int h
   return i + 1;
 }
 
-void Algorithms::quickSort(Graph& graph, sf::RenderWindow& window, int low, int high) {
+void Algorithms::quickSort(Graph& graph, int low, int high) {
   if (low < high) {
-    int pivot = partition(graph, window, low, high);
-    quickSort(graph, window, low, pivot - 1);
-    quickSort(graph, window, pivot + 1, high);
+    int pivot = partition(graph, low, high);
+    quickSort(graph, low, pivot - 1);
+    quickSort(graph, pivot + 1, high);
   }
 }
 
-void Algorithms::swapAnimate(sf::RenderWindow& window, sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph) {
+void Algorithms::swapAnimate(sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph) {
   sf::Vector2f rGoal = l.getPosition(); // r -> l
   sf::Vector2f lGoal = r.getPosition(); // l -> r
   sf::Vector2f lPos = rGoal, rPos = lGoal;
   sf::Clock dtClock;
   float dt;
-  float lVelocity = 500*mMultiplier, rVelocity = 500*mMultiplier;
+  float lVelocity = 500*control.speedMult, rVelocity = 500*control.speedMult;
 
   // if the r object is on the right of the l object
   if (lPos.x < rPos.x) {
@@ -124,7 +124,7 @@ void Algorithms::swapAnimate(sf::RenderWindow& window, sf::Clock& clock, sf::Rec
         r.setPosition(rGoal);
       }
 
-      delayRedraw(window, clock, graph, 0);
+      delayRedraw(clock, graph, 0);
     }
   }
   else if (lPos.x > rPos.x) {
@@ -141,7 +141,7 @@ void Algorithms::swapAnimate(sf::RenderWindow& window, sf::Clock& clock, sf::Rec
         r.setPosition(rGoal);
       }
 
-      delayRedraw(window, clock, graph, 0);
+      delayRedraw(clock, graph, 0);
     }
   }
   else
@@ -167,11 +167,11 @@ void Algorithms::copy(sf::RectangleShape& l, const sf::RectangleShape& r) {
   l.setOrigin(r.getOrigin());
 }
 
-void Algorithms::delayRedraw(sf::RenderWindow& w, sf::Clock& c, Graph& g, const float d) {
-  while (c.getElapsedTime().asSeconds() < d) { continue; }
-  c.restart();
+void Algorithms::delayRedraw(sf::Clock& clock, Graph& graph, const float delay) {
+  while (clock.getElapsedTime().asSeconds() < delay) { continue; }
+  clock.restart();
 
-  w.clear(sf::Color::Black);
-  w.draw(g);
-  w.display();
+  window.clear(sf::Color::Black);
+  window.draw(graph);
+  window.display();
 }

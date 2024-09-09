@@ -173,6 +173,7 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AlgorithmControl.h" />
     <ClInclude Include="Algorithms.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="Graph.h" />

@@ -12,6 +12,7 @@ int main() {
   window.setFramerateLimit(FPS);
   ImGui::SFML::Init(window);
   sf::Clock deltaClock;
+  AlgorithmControl control;
 
   // set graph
   std::random_device dev;
@@ -19,7 +20,7 @@ int main() {
   std::uniform_int_distribution<std::mt19937::result_type> num(100, 500);
   const int numBars = 15;
   Graph graph(numBars);
-  Algorithms algo;
+  Algorithms algo(window, control);
 
   // show timer
   sf::Clock clock; // declaring clock starts the timer
@@ -44,22 +45,22 @@ int main() {
         switch (event.key.code) {
           case sf::Keyboard::B: {
             cout << "Bubble Sort... ";
-            algo.bubbleSort(graph, window);
+            algo.bubbleSort(graph);
             cout << "DONE" << endl;
           } break;
           case sf::Keyboard::S: {
             cout << "Selection Sort... ";
-            algo.selectionSort(graph, window);
+            algo.selectionSort(graph);
             cout << "DONE" << endl;
           } break;
           case sf::Keyboard::I: {
             cout << "Insertion Sort... ";
-            algo.insertionSort(graph, window);
+            algo.insertionSort(graph);
             cout << "DONE" << endl;
           } break;
           case sf::Keyboard::Q: {
             cout << "Quick Sort... ";
-            algo.quickSort(graph, window, 0, graph.m_histogram.size() - 1);
+            algo.quickSort(graph, 0, graph.m_histogram.size() - 1);
             cout << "DONE" << endl;
           } break;
           case sf::Keyboard::Escape: {
@@ -77,27 +78,25 @@ int main() {
     sf::Time elapsed = clock.getElapsedTime();
     elapsedTime.setString(to_string(elapsed.asSeconds()));
 
-    //ImGui::SFML::Update(window, deltaClock.restart());
-    // Enable docking space
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
     ImGui::SFML::Update(window, deltaClock.restart());
 
+    // Dockspace
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    ImGui::Begin("DockSpace Demo", nullptr, window_flags);
-
-    // Docking space (full screen minus reserved space for other elements)
-    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+    ImGui::SetNextWindowBgAlpha(0.0f);
+    // ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
+    ImGui::Begin("DockSpace", nullptr, window_flags);
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-
     ImGui::End();
 
-    // ImGui Documentation
     // ImGui::ShowDemoWindow();
 
+    // GUI
     ImGui::Begin("Settings");
-    ImGui::SliderFloat("BarSpeed", &algo.mMultiplier, 1.f, 3.f);
+    ImGui::SliderFloat("BarSpeed", &control.speedMult, 1.f, 3.f);
     ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
     ImGui::End();
 

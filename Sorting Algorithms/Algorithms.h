@@ -1,21 +1,24 @@
 #pragma once
 #include "Graph.h"
+#include "AlgorithmControl.h"
 
 class Algorithms {
 public:
-  Algorithms() : mMultiplier(1) {};
-  void bubbleSort(Graph& graph, sf::RenderWindow& window);
-  void selectionSort(Graph& graph, sf::RenderWindow& window);
-  void insertionSort(Graph& graph, sf::RenderWindow& window);
-  void quickSort(Graph& graph, sf::RenderWindow& window, int low, int high);
-  int partition(Graph& graph, sf::RenderWindow& window, int low, int high);
-
-public:
-  float mMultiplier;
+  // dependency injection, problem is this creates complexity and coupling
+  Algorithms(sf::RenderWindow& w, AlgorithmControl& c) : window(w), control(c) {}
+  void bubbleSort(Graph& graph);
+  void selectionSort(Graph& graph);
+  void insertionSort(Graph& graph);
+  void quickSort(Graph& graph, int low, int high);
+  int partition(Graph& graph, int low, int high);
 
 private:
-  void swapAnimate(sf::RenderWindow& window, sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph);
+  void swapAnimate(sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph);
   void swap(sf::RectangleShape& l, sf::RectangleShape& r); // swap rectangles
   void copy(sf::RectangleShape& l, const sf::RectangleShape& r); // copy src into dest
-  void delayRedraw(sf::RenderWindow& window, sf::Clock& clock, Graph& graph, const float delay);
+  void delayRedraw(sf::Clock& clock, Graph& graph, const float delay);
+
+private:
+  sf::RenderWindow& window;
+  AlgorithmControl& control;
 };
