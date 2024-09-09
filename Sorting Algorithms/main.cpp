@@ -11,7 +11,7 @@ int main() {
   sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
   window.setFramerateLimit(FPS);
   ImGui::SFML::Init(window);
-  sf::Clock deltaClock;
+  sf::Clock imguiClock;
   AlgorithmControl control;
 
   // set graph
@@ -23,7 +23,7 @@ int main() {
   Algorithms algo(window, control);
 
   // show timer
-  sf::Clock clock; // declaring clock starts the timer
+  sf::Clock dtClock;
   sf::Font font;
   if (!font.loadFromFile("./Fonts/Retale-Regular.ttf"))
     throw("COULDN'T LOAD FONT");
@@ -45,7 +45,11 @@ int main() {
         switch (event.key.code) {
           case sf::Keyboard::B: {
             cout << "Bubble Sort... ";
-            algo.bubbleSort(graph);
+            if (!control.isSorting) {
+              algo.reset();
+              control.isSorting = true;
+            }
+            //algo.bubbleSort(graph);
             cout << "DONE" << endl;
           } break;
           case sf::Keyboard::S: {
@@ -74,12 +78,8 @@ int main() {
       }
     }
 
-    // temporary timer
-    sf::Time elapsed = clock.getElapsedTime();
-    elapsedTime.setString(to_string(elapsed.asSeconds()));
-
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
-    ImGui::SFML::Update(window, deltaClock.restart());
+    ImGui::SFML::Update(window, imguiClock.restart());
 
     // Dockspace
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
@@ -96,9 +96,15 @@ int main() {
 
     // GUI
     ImGui::Begin("Settings");
-    ImGui::SliderFloat("BarSpeed", &control.speedMult, 1.f, 3.f);
+    ImGui::SliderFloat("BarSpeed", &control.speedMult, 0.1f, 3.0f);
     ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
     ImGui::End();
+
+    // bubble sort
+    if (control.isSorting) {
+      if (algo.bubbleSort(graph, dtClock))
+        control.isSorting = false;
+    }
 
     // rendering
     window.clear(sf::Color::Black);
