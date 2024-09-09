@@ -82,9 +82,9 @@ int main() {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui::SFML::Update(window, deltaClock.restart());
 
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     ImGui::Begin("DockSpace Demo", nullptr, window_flags);
 
     // Docking space (full screen minus reserved space for other elements)
@@ -92,6 +92,9 @@ int main() {
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
 
     ImGui::End();
+
+    // ImGui Documentation
+    // ImGui::ShowDemoWindow();
 
     ImGui::Begin("Settings");
     ImGui::SliderFloat("BarSpeed", &algo.mMultiplier, 1.f, 3.f);
