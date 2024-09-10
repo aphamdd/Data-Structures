@@ -41,15 +41,6 @@ int main() {
 
       if (event.type == sf::Event::KeyPressed) {
         switch (event.key.code) {
-          case sf::Keyboard::B: {
-            cout << "Bubble Sort... ";
-            if (!control.isSorting) {
-              algo.reset();
-              control.isSorting = true;
-            }
-            //algo.bubbleSort(graph);
-            cout << "DONE" << endl;
-          } break;
           case sf::Keyboard::S: {
             cout << "Selection Sort... ";
             algo.selectionSort(graph);
@@ -94,12 +85,29 @@ int main() {
 
     // GUI
     ImGui::Begin("Settings");
-    ImGui::SliderFloat("BarSpeed", &control.speedMult, 0.1f, 3.0f);
+    if (!control.isSorting) {
+      if (ImGui::Button("Bubble Sort")) {
+        algo.reset();
+        control.isSorting = true;
+        cout << "Bubble Sort... ";
+      }
+    }
+    if (ImGui::Button("Pause")) {
+      control.isPaused = !control.isPaused;
+      algo.delayClock.restart();
+    }
+    if (ImGui::Button("Stop")) {
+      control.isSorting = false;
+      control.isPaused = false;
+      algo.reset();
+    }
+    ImGui::SliderFloat("BarSpeed", &control.speedMult, 0.1f, 5.0f);
     ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
     ImGui::End();
 
-    // bubble sort
-    if (control.isSorting) {
+    // start bubble sorting
+    if (control.isSorting && !control.isPaused) {
+      cout << "not paused";
       if (algo.bubbleSort(graph))
         control.isSorting = false;
     }

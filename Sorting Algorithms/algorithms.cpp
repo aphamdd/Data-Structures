@@ -2,6 +2,7 @@
 #include "Algorithms.h"
 using namespace std;
 
+// TODO: bubble sort improvement
 bool Algorithms::bubbleSort(Graph& graph) {
   if (sorted) return true;
   int n = graph.m_histogram.size();

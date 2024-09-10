@@ -25,13 +25,14 @@ public:
   void quickSort(Graph& graph, int low, int high);
   int partition(Graph& graph, int low, int high);
   void reset();
-
 private:
   void swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph);
   void swap(sf::RectangleShape& l, sf::RectangleShape& r); // swap rectangles
   void copy(sf::RectangleShape& l, const sf::RectangleShape& r); // copy src into dest
   void setGoal(sf::RectangleShape& l, sf::RectangleShape& r);
 
+public:
+  sf::Clock delayClock;
 private:
   sf::RenderWindow& window;   // DI
   AlgorithmControl& control;  // DI
@@ -39,7 +40,6 @@ private:
   bool sorted;
   sf::Vector2f lGoal;
   sf::Vector2f rGoal;
-  sf::Clock delayClock;
 
   // state machine
   enum class SortState {
