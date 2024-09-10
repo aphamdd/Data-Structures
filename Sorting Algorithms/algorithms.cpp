@@ -2,7 +2,7 @@
 #include "Algorithms.h"
 using namespace std;
 
-bool Algorithms::bubbleSort(Graph& graph, sf::Clock& clock) {
+bool Algorithms::bubbleSort(Graph& graph) {
   if (sorted) return true;
   int n = graph.m_histogram.size();
   if (i < n) {
@@ -12,14 +12,27 @@ bool Algorithms::bubbleSort(Graph& graph, sf::Clock& clock) {
         graph.m_histogram[j].setFillColor(sf::Color::Yellow);
         graph.m_histogram[j + 1].setFillColor(sf::Color::Yellow);
 
+        prevState = state;
         state = SortState::WAIT;
         delayClock.restart();
       } break;
       case SortState::WAIT: {
-        // after waiting, compare the bars
         if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
-          prevState = state;
-          state = SortState::COMPARE;
+          // highlight -> compare
+          if (prevState == SortState::HIGHLIGHT) {
+            prevState = state;
+            state = SortState::COMPARE;
+          }
+          // compare done -> reset state
+          else if (prevState == SortState::COMPARE || prevState == SortState::SWAP) {
+            prevState = state;
+            state = SortState::RESET;
+          }
+          // in the middle of sorting -> highlight
+          else if (prevState == SortState::RESET) {
+            prevState = state;
+            state = SortState::HIGHLIGHT;
+          }
         }
       } break;
       case SortState::COMPARE: {
@@ -34,31 +47,19 @@ bool Algorithms::bubbleSort(Graph& graph, sf::Clock& clock) {
         else {
           // next element if no swap
           prevState = state;
-          state = SortState::RESETCOLOR;
+          state = SortState::WAIT;
         }
         delayClock.restart();
       } break;
       case SortState::SWAP: {
-        swapAnimate(clock, graph.m_histogram[j], graph.m_histogram[j + 1], graph);
+        swapAnimate(graph.m_histogram[j], graph.m_histogram[j + 1], graph);
         delayClock.restart();
-        // go to reset color after finishing swap
-      } break;
-      case SortState::RESETCOLOR: {
-        // wait for color to reset
-        graph.m_histogram[j].setFillColor(sf::Color::White);
-        graph.m_histogram[j + 1].setFillColor(sf::Color::White);
-        prevState = state;
-        state = SortState::WAITCOLOR;
-        delayClock.restart();
-      } break;
-      case SortState::WAITCOLOR: {
-        if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
-          prevState = state;
-          state = SortState::RESET;
-        }
-        // go to next elements or finish the sort
+        // wait after finishing swap animation
       } break;
       case SortState::RESET: {
+        // wait after finishing step
+        graph.m_histogram[j].setFillColor(sf::Color::White);
+        graph.m_histogram[j + 1].setFillColor(sf::Color::White);
         ++j;
         if (j >= n - i - 1) {
           j = 0;
@@ -68,7 +69,7 @@ bool Algorithms::bubbleSort(Graph& graph, sf::Clock& clock) {
           sorted = true;
 
         prevState = state;
-        state = SortState::HIGHLIGHT;
+        state = SortState::WAIT;
         delayClock.restart();
       } break;
     }
@@ -147,33 +148,27 @@ void Algorithms::setGoal(sf::RectangleShape& l, sf::RectangleShape& r) {
 
 // this is under the assumption that l starts on the left of r
 // solution is to check before going into the function if l is actually left of r
-void Algorithms::swapAnimate(sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph) {
+void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph) {
   sf::Vector2f lPos = l.getPosition();
   sf::Vector2f rPos = r.getPosition();
   float lVelocity = 100 * control.speedMult;
   float rVelocity = 100 * -1 * control.speedMult;
   float dt;
 
-  // TODO: deltatime is scuffed af (maybe set floor of velocity to be at least 1?)
   // swapping
   if (lPos.x < lGoal.x && rPos.x > rGoal.x) {
-    dt = clock.restart().asSeconds();
+    dt = delayClock.restart().asSeconds();
     lPos.x += lVelocity * dt;
     rPos.x += rVelocity * dt;
-    //lPos.x += round(lVelocity);
-    //rPos.x += round(rVelocity);
     l.setPosition(lPos);
     r.setPosition(rPos);
   } else {
   // TODO: check if algorithm is paused/stopped, then finish the mem swap and sprite swap
   // if at or past their goals, then finished
-  //if (lPos.x >= lGoal.x && rPos.x <= rGoal.x) {
     prevState = state;
-    state = SortState::RESETCOLOR; // done
+    state = SortState::WAIT; // done
     l.setPosition(lGoal);
     r.setPosition(rGoal);
-    l.setFillColor(sf::Color::White);
-    r.setFillColor(sf::Color::White);
     std::swap(l, r); // the actual swap in memory is done here
   }
 }
@@ -195,13 +190,11 @@ void Algorithms::copy(sf::RectangleShape& l, const sf::RectangleShape& r) {
   l.setOrigin(r.getOrigin());
 }
 
-void Algorithms::delay(sf::Clock& clock, const float delay) {
-  while (clock.getElapsedTime().asSeconds() < delay) { continue; }
-  clock.restart();
-}
-
 void Algorithms::reset() { 
   i = 0; j = 0; 
-  sorted = false; swapping = false;
+  sorted = false;
   lGoal = (sf::Vector2f(0.f, 0.f)); rGoal = (sf::Vector2f(0.f, 0.f));
+  delayClock.restart();
+  state = SortState::HIGHLIGHT;
+  prevState = state;
 };

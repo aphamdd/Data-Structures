@@ -22,8 +22,6 @@ int main() {
   Graph graph(numBars);
   Algorithms algo(window, control);
 
-  // show timer
-  sf::Clock dtClock;
   sf::Font font;
   if (!font.loadFromFile("./Fonts/Retale-Regular.ttf"))
     throw("COULDN'T LOAD FONT");
@@ -102,7 +100,7 @@ int main() {
 
     // bubble sort
     if (control.isSorting) {
-      if (algo.bubbleSort(graph, dtClock))
+      if (algo.bubbleSort(graph))
         control.isSorting = false;
     }
 

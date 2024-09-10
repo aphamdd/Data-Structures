@@ -14,13 +14,12 @@ public:
     control(c),
     i(0), j(0),
     sorted(false),
-    swapping(false),
     lGoal(0.f, 0.f),
     rGoal(0.f, 0.f),
     state(SortState::HIGHLIGHT),
     prevState(state)
   {};
-  bool bubbleSort(Graph& graph, sf::Clock& dtClock);
+  bool bubbleSort(Graph& graph);
   void selectionSort(Graph& graph);
   void insertionSort(Graph& graph);
   void quickSort(Graph& graph, int low, int high);
@@ -28,10 +27,9 @@ public:
   void reset();
 
 private:
-  void swapAnimate(sf::Clock& clock, sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph);
+  void swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph);
   void swap(sf::RectangleShape& l, sf::RectangleShape& r); // swap rectangles
   void copy(sf::RectangleShape& l, const sf::RectangleShape& r); // copy src into dest
-  void delay(sf::Clock& clock, const float delay);
   void setGoal(sf::RectangleShape& l, sf::RectangleShape& r);
 
 private:
@@ -39,17 +37,16 @@ private:
   AlgorithmControl& control;  // DI
   int i, j;
   bool sorted;
-  bool swapping;
   sf::Vector2f lGoal;
   sf::Vector2f rGoal;
   sf::Clock delayClock;
+
+  // state machine
   enum class SortState {
     HIGHLIGHT,
     WAIT,
-    WAITCOLOR,
     COMPARE,
     SWAP,
-    RESETCOLOR,
     RESET
   };
   SortState state;
