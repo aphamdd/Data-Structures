@@ -18,7 +18,7 @@ int main() {
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> num(100, 500);
-  const int numBars = 15;
+  int numBars = 15;
   Graph graph(numBars);
   Algorithms algo(window, control);
 
@@ -56,11 +56,6 @@ int main() {
             algo.quickSort(graph, 0, graph.m_histogram.size() - 1);
             cout << "DONE" << endl;
           } break;
-          case sf::Keyboard::Escape: {
-            cout << "Shuffling... ";
-            graph.shuffle();
-            cout << "DONE" << endl;
-          } break;
           default: {
           } break;
         }
@@ -84,7 +79,7 @@ int main() {
     // ImGui::ShowDemoWindow();
 
     // GUI
-    ImGui::Begin("Settings");
+    ImGui::Begin("GUI");
     if (!control.isSorting) {
       if (ImGui::Button("Bubble Sort")) {
         algo.reset();
@@ -96,6 +91,10 @@ int main() {
       control.isPaused = !control.isPaused;
       algo.delayClock.restart();
     }
+    if (ImGui::Button("Shuffle")) {
+      graph.shuffle();
+    }
+    // TODO: probably create state inside the algorithm to properly reset
     if (ImGui::Button("Stop")) {
       control.isSorting = false;
       control.isPaused = false;
@@ -103,11 +102,17 @@ int main() {
     }
     ImGui::SliderFloat("BarSpeed", &control.speedMult, 0.1f, 5.0f);
     ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
+
+    int prev = numBars;
+    ImGui::SliderInt("# of Bars", &numBars, 2, 100);
+    if (prev != numBars) {
+      graph.build(numBars);
+      prev = numBars;
+    }
     ImGui::End();
 
     // start bubble sorting
     if (control.isSorting && !control.isPaused) {
-      cout << "not paused";
       if (algo.bubbleSort(graph))
         control.isSorting = false;
     }

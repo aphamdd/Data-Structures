@@ -152,6 +152,7 @@ void Algorithms::setGoal(sf::RectangleShape& l, sf::RectangleShape& r) {
 void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph) {
   sf::Vector2f lPos = l.getPosition();
   sf::Vector2f rPos = r.getPosition();
+  // TODO: handle velocity in relation to width of bars
   float lVelocity = 100 * control.speedMult;
   float rVelocity = 100 * -1 * control.speedMult;
   float dt;

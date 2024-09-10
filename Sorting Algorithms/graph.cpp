@@ -18,9 +18,12 @@ sf::RectangleShape Graph::initShape(const sf::Vector2f pos, const sf::Vector2f s
   return shape;
 }
 
+// TODO: at certain # of bars, it doesn't fill the viewspace properly
+// likely due to the slight inconsistencies of the bar widths and spacing
 void Graph::build(const int size) {
   if (size <= 0)
     return;
+  m_histogram.clear();
   std::random_device dev;
   std::mt19937 rng(dev());
   std::uniform_int_distribution<std::mt19937::result_type> ranHeight(1, SCREEN_HEIGHT-10);
