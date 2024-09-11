@@ -4,4 +4,5 @@ struct AlgorithmControl {
   bool isSorting = false;
   float speedMult = 1.0f;
   int numBars = 10;
+  bool pausePlay = false;
 };

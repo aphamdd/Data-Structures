@@ -37,6 +37,7 @@ bool Algorithms::bubbleSort(Graph& graph) {
         }
       } break;
       case SortState::COMPARE: {
+        ++mCompares;
         int curr = graph.m_histogram[j].getSize().y;
         int adj = graph.m_histogram[j + 1].getSize().y;
         // if swapping
@@ -199,4 +200,5 @@ void Algorithms::reset() {
   delayClock.restart();
   state = SortState::HIGHLIGHT;
   prevState = state;
+  mCompares = 0;
 };

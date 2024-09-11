@@ -13,6 +13,7 @@ public:
     window(w),
     control(c),
     i(0), j(0),
+    mCompares(0),
     sorted(false),
     lGoal(0.f, 0.f),
     rGoal(0.f, 0.f),
@@ -33,6 +34,7 @@ private:
 
 public:
   sf::Clock delayClock;
+  int mCompares;
 private:
   sf::RenderWindow& window;   // DI
   AlgorithmControl& control;  // DI

@@ -87,28 +87,39 @@ int main() {
         cout << "Bubble Sort... ";
       }
     }
-    if (ImGui::Button("Pause")) {
-      control.isPaused = !control.isPaused;
-      algo.delayClock.restart();
-    }
+    if (control.isSorting)
+      ImGui::BeginDisabled();
+    // TODO: implement skip animation
+    ImGui::Button("Skip");
     if (ImGui::Button("Shuffle")) {
       graph.shuffle();
     }
-    // TODO: probably create state inside the algorithm to properly reset
-    if (ImGui::Button("Stop")) {
-      control.isSorting = false;
-      control.isPaused = false;
-      algo.reset();
-    }
-    ImGui::SliderFloat("BarSpeed", &control.speedMult, 0.1f, 5.0f);
-    ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
-
     int prev = numBars;
     ImGui::SliderInt("# of Bars", &numBars, 2, 100);
     if (prev != numBars) {
       graph.build(numBars);
       prev = numBars;
     }
+    if (control.isSorting)
+      ImGui::EndDisabled();
+
+    // TODO: show pause/play
+    if (ImGui::Button(control.pausePlay ? "Play" : "Pause")) {
+      control.isPaused = !control.isPaused;
+      algo.delayClock.restart();
+      control.pausePlay = !control.pausePlay;
+    }
+    // TODO: properly reset algorithm when in the middle of swapping
+    if (ImGui::Button("Stop")) {
+      control.isSorting = false;
+      control.isPaused = false;
+      algo.reset();
+    }
+    // TODO: insert fancy graph of algorithm data
+    ImGui::SliderFloat("BarSpeed", &control.speedMult, 0.1f, 5.0f);
+    ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
+    ImGui::Text("# of comparisons: %d", algo.mCompares);
+
     ImGui::End();
 
     // start bubble sorting
