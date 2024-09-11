@@ -8,7 +8,8 @@
 using namespace std;
 
 int main() {
-  sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
+  sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Titlebar | sf::Style::Close);
+  window.setVerticalSyncEnabled(true);
   sf::View view = window.getDefaultView();
   window.setFramerateLimit(FPS);
   ImGui::SFML::Init(window);
@@ -40,7 +41,7 @@ int main() {
       if (event.type == sf::Event::Closed)
         window.close();
 
-      if (event.type == sf::Event::KeyPressed) {
+      /*if (event.type == sf::Event::KeyPressed) {
         switch (event.key.code) {
           case sf::Keyboard::S: {
             cout << "Selection Sort... ";
@@ -60,7 +61,7 @@ int main() {
           default: {
           } break;
         }
-      }
+      }*/
     }
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
@@ -85,13 +86,24 @@ int main() {
     //ImGui::SetNextWindowSizeConstraints(ImVec2(200, 100), ImVec2(600, 400));
     ImGui::Begin("GUI");
 
-    if (!control.isSorting) {
-      if (ImGui::Button("Bubble Sort")) {
+    // TODO: disable the button somehow when sorting
+    if (ImGui::Button(!control.isBubble ? "Bubble Sort" : "In Progress...")) {
+      if (!control.isSorting) {
         algo.reset();
         control.isSorting = true;
+        control.isBubble = true;
         cout << "Bubble Sort... ";
       }
     }
+    if (ImGui::Button(!control.isSelection ? "Selection Sort" : "In Progress...")) {
+      if (!control.isSorting) {
+        algo.reset();
+        control.isSorting = true;
+        control.isSelection = true;
+        cout << "Selection Sort... ";
+      }
+    }
+
     if (control.isSorting)
       ImGui::BeginDisabled();
     // TODO: implement skip animation
@@ -119,8 +131,9 @@ int main() {
       algo.reset();
     }
     // TODO: insert fancy graph of algorithm data
-    ImGui::SliderFloat("BarSpeed", &control.speedMult, 0.1f, 5.0f);
-    ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
+    // TODO: have a popout window that shows the graph in an array form
+    ImGui::SliderFloat("Bar Speed", &control.speedMult, 0.1f, 10.0f);
+    ImGui::SliderFloat("Pause Timer", &DELAY, 0.f, 0.5f);
     ImGui::Text("# of comparisons: %d", algo.mCompares);
 
     // problem with this approach, it's just scaling the view instead of actually
@@ -138,9 +151,18 @@ int main() {
     ImGui::End(); // End GUI Block
 
     // start bubble sorting
-    if (control.isSorting && !control.isPaused) {
-      if (algo.bubbleSort(graph))
+    if (control.isSorting && control.isBubble && !control.isPaused) {
+      if (algo.bubbleSort(graph)) {
         control.isSorting = false;
+        control.isBubble = false;
+      }
+    }
+    // start selection sorting
+    if (control.isSorting && control.isSelection && !control.isPaused) {
+      if (algo.selectionSort(graph)) {
+        control.isSorting = false;
+        control.isSelection = false;
+      }
     }
 
     // rendering

@@ -11,7 +11,7 @@ sf::RectangleShape Graph::initShape(const sf::Vector2f pos, const sf::Vector2f s
   sf::RectangleShape shape(size);
   shape.setPosition(pos);
   shape.setFillColor(sf::Color::White);
-  shape.setOutlineThickness(1.f);
+  shape.setOutlineThickness(1.5f);
   shape.setOutlineColor(sf::Color::Black);
   shape.setOrigin(sf::Vector2f(0, size.y));
 

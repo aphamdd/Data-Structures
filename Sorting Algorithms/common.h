@@ -1,6 +1,6 @@
 #pragma once
 
-extern const int SCREEN_WIDTH;
-extern const int SCREEN_HEIGHT;
-extern const int FPS;
+extern int SCREEN_WIDTH;
+extern int SCREEN_HEIGHT;
+extern int FPS;
 extern float DELAY;

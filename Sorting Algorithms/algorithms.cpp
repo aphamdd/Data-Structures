@@ -4,10 +4,19 @@ using namespace std;
 
 // TODO: bubble sort improvement
 bool Algorithms::bubbleSort(Graph& graph) {
-  if (sorted) return true;
   int n = graph.m_histogram.size();
+  if (sorted || n <= 1) {
+    sorted = true;
+    return true;
+  }
   if (i < n) {
     switch (state) {
+      // standardized entry point
+      case SortState::ENTRY: {
+        prevState = state;
+        state = SortState::HIGHLIGHT;
+        delayClock.restart();
+      } break;
       case SortState::HIGHLIGHT: {
         // highlight selected bars and then wait
         graph.m_histogram[j].setFillColor(sf::Color::Yellow);
@@ -32,7 +41,7 @@ bool Algorithms::bubbleSort(Graph& graph) {
           // in the middle of sorting -> highlight
           else if (prevState == SortState::RESET) {
             prevState = state;
-            state = SortState::HIGHLIGHT;
+            state = SortState::ENTRY;
           }
         }
       } break;
@@ -54,7 +63,7 @@ bool Algorithms::bubbleSort(Graph& graph) {
         delayClock.restart();
       } break;
       case SortState::SWAP: {
-        swapAnimate(graph.m_histogram[j], graph.m_histogram[j + 1], graph);
+        swapAnimate(graph.m_histogram[j], graph.m_histogram[j + 1]);
         delayClock.restart();
         // wait after finishing swap animation
       } break;
@@ -84,7 +93,98 @@ bool Algorithms::bubbleSort(Graph& graph) {
   return false;
 }
 
-void Algorithms::selectionSort(Graph& graph) {
+// TODO: colors and pauses aren't quite done yet
+bool Algorithms::selectionSort(Graph& graph) {
+  int n = graph.m_histogram.size();
+  if (sorted || n <= 1) {
+    sorted = true;
+    return true;
+  }
+  if (i < n) {
+    switch (state) {
+    // proceed outer loop
+    case SortState::ENTRY: {
+      min = i;
+      j = i + 1;
+
+      prevState = state;
+      state = SortState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case SortState::HIGHLIGHT: {
+      // highlight anchor, else highlight current value to compare
+      if (prevState == SortState::ENTRY) {
+        prevState = state;
+        graph.m_histogram[min].setFillColor(sf::Color::Yellow);
+      }
+      else if (prevState == SortState::WAIT)
+        graph.m_histogram[j].setFillColor(sf::Color::Yellow);
+
+      state = SortState::WAIT;
+      delayClock.restart();
+    } break;
+    case SortState::WAIT: {
+      if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
+        if (prevState == SortState::HIGHLIGHT || prevState == SortState::COMPARE) {
+          prevState = state;
+          state = SortState::HIGHLIGHT;
+        }
+        else if (prevState == SortState::WAIT) {
+          prevState = state;
+          state = SortState::COMPARE;
+        }
+        else if (prevState == SortState::SWAP) {
+          prevState = state;
+          state = SortState::RESET;
+        }
+      }
+    } break;
+    case SortState::COMPARE: {
+      int curr = graph.m_histogram[j].getSize().y;
+      int anchor = graph.m_histogram[min].getSize().y;
+      if (curr < anchor) // update smallest index
+        min = j;
+      graph.m_histogram[j].setFillColor(sf::Color::White);
+      ++j;
+      // continue inner loop
+      if (j < n) {
+        prevState = state;
+        state = SortState::WAIT;
+        delayClock.restart();
+      }
+      else {
+        prevState = state;
+        state = SortState::SWAP;
+        graph.m_histogram[min].setFillColor(sf::Color::Green);
+        setGoal(graph.m_histogram[i], graph.m_histogram[min]);
+        delayClock.restart(); 
+      }
+    } break;
+    case SortState::SWAP: {
+      swapAnimate(graph.m_histogram[i], graph.m_histogram[min]);
+      delayClock.restart(); 
+    } break;
+    case SortState::RESET: {
+      graph.m_histogram[min].setFillColor(sf::Color::White);
+      graph.m_histogram[i].setFillColor(sf::Color::White);
+      j = 0;
+      ++i;
+      if (i >= n - 1)
+        sorted = true;
+
+      prevState = state;
+      state = SortState::ENTRY;
+      delayClock.restart(); 
+    } break;
+    }
+  }
+  else {
+    sorted = true;
+    return true;
+  }
+  return false;
+
+  /* code without state machine approach lmao
   int n = graph.m_histogram.size();
   for (int i = 0; i < n; ++i) {
     int min = i;
@@ -95,10 +195,8 @@ void Algorithms::selectionSort(Graph& graph) {
         min = j;
     }
     swap(graph.m_histogram[i], graph.m_histogram[min]);
-    window.clear(sf::Color::Black);
-    window.draw(graph);
-    window.display();
   }
+  */
 }
 
 void Algorithms::insertionSort(Graph& graph) {
@@ -150,7 +248,7 @@ void Algorithms::setGoal(sf::RectangleShape& l, sf::RectangleShape& r) {
 
 // this is under the assumption that l starts on the left of r
 // solution is to check before going into the function if l is actually left of r
-void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r, Graph& graph) {
+void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r) {
   sf::Vector2f lPos = l.getPosition();
   sf::Vector2f rPos = r.getPosition();
   // TODO: handle velocity in relation to width of bars
@@ -158,7 +256,7 @@ void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r, Graph
   float rVelocity = 100 * -1 * control.speedMult;
   float dt;
 
-  // swapping
+  // swapping, else done swapping
   if (lPos.x < lGoal.x && rPos.x > rGoal.x) {
     dt = delayClock.restart().asSeconds();
     lPos.x += lVelocity * dt;
@@ -168,8 +266,8 @@ void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r, Graph
   } else {
   // TODO: check if algorithm is paused/stopped, then finish the mem swap and sprite swap
   // if at or past their goals, then finished
-    prevState = state;
-    state = SortState::WAIT; // done
+    prevState = state; // prevState = SWAP
+    state = SortState::WAIT; 
     l.setPosition(lGoal);
     r.setPosition(rGoal);
     std::swap(l, r); // the actual swap in memory is done here
@@ -194,11 +292,11 @@ void Algorithms::copy(sf::RectangleShape& l, const sf::RectangleShape& r) {
 }
 
 void Algorithms::reset() { 
-  i = 0; j = 0; 
+  i = 0; j = 0; min = 0;
   sorted = false;
   lGoal = (sf::Vector2f(0.f, 0.f)); rGoal = (sf::Vector2f(0.f, 0.f));
   delayClock.restart();
-  state = SortState::HIGHLIGHT;
+  state = SortState::ENTRY;
   prevState = state;
   mCompares = 0;
 };
