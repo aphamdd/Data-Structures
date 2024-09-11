@@ -140,6 +140,7 @@ bool Algorithms::selectionSort(Graph& graph) {
       }
     } break;
     case SortState::COMPARE: {
+      ++mCompares;
       int curr = graph.m_histogram[j].getSize().y;
       int anchor = graph.m_histogram[min].getSize().y;
       if (curr < anchor) // update smallest index
@@ -252,6 +253,7 @@ void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r) {
   sf::Vector2f lPos = l.getPosition();
   sf::Vector2f rPos = r.getPosition();
   // TODO: handle velocity in relation to width of bars
+  // I can do this by calculating the distance between two bars and scale it
   float lVelocity = 100 * control.speedMult;
   float rVelocity = 100 * -1 * control.speedMult;
   float dt;

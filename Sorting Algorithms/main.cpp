@@ -112,7 +112,7 @@ int main() {
       graph.shuffle();
     }
     int prev = numBars;
-    ImGui::SliderInt("# of Bars", &numBars, 2, 100);
+    ImGui::SliderInt("# of Bars", &numBars, 2, 50);
     if (prev != numBars) {
       graph.build(numBars);
       prev = numBars;
@@ -132,10 +132,17 @@ int main() {
     }
     // TODO: insert fancy graph of algorithm data
     // TODO: have a popout window that shows the graph in an array form
-    ImGui::SliderFloat("Bar Speed", &control.speedMult, 0.1f, 10.0f);
+    ImGui::SliderFloat("Bar Speed", &control.speedMult, 0.1f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderFloat("Pause Timer", &DELAY, 0.f, 0.5f);
     ImGui::Text("# of comparisons: %d", algo.mCompares);
+    if (control.isBubble)
+      control.bubbleCompares = max(algo.mCompares, control.bubbleCompares);
+    else if (control.isSelection)
+      control.selectionCompares = max(algo.mCompares, control.selectionCompares);
+    ImGui::Text("Bubble Sort MAX Compares: %d", control.bubbleCompares);
+    ImGui::Text("Selection Sort MAX Compares: %d", control.selectionCompares);
 
+    // TODO: some margin errors along with details below
     // problem with this approach, it's just scaling the view instead of actually
     // measuring the widths properly
     float guiWidth = ImGui::GetWindowSize().x;

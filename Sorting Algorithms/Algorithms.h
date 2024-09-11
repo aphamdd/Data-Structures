@@ -40,6 +40,7 @@ public:
 private:
   sf::RenderWindow& window;   // DI
   AlgorithmControl& control;  // DI
+
   // TODO: managing state with all these int members is messy
   int i, j, min;
   bool sorted;
