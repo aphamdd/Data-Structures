@@ -32,6 +32,7 @@ private:
   void copy(sf::RectangleShape& l, const sf::RectangleShape& r); // copy src into dest
   void setGoal(sf::RectangleShape& l, sf::RectangleShape& r);
 
+ // remember to add members to reset() variable state 
 public:
   sf::Clock delayClock;
   int mCompares;

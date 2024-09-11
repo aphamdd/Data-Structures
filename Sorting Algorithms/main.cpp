@@ -9,6 +9,7 @@ using namespace std;
 
 int main() {
   sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
+  sf::View view = window.getDefaultView();
   window.setFramerateLimit(FPS);
   ImGui::SFML::Init(window);
   sf::Clock imguiClock;
@@ -66,10 +67,11 @@ int main() {
     ImGui::SFML::Update(window, imguiClock.restart());
 
     // Dockspace
+    // TODO: set up imgui to mimic a sidebar
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
+    //ImGui::SetNextWindowPos(ImVec2(0, 0));
+    //ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
     ImGui::SetNextWindowBgAlpha(0.0f);
     // ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
     ImGui::Begin("DockSpace", nullptr, window_flags);
@@ -79,7 +81,10 @@ int main() {
     // ImGui::ShowDemoWindow();
 
     // GUI
+    //ImGui::SetNextWindowSize(ImVec2(400, 300));
+    //ImGui::SetNextWindowSizeConstraints(ImVec2(200, 100), ImVec2(600, 400));
     ImGui::Begin("GUI");
+
     if (!control.isSorting) {
       if (ImGui::Button("Bubble Sort")) {
         algo.reset();
@@ -90,7 +95,7 @@ int main() {
     if (control.isSorting)
       ImGui::BeginDisabled();
     // TODO: implement skip animation
-    ImGui::Button("Skip");
+    ImGui::Button("Skip (WIP)");
     if (ImGui::Button("Shuffle")) {
       graph.shuffle();
     }
@@ -103,14 +108,12 @@ int main() {
     if (control.isSorting)
       ImGui::EndDisabled();
 
-    // TODO: show pause/play
-    if (ImGui::Button(control.pausePlay ? "Play" : "Pause")) {
+    if (ImGui::Button(control.isPaused ? "Play" : "Pause")) {
       control.isPaused = !control.isPaused;
       algo.delayClock.restart();
-      control.pausePlay = !control.pausePlay;
     }
     // TODO: properly reset algorithm when in the middle of swapping
-    if (ImGui::Button("Stop")) {
+    if (ImGui::Button("Stop (WIP)")) {
       control.isSorting = false;
       control.isPaused = false;
       algo.reset();
@@ -120,7 +123,19 @@ int main() {
     ImGui::SliderFloat("AniDelay", &DELAY, 0.f, 0.5f);
     ImGui::Text("# of comparisons: %d", algo.mCompares);
 
-    ImGui::End();
+    // problem with this approach, it's just scaling the view instead of actually
+    // measuring the widths properly
+    float guiWidth = ImGui::GetWindowSize().x;
+    float winWidth = window.getSize().x;
+    float viewWidth = winWidth - guiWidth;
+    view.setViewport(sf::FloatRect(
+      0.f, // x left
+      0.f, // y top
+      viewWidth / winWidth, // x right
+      1.f // y bottom
+    ));
+
+    ImGui::End(); // End GUI Block
 
     // start bubble sorting
     if (control.isSorting && !control.isPaused) {
@@ -129,6 +144,8 @@ int main() {
     }
 
     // rendering
+    window.setView(view);
+
     window.clear(sf::Color::Black);
     window.draw(graph);
     window.draw(elapsedTime);
