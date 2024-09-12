@@ -200,21 +200,79 @@ bool Algorithms::selectionSort(Graph& graph) {
   */
 }
 
-void Algorithms::insertionSort(Graph& graph) {
-  int size = graph.m_histogram.size();
-  for (int step = 1; step < size; step++) {
-    sf::RectangleShape k = graph.m_histogram.at(step);
-    int key = graph.m_histogram.at(step).getSize().y;
-    int j = step - 1;
-    while (j >= 0 && key < graph.m_histogram.at(j).getSize().y) {
+bool Algorithms::insertionSort(Graph& graph) {
+  int n = graph.m_histogram.size();
+  if (sorted || n <= 1) {
+    sorted = true;
+    return true;
+  }
+
+  // it's the first entry to the method
+  if (i == 0)
+    i = 1;
+  if (i < n) {
+    switch (state) {
+    case SortState::ENTRY: {
+      j = i - 1;
+      current = graph.m_histogram.at(i); 
+      prevState = state;
+      state = SortState::COMPARE;
+      delayClock.restart();
+    } break;
+    case SortState::COMPARE: {
+      if (j >= 0 && current.getSize().y < graph.m_histogram.at(j).getSize().y) {
+        // copy(j+1, j); loop;
+        copy(graph.m_histogram.at(j + 1), graph.m_histogram.at(j));
+        --j;
+        state = SortState::COMPARE;
+        // JUMP BACK TO THIS CONDITIONAL
+      }
+      else { // FOUND THE ISSUE, THIS SHOULDNT EVEN BE IN ANY CONDITIONAL
+        // copy(j+1, i); outer loop;
+        copy(graph.m_histogram.at(j + 1), current);
+        state = SortState::RESET;
+      }
+      delayClock.restart();
+    } break;
+    case SortState::RESET: {
+      ++i;
+      if (i >= n) {
+        sorted = true;
+        return true;
+      }
+      prevState = state;
+      state = SortState::ENTRY;
+      delayClock.restart();
+    } break;
+    }
+  }
+  else {
+    sorted = true;
+    return true;
+  }
+  return false;
+
+  /*
+  // insertion sort uses 2 pointers
+  // a i pointer to hold onto the value currently being sorted
+  // a j pointer that goes backwards to compare
+  int n = graph.m_histogram.size();
+  for (int i = 1; i < n; ++i) {
+    int current = graph.m_histogram.at(i).getSize().y;
+    int j = i - 1;
+    while (j >= 0 && current < graph.m_histogram.at(j).getSize().y) {
+      // copy shifts the values greater than the compared value forward
+      // until we find the proper spot for the value at index i
       copy(graph.m_histogram.at(j + 1), graph.m_histogram.at(j));
       --j;
     }
-    copy(graph.m_histogram.at(j + 1), k);
-    window.clear(sf::Color::Black);
-    window.draw(graph);
-    window.display();
+    // if the inner loop ever gets entered, then we've created a slot
+    // for the smaller value on the right (unsorted side) to slot into the 
+    // left (sorted side) by shifting j back x amount of times
+    // otherwise it does nothing and continues cuz j+1 == i since j never changes
+    copy(graph.m_histogram.at(j + 1), graph.m_histogram.at(i));
   }
+  */
 }
 
 int Algorithms::partition(Graph& graph, int low, int high) {

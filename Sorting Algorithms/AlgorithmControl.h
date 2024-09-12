@@ -4,6 +4,7 @@ struct AlgorithmControl {
   bool isSorting = false;
   bool isBubble = false;
   bool isSelection = false;
+  bool isInsertion = false;
   float speedMult = 1.0f;
   int numBars = 10;
   int bubbleCompares = 0;

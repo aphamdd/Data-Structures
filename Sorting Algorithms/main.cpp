@@ -95,12 +95,22 @@ int main() {
         cout << "Bubble Sort... ";
       }
     }
+
     if (ImGui::Button(!control.isSelection ? "Selection Sort" : "In Progress...")) {
       if (!control.isSorting) {
         algo.reset();
         control.isSorting = true;
         control.isSelection = true;
         cout << "Selection Sort... ";
+      }
+    }
+
+    if (ImGui::Button(!control.isInsertion ? "Insertion Sort" : "In Progress...")) {
+      if (!control.isInsertion) {
+        algo.reset();
+        control.isSorting = true;
+        control.isInsertion = true;
+        cout << "Insertion Sort... ";
       }
     }
 
@@ -134,6 +144,12 @@ int main() {
     // TODO: have a popout window that shows the graph in an array form
     ImGui::SliderFloat("Bar Speed", &control.speedMult, 0.1f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
     ImGui::SliderFloat("Pause Timer", &DELAY, 0.f, 0.5f);
+
+    // TODO: need to handle dynamic resizing of strings
+    // read the Resize Callback section in the demo if you want to implement this
+    std::string curState = algo.displayState[algo.getState()];
+    ImGui::Text("Current Step: %s", curState);
+
     ImGui::Text("# of comparisons: %d", algo.mCompares);
     if (control.isBubble)
       control.bubbleCompares = max(algo.mCompares, control.bubbleCompares);
@@ -162,13 +178,25 @@ int main() {
       if (algo.bubbleSort(graph)) {
         control.isSorting = false;
         control.isBubble = false;
+        algo.reset();
       }
     }
+
     // start selection sorting
     if (control.isSorting && control.isSelection && !control.isPaused) {
       if (algo.selectionSort(graph)) {
         control.isSorting = false;
         control.isSelection = false;
+        algo.reset();
+      }
+    }
+
+    // start insertion sorting
+    if (control.isSorting && control.isInsertion && !control.isPaused) {
+      if (algo.insertionSort(graph)) {
+        control.isSorting = false;
+        control.isInsertion = false;
+        algo.reset();
       }
     }
 
