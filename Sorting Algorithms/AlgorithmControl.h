@@ -9,4 +9,5 @@ struct AlgorithmControl {
   int numBars = 10;
   int bubbleCompares = 0;
   int selectionCompares = 0;
+  int insertionCompares = 0;
 };

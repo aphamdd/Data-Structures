@@ -63,7 +63,7 @@ bool Algorithms::bubbleSort(Graph& graph) {
         delayClock.restart();
       } break;
       case SortState::SWAP: {
-        swapAnimate(graph.m_histogram[j], graph.m_histogram[j + 1]);
+        swap(graph.m_histogram[j], graph.m_histogram[j + 1]);
         delayClock.restart();
         // wait after finishing swap animation
       } break;
@@ -162,7 +162,7 @@ bool Algorithms::selectionSort(Graph& graph) {
       }
     } break;
     case SortState::SWAP: {
-      swapAnimate(graph.m_histogram[i], graph.m_histogram[min]);
+      swap(graph.m_histogram[i], graph.m_histogram[min]);
       delayClock.restart(); 
     } break;
     case SortState::RESET: {
@@ -200,6 +200,7 @@ bool Algorithms::selectionSort(Graph& graph) {
   */
 }
 
+// NOTE: insertion sort typically uses copy and not swap.
 bool Algorithms::insertionSort(Graph& graph) {
   int n = graph.m_histogram.size();
   if (sorted || n <= 1) {
@@ -214,25 +215,29 @@ bool Algorithms::insertionSort(Graph& graph) {
     switch (state) {
     case SortState::ENTRY: {
       j = i - 1;
-      current = graph.m_histogram.at(i); 
+      temp = graph.m_histogram.at(i); 
       prevState = state;
       state = SortState::COMPARE;
       delayClock.restart();
     } break;
     case SortState::COMPARE: {
-      if (j >= 0 && current.getSize().y < graph.m_histogram.at(j).getSize().y) {
+      ++mCompares;
+      if (j >= 0 && temp.getSize().y < graph.m_histogram.at(j).getSize().y) {
         // copy(j+1, j); loop;
-        copy(graph.m_histogram.at(j + 1), graph.m_histogram.at(j));
-        --j;
-        state = SortState::COMPARE;
-        // JUMP BACK TO THIS CONDITIONAL
+        setGoal(graph.m_histogram.at(j), graph.m_histogram.at(j + 1));
+        prevState = SortState::X;
+        state = SortState::SWAP;
       }
-      else { // FOUND THE ISSUE, THIS SHOULDNT EVEN BE IN ANY CONDITIONAL
+      else { 
         // copy(j+1, i); outer loop;
-        copy(graph.m_histogram.at(j + 1), current);
+        prevState = state;
         state = SortState::RESET;
       }
       delayClock.restart();
+    } break;
+    case SortState::SWAP: {
+      swap(graph.m_histogram.at(j), graph.m_histogram.at(j + 1));
+      //swap(graph.m_histogram.at(j + 1), current);
     } break;
     case SortState::RESET: {
       ++i;
@@ -300,55 +305,47 @@ void Algorithms::quickSort(Graph& graph, int low, int high) {
   }
 }
 
-void Algorithms::setGoal(sf::RectangleShape& l, sf::RectangleShape& r) {
+bool Algorithms::setGoal(sf::RectangleShape& l, sf::RectangleShape& r) {
   lGoal = r.getPosition();
   rGoal = l.getPosition();
+  // if they're equal, then this function is pointless
+  if (lGoal == rGoal)
+    return false;
+  return true;
 }
 
-// this is under the assumption that l starts on the left of r
-// solution is to check before going into the function if l is actually left of r
-void Algorithms::swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r) {
+// NOTE: under the assumption that l starts on the left of r
+// I can check before function call to determine who is l and r
+void Algorithms::swap(sf::RectangleShape& l, sf::RectangleShape& r) {
   sf::Vector2f lPos = l.getPosition();
   sf::Vector2f rPos = r.getPosition();
-  // TODO: handle velocity in relation to width of bars
-  // I can do this by calculating the distance between two bars and scale it
-  float lVelocity = 100 * control.speedMult;
-  float rVelocity = 100 * -1 * control.speedMult;
-  float dt;
 
-  // swapping, else done swapping
+  // TODO: scale velocity with respect to bar width
+  float vel = 100 * control.speedMult;
+  float dt = delayClock.restart().asSeconds();
+  float dtVel = vel * dt; // deltatime velocity
+
   if (lPos.x < lGoal.x && rPos.x > rGoal.x) {
-    dt = delayClock.restart().asSeconds();
-    lPos.x += lVelocity * dt;
-    rPos.x += rVelocity * dt;
+    lPos.x += dtVel;
+    rPos.x += dtVel * -1;
     l.setPosition(lPos);
     r.setPosition(rPos);
-  } else {
+  }
+  else {
   // TODO: check if algorithm is paused/stopped, then finish the mem swap and sprite swap
   // if at or past their goals, then finished
-    prevState = state; // prevState = SWAP
-    state = SortState::WAIT; 
+    if (prevState == SortState::X) { // for insertion sort
+      state = SortState::COMPARE;
+      --j;
+    }
+    else {
+      prevState = state; // prevState = SWAP
+      state = SortState::WAIT;
+    }
     l.setPosition(lGoal);
     r.setPosition(rGoal);
     std::swap(l, r); // the actual swap in memory is done here
   }
-}
-
-void Algorithms::swap(sf::RectangleShape& l, sf::RectangleShape& r) {
-  sf::Vector2f temp = l.getPosition();
-  l.setPosition(r.getPosition());
-  r.setPosition(temp);
-
-  std::swap(l, r); // the actual swap in memory is done here
-}
-
-// copy the characteristics of a Bar, but not the position
-void Algorithms::copy(sf::RectangleShape& l, const sf::RectangleShape& r) {
-  l.setFillColor(r.getFillColor());
-  l.setOutlineThickness(r.getOutlineThickness());
-  l.setOutlineColor(r.getOutlineColor());
-  l.setSize(r.getSize());
-  l.setOrigin(r.getOrigin());
 }
 
 void Algorithms::reset() { 
@@ -357,6 +354,15 @@ void Algorithms::reset() {
   lGoal = (sf::Vector2f(0.f, 0.f)); rGoal = (sf::Vector2f(0.f, 0.f));
   delayClock.restart();
   state = SortState::ENTRY;
-  prevState = state;
+  prevState = SortState::ENTRY;
   mCompares = 0;
 };
+
+// copy the characteristics of a Bar, but not the position in memory
+// copy(dest, src); should be used for insertion sort
+void Algorithms::copy(sf::RectangleShape& dest, sf::RectangleShape& src) {
+  dest.setOutlineThickness(src.getOutlineThickness());
+  dest.setOutlineColor(src.getOutlineColor());
+  dest.setSize(src.getSize());
+  dest.setOrigin(src.getOrigin());
+}

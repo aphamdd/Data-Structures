@@ -12,15 +12,13 @@
 class Algorithms {
 private:
   // state machine
-  // NOTE: having an enum element for only one use case is kinda iffy 
   enum class SortState {
     ENTRY,
     HIGHLIGHT,
     WAIT,
     COMPARE,
     SWAP,
-    COPY,
-    X, // some random temporary state
+    X, // some random temporary state (this is scuffed)
     RESET
   };
 
@@ -57,10 +55,9 @@ public:
   SortState getState() { return state; };
   void reset();
 private:
-  void swapAnimate(sf::RectangleShape& l, sf::RectangleShape& r);
-  void swap(sf::RectangleShape& l, sf::RectangleShape& r); // swap rectangles
-  void copy(sf::RectangleShape& l, const sf::RectangleShape& r); // copy src into dest
-  void setGoal(sf::RectangleShape& l, sf::RectangleShape& r);
+  void swap(sf::RectangleShape& l, sf::RectangleShape& r);
+  void copy(sf::RectangleShape& dest, sf::RectangleShape& src);// copy src into dest
+  bool setGoal(sf::RectangleShape& l, sf::RectangleShape& r);
 
  // remember to add members to reset() variable state 
 public:
@@ -73,7 +70,7 @@ private:
 
   // TODO: managing state with all these members is messy
   int i, j, min;
-  sf::RectangleShape current;
+  sf::RectangleShape temp;
   //
   bool sorted;
   sf::Vector2f lGoal;

@@ -147,16 +147,20 @@ int main() {
 
     // TODO: need to handle dynamic resizing of strings
     // read the Resize Callback section in the demo if you want to implement this
-    std::string curState = algo.displayState[algo.getState()];
-    ImGui::Text("Current Step: %s", curState);
+    //std::string curState = algo.displayState[algo.getState()];
+    //ImGui::Text("Current Step: %s", curState);
 
+    // TODO: include min compares as well?
     ImGui::Text("# of comparisons: %d", algo.mCompares);
     if (control.isBubble)
       control.bubbleCompares = max(algo.mCompares, control.bubbleCompares);
     else if (control.isSelection)
       control.selectionCompares = max(algo.mCompares, control.selectionCompares);
+    else if (control.isInsertion)
+      control.insertionCompares = max(algo.mCompares, control.insertionCompares);
     ImGui::Text("Bubble Sort MAX Compares: %d", control.bubbleCompares);
     ImGui::Text("Selection Sort MAX Compares: %d", control.selectionCompares);
+    ImGui::Text("Insertion Sort MAX Compares: %d", control.insertionCompares);
 
     // TODO: some margin errors along with details below
     // problem with this approach, it's just scaling the view instead of actually
