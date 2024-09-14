@@ -43,22 +43,10 @@ int main() {
 
       /*if (event.type == sf::Event::KeyPressed) {
         switch (event.key.code) {
-          case sf::Keyboard::S: {
-            cout << "Selection Sort... ";
-            algo.selectionSort(graph);
-            cout << "DONE" << endl;
-          } break;
-          case sf::Keyboard::I: {
-            cout << "Insertion Sort... ";
-            algo.insertionSort(graph);
-            cout << "DONE" << endl;
-          } break;
           case sf::Keyboard::Q: {
             cout << "Quick Sort... ";
             algo.quickSort(graph, 0, graph.m_histogram.size() - 1);
             cout << "DONE" << endl;
-          } break;
-          default: {
           } break;
         }
       }*/

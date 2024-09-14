@@ -18,7 +18,6 @@ private:
     WAIT,
     COMPARE,
     SWAP,
-    X, // some random temporary state (this is scuffed)
     RESET
   };
 
