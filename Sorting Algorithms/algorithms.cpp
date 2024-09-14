@@ -228,7 +228,7 @@ bool Algorithms::insertionSort(Graph& graph) {
         graph.m_histogram.at(j + 1).setFillColor(sf::Color::Yellow);
 
         // everything left of this bar is being searched
-        graph.m_histogram.at(i).setFillColor(sf::Color::Magenta);
+        graph.m_histogram.at(i).setFillColor(sf::Color::Green);
       }
       // the smallest is at the beginning and can't swap any lower
       else 
@@ -254,6 +254,7 @@ bool Algorithms::insertionSort(Graph& graph) {
           if (j >= 0) {
             graph.m_histogram.at(j).setFillColor(sf::Color::White);
             graph.m_histogram.at(j + 1).setFillColor(sf::Color::White);
+
             graph.m_histogram.at(i).setFillColor(sf::Color::White);
           }
           else
@@ -324,28 +325,33 @@ bool Algorithms::insertionSort(Graph& graph) {
   */
 }
 
+// sorts the partitioned section
 int Algorithms::partition(Graph& graph, int low, int high) {
-  int pivot = graph.m_histogram[high].getSize().y;
+  // doesn't have to be high, it could be any index low <= high
+  int pivot = graph.m_histogram[high].getSize().y; // pivot VALUE, not index
   int i = low - 1;
 
   for (int j = low; j < high; ++j) {
+    // if current index is <= our pivot value, swap the values
     if (graph.m_histogram[j].getSize().y <= pivot) {
       ++i;
       swap(graph.m_histogram[i], graph.m_histogram[j]);
-      window.clear(sf::Color::Black);
-      window.draw(graph);
-      window.display();
     }
   }
+
+  // i is bound by low-1 <= i <= j < high
   swap(graph.m_histogram[i + 1], graph.m_histogram[high]);
   return i + 1;
 }
 
+// determines which partition to sort next
 void Algorithms::quickSort(Graph& graph, int low, int high) {
+  // base case, entire search space
   if (low < high) {
-    int pivot = partition(graph, low, high);
-    quickSort(graph, low, pivot - 1);
-    quickSort(graph, pivot + 1, high);
+    int pivot = partition(graph, low, high); // returns pivot index
+    // divide and conquer
+    quickSort(graph, low, pivot - 1); // sort left
+    quickSort(graph, pivot + 1, high); // sort right
   }
 }
 
@@ -358,33 +364,32 @@ bool Algorithms::setGoal(sf::RectangleShape& l, sf::RectangleShape& r) {
   return true;
 }
 
-// NOTE: under the assumption that l starts on the left of r
-// I can check before function call to determine who is l and r
+// NOTE: assumes that l is physically left of r
 void Algorithms::swap(sf::RectangleShape& l, sf::RectangleShape& r) {
   sf::Vector2f lPos = l.getPosition();
   sf::Vector2f rPos = r.getPosition();
 
-  // TODO: scale velocity with respect to bar width
   float vel = 100 * control.speedMult;
   float dt = delayClock.restart().asSeconds();
   float dtVel = vel * dt; // deltatime velocity
 
-  // TODO: check before updating position if velocity is past the goal to prevent
-  // jumpy animation
-  if (lPos.x < lGoal.x && rPos.x > rGoal.x) {
-    lPos.x += dtVel;
-    rPos.x += dtVel * -1;
-    l.setPosition(lPos);
-    r.setPosition(rPos);
-  }
-  else {
-  // TODO: check if algorithm is paused/stopped, then finish the mem swap and sprite swap
-  // if at or past their goals, then finished
+  lPos.x += dtVel;
+  rPos.x += dtVel * -1;
+
+  // check before updating position if velocity is past the goal
+  if (lPos.x >= lGoal.x || rPos.x <= rGoal.x) {
+    // TODO: check if algorithm is paused/stopped, then finish the mem swap and sprite swap
+    // if at or past their goals, then finished
     prevState = state; // prevState = SWAP
     state = SortState::WAIT;
     l.setPosition(lGoal);
     r.setPosition(rGoal);
-    std::swap(l, r); // the actual swap in memory is done here
+    std::swap(l, r); // swap in memory 
+  }
+  // update animation
+  else {
+    l.setPosition(lPos);
+    r.setPosition(rPos);
   }
 }
 
