@@ -1,6 +1,6 @@
 #pragma once
 #include "Graph.h"
-#include "AlgorithmControl.h"
+#include "Control.h"
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -25,8 +25,7 @@ private:
   SortState prevState;
 public:
   // dependency injection, problem is this creates complexity and coupling
-  Algorithms(sf::RenderWindow& w, AlgorithmControl& c) :
-    window(w),
+  Algorithms(Control& c) :
     control(c),
     i(0), j(0), min(0),
     mCompares(0),
@@ -64,8 +63,7 @@ public:
   int mCompares;
   std::map<SortState, std::string> displayState;
 private:
-  sf::RenderWindow& window;   // DI
-  AlgorithmControl& control;  // DI
+  Control& control;  // DI
 
   // TODO: managing state with all these members is messy
   int i, j, min;
