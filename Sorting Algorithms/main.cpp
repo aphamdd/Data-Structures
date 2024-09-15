@@ -28,13 +28,6 @@ int main() {
   Algorithms algo(control);
 
   // linked list params
-  sf::Vector2f posTest(100.f, 200.f);
-  sf::Vector2f posTest2(200.f, 400.f);
-  LLNode* head = new LLNode(posTest);
-  head->shape.setFillColor(sf::Color::Red);
-  head->next = new LLNode(posTest2);
-  head->next->shape.setFillColor(sf::Color::Green);
-
   /* font example setup
   sf::Font font;
   if (!font.loadFromFile("./Fonts/Retale-Regular.ttf"))
@@ -44,6 +37,7 @@ int main() {
   elapsedTime.setCharacterSize(50);
   elapsedTime.setFillColor(sf::Color::Cyan);
   */
+  LinkedList linkedList(window);
 
   while (window.isOpen()) {
     sf::Event event;
@@ -57,8 +51,7 @@ int main() {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
     ImGui::SFML::Update(window, imguiClock.restart());
 
-    // Dockspace
-    // TODO: set up imgui to mimic a sidebar
+    // Dockspace TODO: set up defaults and disable certain customizability
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     //ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -207,6 +200,15 @@ int main() {
         control.isAlgorithm = false;
         control.isLinkedList = true;
 
+        if (ImGui::Button("Add")) {
+          linkedList.add();
+        }
+        if (ImGui::Button("Remove")) {
+          linkedList.remove();
+        }
+        // I don't have to state machine line dragging since the user is already
+        // using their cursor on something, so I don't need responsiveness on the GUI
+
         ImGui::EndTabItem();
       }
 
@@ -234,16 +236,12 @@ int main() {
     window.setView(view);
     window.clear(sf::Color::Black);
 
-    if (control.isAlgorithm) {
+    if (control.isAlgorithm)
       window.draw(graph);
-    }
-    else if (control.isLinkedList) {
-      LLNode* current = head;
-      while (current) {
-        window.draw(*current);
-        current = current->next;
-      }
-    }
+    else if (control.isLinkedList)
+      linkedList.draw();
+    else
+      throw("DRAW PROBLEM");
 
     ImGui::SFML::Render(window);
     window.display();

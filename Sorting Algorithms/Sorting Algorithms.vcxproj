@@ -170,6 +170,7 @@
     <ClCompile Include="imgui\imgui_draw.cpp" />
     <ClCompile Include="imgui\imgui_tables.cpp" />
     <ClCompile Include="imgui\imgui_widgets.cpp" />
+    <ClCompile Include="linkedlist.cpp" />
     <ClCompile Include="llnode.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

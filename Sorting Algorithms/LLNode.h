@@ -5,18 +5,15 @@
 #include <iostream>
 
 class LLNode : public sf::Drawable, public sf::Transformable {
+  friend class LinkedList;
 public:
   LLNode(const sf::Vector2f pos);
   ~LLNode();
 
-  void add();
-  void remove();
-  void edit();
-
 private:
   void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-public: 
+private: // make this private? handle solely in the linkedlist class?
   LLNode* next;
   int data;
   sf::RectangleShape shape;

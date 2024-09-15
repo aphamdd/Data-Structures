@@ -1,7 +1,7 @@
 #pragma once
 
 struct Control {
-  bool isAlgorithm = true;
+  bool isAlgorithm = false;
   bool isLinkedList = false;
   bool isBinaryTree = false;
   bool isGraph = false;

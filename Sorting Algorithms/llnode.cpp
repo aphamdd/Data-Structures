@@ -11,7 +11,9 @@ LLNode::LLNode(const sf::Vector2f pos) : next(NULL), data(0) {
 }
 
 LLNode::~LLNode() {
-  // TODO: handle proper memory management in destructor
+  next = NULL;
+  data = 0;
+  // TODO: delete shape??
 }
 
 void LLNode::draw(sf::RenderTarget& target, sf::RenderStates states) const {
