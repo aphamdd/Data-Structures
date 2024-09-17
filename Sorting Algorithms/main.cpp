@@ -225,24 +225,23 @@ int main() {
         // I want to keep track of the cursor's positioning within the bounds of the
         // shape, I have to keep track of the relative sizing of the shape as well,
         // so converting my absolute mouse position to the relative position is the way to go.
-        sf::FloatRect globalBounds = test->shape.getGlobalBounds();
-        ImGui::Text("Shape Size   (w:%0.2f, h:%0.2f)", globalBounds.width, globalBounds.height);
 
         // TODO: some rounding errors
         // Mouse position scales with the view transformation (gui width)
+        ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
+        ImVec4 white(1.0f, 1.0f, 1.0f, 1.0f);
+        sf::FloatRect globalBounds = test->shape.getGlobalBounds();
         sf::Vector2f convertMPos = window.mapPixelToCoords(mousePos, window.getView());
-        ImGui::Text("Shape Relative Coords (x:%0.2f, y:%0.2f)", globalBounds.left, globalBounds.top);
-        ImGui::Text("Mouse PixelToCoords   (x:%0.2f, y:%0.2f)", convertMPos.x, convertMPos.y);
+        bool check = globalBounds.contains(convertMPos.x, convertMPos.y);
+        ImGui::TextColored(check ? green : white, "Mouse PixelToCoords   (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+        ImGui::Text("Shape Relative Coords (x:%0.0f, y:%0.0f)", globalBounds.left, globalBounds.top);
+        //ImGui::Text("Shape Size   (w:%0.2f, h:%0.2f)", globalBounds.width, globalBounds.height);
 
         /* Not used b/c I'd have to convert the dimensions of the shape also
         sf::Vector2i coords = window.mapCoordsToPixel(sf::Vector2f(globalBounds.left, globalBounds.top), window.getView());
         ImGui::Text("Mouse Absolute Position (x:%d, y:%d)", mousePos.x, mousePos.y);
         ImGui::Text("Shape CoordstoPixels    (x:%d, y:%d)", coords.x, coords.y);
         */
-
-        ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
-        ImVec4 white(1.0f, 1.0f, 1.0f, 1.0f);
-        ImGui::TextColored(green, "test");
 
         ImGui::EndTabItem();
       }
