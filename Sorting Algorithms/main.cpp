@@ -44,11 +44,28 @@ int main() {
     // event takes all values in the program event queue and handles it until clear
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(window, event);
-      if (event.type == sf::Event::Closed)
-        window.close();
+      mousePos = sf::Mouse::getPosition(window);
+      switch (event.type) {
+        case sf::Event::Closed: {
+          window.close();
+        } break;
 
-      if (control.isLinkedList) {
-        mousePos = sf::Mouse::getPosition(window);
+        case sf::Event::MouseButtonPressed: {
+          if (event.mouseButton.button == sf::Mouse::Left) {
+            cout << "Click" << endl;
+            control.isDragging = true;
+          }
+        } break;
+
+        case sf::Event::MouseButtonReleased: {
+          if (event.mouseButton.button == sf::Mouse::Left) {
+            cout << "Release" << endl;
+            control.isDragging = false;
+          }
+        } break;
+
+        default:
+          break;
       }
     }
 
@@ -211,9 +228,6 @@ int main() {
           linkedList.remove();
         }
 
-        //linkedList.pActive = linkedList.search();
-        //ImGui::Text("Active Pointer: %p", &linkedList.pActive);
-
         // mapCoordsToPixel goes from world coordinates(game world, the relative view, objects in the view) to pixel coordinates(window / actual screen).
         // mapPixelsToCoords goes from pixel coordinates(window / actual screen) to world coordinates(game world, relative view, objects in the view).
         // Coordinates are relative (sfml getPositions() returns relative coords)
@@ -226,16 +240,19 @@ int main() {
         // shape, I have to keep track of the relative sizing of the shape as well,
         // so converting my absolute mouse position to the relative position is the way to go.
 
-        // TODO: some rounding errors
         // Mouse position scales with the view transformation (gui width)
-        ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
-        ImVec4 white(1.0f, 1.0f, 1.0f, 1.0f);
+        ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
         sf::FloatRect globalBounds = test->shape.getGlobalBounds();
         sf::Vector2f convertMPos = window.mapPixelToCoords(mousePos, window.getView());
         bool check = globalBounds.contains(convertMPos.x, convertMPos.y);
-        ImGui::TextColored(check ? green : white, "Mouse PixelToCoords   (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+        ImGui::TextColored(check ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
         ImGui::Text("Shape Relative Coords (x:%0.0f, y:%0.0f)", globalBounds.left, globalBounds.top);
         //ImGui::Text("Shape Size   (w:%0.2f, h:%0.2f)", globalBounds.width, globalBounds.height);
+
+        // cursor in shape and dragging is enabled
+        if (check && control.isDragging) {
+          test->shape.setPosition(convertMPos);
+        }
 
         /* Not used b/c I'd have to convert the dimensions of the shape also
         sf::Vector2i coords = window.mapCoordsToPixel(sf::Vector2f(globalBounds.left, globalBounds.top), window.getView());

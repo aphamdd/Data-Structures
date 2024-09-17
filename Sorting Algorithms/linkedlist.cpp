@@ -54,6 +54,20 @@ bool LinkedList::remove() {
   return true;
 }
 
+bool LinkedList::search() {
+  if (!head)
+    return false;
+
+  /*
+  ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
+  sf::FloatRect globalBounds = test->shape.getGlobalBounds();
+  sf::Vector2f convertMPos = window.mapPixelToCoords(mousePos, window.getView());
+  bool check = globalBounds.contains(convertMPos.x, convertMPos.y);
+  ImGui::TextColored(check ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+  ImGui::Text("Shape Relative Coords (x:%0.0f, y:%0.0f)", globalBounds.left, globalBounds.top);
+  */
+}
+
 void LinkedList::draw() const {
   if (!head)
     return;

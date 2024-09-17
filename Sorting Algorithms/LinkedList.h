@@ -12,7 +12,7 @@ public:
 
   // find node based on shape's current pos relative to mouse pos?
   // think about efficiency: if I've already found the active node, don't search
-  LLNode* search(); // find what node im clicking
+  bool search(); // find what node im clicking
 
   void draw() const;
 

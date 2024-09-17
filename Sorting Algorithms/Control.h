@@ -12,6 +12,9 @@ struct Control {
   bool isBubble = false;
   bool isSelection = false;
   bool isInsertion = false;
+
+  bool isDragging = false;
+
   int bubbleCompares = 0;
   int selectionCompares = 0;
   int insertionCompares = 0;
