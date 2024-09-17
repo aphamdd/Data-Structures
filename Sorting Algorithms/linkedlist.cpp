@@ -1,9 +1,18 @@
 #pragma once
 #include "LinkedList.h"
 
-LinkedList::LinkedList(sf::RenderWindow& win) : window(win), head(NULL) {}
+LinkedList::LinkedList(sf::RenderWindow& win) : window(win), head(NULL), pActive(NULL) {
+}
 LinkedList::~LinkedList() {
+  LLNode* temp = head;
+  while (head) {
+    head = head->next;
+    delete temp;
+    temp = head;
+  }
+  temp = NULL;
   head = NULL;
+  pActive = NULL;
 }
 
 void LinkedList::add() {
@@ -20,6 +29,7 @@ void LinkedList::add() {
     sf::Vector2f temp = current->shape.getPosition();
     temp.x += 110.f;
     current->next = new LLNode(temp);
+    current->next->ID += current->ID;
     current->next->shape.setFillColor(sf::Color::Green);
   }
 }

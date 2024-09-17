@@ -1,7 +1,7 @@
 #pragma once
 #include "LLNode.h"
 
-LLNode::LLNode(const sf::Vector2f pos) : next(NULL), data(0) { 
+LLNode::LLNode(const sf::Vector2f pos) : next(NULL), data(0), ID(1) { 
   shape.setSize(sf::Vector2f(100.f, 50.f));
   shape.setPosition(pos);
   shape.setFillColor(sf::Color::White);
@@ -13,6 +13,7 @@ LLNode::LLNode(const sf::Vector2f pos) : next(NULL), data(0) {
 LLNode::~LLNode() {
   next = NULL;
   data = 0;
+  ID = 0;
   // TODO: delete shape??
 }
 

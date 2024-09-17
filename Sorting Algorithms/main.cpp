@@ -12,17 +12,14 @@ using namespace std;
 int main() {
   // window and gui params
   sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Titlebar | sf::Style::Close);
-  window.setVerticalSyncEnabled(true);
   sf::View view = window.getDefaultView();
+  window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(FPS);
   ImGui::SFML::Init(window);
   sf::Clock imguiClock;
   Control control;
 
   // sorting algorithm params 
-  std::random_device dev;
-  std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> num(100, 500);
   int numBars = 15;
   Graph graph(numBars);
   Algorithms algo(control);
@@ -38,14 +35,21 @@ int main() {
   elapsedTime.setFillColor(sf::Color::Cyan);
   */
   LinkedList linkedList(window);
+  sf::Vector2i mousePos;
+  LLNode* test = new LLNode(sf::Vector2f(500.f, 500.f));
 
   while (window.isOpen()) {
     sf::Event event;
 
+    // event takes all values in the program event queue and handles it until clear
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(window, event);
       if (event.type == sf::Event::Closed)
         window.close();
+
+      if (control.isLinkedList) {
+        mousePos = sf::Mouse::getPosition(window);
+      }
     }
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
@@ -206,8 +210,39 @@ int main() {
         if (ImGui::Button("Remove")) {
           linkedList.remove();
         }
-        // I don't have to state machine line dragging since the user is already
-        // using their cursor on something, so I don't need responsiveness on the GUI
+
+        //linkedList.pActive = linkedList.search();
+        //ImGui::Text("Active Pointer: %p", &linkedList.pActive);
+
+        // mapCoordsToPixel goes from world coordinates(game world, the relative view, objects in the view) to pixel coordinates(window / actual screen).
+        // mapPixelsToCoords goes from pixel coordinates(window / actual screen) to world coordinates(game world, relative view, objects in the view).
+        // Coordinates are relative (sfml getPositions() returns relative coords)
+        // Pixels are absolute
+
+        // I likely need to use mapPixelsToCoords because shapes are all drawn
+        // with relative positioning (coords). So I need to map my cursor's absolute
+        // position (pixels) to the relative pixels of the view (coords). Also, since
+        // I want to keep track of the cursor's positioning within the bounds of the
+        // shape, I have to keep track of the relative sizing of the shape as well,
+        // so converting my absolute mouse position to the relative position is the way to go.
+        sf::FloatRect globalBounds = test->shape.getGlobalBounds();
+        ImGui::Text("Shape Size   (w:%0.2f, h:%0.2f)", globalBounds.width, globalBounds.height);
+
+        // TODO: some rounding errors
+        // Mouse position scales with the view transformation (gui width)
+        sf::Vector2f convertMPos = window.mapPixelToCoords(mousePos, window.getView());
+        ImGui::Text("Shape Relative Coords (x:%0.2f, y:%0.2f)", globalBounds.left, globalBounds.top);
+        ImGui::Text("Mouse PixelToCoords   (x:%0.2f, y:%0.2f)", convertMPos.x, convertMPos.y);
+
+        /* Not used b/c I'd have to convert the dimensions of the shape also
+        sf::Vector2i coords = window.mapCoordsToPixel(sf::Vector2f(globalBounds.left, globalBounds.top), window.getView());
+        ImGui::Text("Mouse Absolute Position (x:%d, y:%d)", mousePos.x, mousePos.y);
+        ImGui::Text("Shape CoordstoPixels    (x:%d, y:%d)", coords.x, coords.y);
+        */
+
+        ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f);
+        ImVec4 white(1.0f, 1.0f, 1.0f, 1.0f);
+        ImGui::TextColored(green, "test");
 
         ImGui::EndTabItem();
       }
@@ -236,10 +271,13 @@ int main() {
     window.setView(view);
     window.clear(sf::Color::Black);
 
-    if (control.isAlgorithm)
+    if (control.isAlgorithm) {
       window.draw(graph);
-    else if (control.isLinkedList)
+    }
+    else if (control.isLinkedList) {
       linkedList.draw();
+      window.draw(*test);
+    }
     else
       throw("DRAW PROBLEM");
 

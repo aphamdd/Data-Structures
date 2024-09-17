@@ -10,11 +10,14 @@ public:
   LLNode(const sf::Vector2f pos);
   ~LLNode();
 
+  int getID() { return ID; };
+
 private:
   void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
-private: // make this private? handle solely in the linkedlist class?
+public: // make this private? handle solely in the linkedlist class?
   LLNode* next;
   int data;
+  int ID;
   sf::RectangleShape shape;
 };
