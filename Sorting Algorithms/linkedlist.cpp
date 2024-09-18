@@ -1,7 +1,12 @@
 #pragma once
 #include "LinkedList.h"
 
-LinkedList::LinkedList(sf::RenderWindow& win) : window(win), head(NULL), pActive(NULL) {
+// TODO: is there a way to skip having to pass in my text through LinkedList->LLNode
+LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) : 
+  window(win),
+  LLText(text),
+  head(NULL), 
+  pActive(NULL) {
 }
 LinkedList::~LinkedList() {
   LLNode* temp = head;
@@ -18,7 +23,7 @@ LinkedList::~LinkedList() {
 void LinkedList::add() {
   sf::Vector2f tempPos(75.f, 400.f);
   if (!head) {
-    head = new LLNode(tempPos);
+    head = new LLNode(tempPos, LLText);
     head->shape.setFillColor(sf::Color::Red);
   }
   else {
@@ -28,9 +33,10 @@ void LinkedList::add() {
     }
     sf::Vector2f temp = current->shape.getPosition();
     temp.x += 110.f;
-    current->next = new LLNode(temp);
+    current->next = new LLNode(temp, LLText);
     current->next->ID += current->ID;
-    current->next->shape.setFillColor(sf::Color::Green);
+    // TODO: create a function to update any changes to text/shape
+    current->next->dataText.setString(std::to_string(current->next->ID));
   }
 }
 
@@ -56,12 +62,25 @@ bool LinkedList::remove() {
   return true;
 }
 
+// find the node the cursor clicks on based on coordinates
 LLNode* LinkedList::search(const sf::Vector2i mpos) {
+  // mapCoordsToPixel goes from world coordinates(game world, the relative view, objects in the view) to pixel coordinates(window / actual screen).
+  // mapPixelsToCoords goes from pixel coordinates(window / actual screen) to world coordinates(game world, relative view, objects in the view).
+  // Coordinates are relative (sfml getPositions() returns relative coords)
+  // Pixels are absolute
+  //
+  // I likely need to use mapPixelsToCoords because shapes are all drawn
+  // with relative positioning (coords). So I need to map my cursor's absolute
+  // position (pixels) to the relative pixels of the view (coords). Also, since
+  // I want to keep track of the cursor's positioning within the bounds of the
+  // shape, I have to keep track of the relative sizing of the shape as well,
+  // so converting my absolute mouse position to the relative position is the way to go.
+  
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (!head)
     return NULL;
 
-  // if active ptr on a node, check if its the correct one and return if so
+  // check if we clicked on the same active node
   if (pActive) {
     sf::FloatRect activeBounds = pActive->shape.getGlobalBounds();
     if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
@@ -73,11 +92,34 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
   for (LLNode* current = head; current; current = current->next) {
     currentBounds = current->shape.getGlobalBounds();
     if (currentBounds.contains(convertMPos.x, convertMPos.y)) {
-      return current;
+      // set pactive color to white, set new pactive, highlight new pactive
+      if (pActive)
+        pActive->shape.setFillColor(sf::Color::White);
+      pActive = current;
+      pActive->shape.setFillColor(sf::Color::Green);
+      return pActive;
     }
   }
   // null if not found
   return NULL;
+}
+
+bool LinkedList::move(LLNode* p, const sf::Vector2i mpos) {
+  sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
+  if (p) {
+    p->update(convertMPos);
+    return true;
+  }
+  return false;
+}
+
+bool LinkedList::isInBounds(const LLNode* p, const sf::Vector2i mpos) const {
+  sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
+  if (p) {
+    sf::FloatRect globalBounds = p->shape.getGlobalBounds();
+    return globalBounds.contains(convertMPos.x, convertMPos.y);
+  }
+  return false;
 }
 
 void LinkedList::draw() const {

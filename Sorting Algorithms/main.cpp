@@ -11,7 +11,8 @@ using namespace std;
 
 int main() {
   // window and gui params
-  sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Titlebar | sf::Style::Close);
+  //sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Titlebar | sf::Style::Close);
+  sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
   sf::View view = window.getDefaultView();
   window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(FPS);
@@ -25,19 +26,14 @@ int main() {
   Algorithms algo(control);
 
   // linked list params
-  /* font example setup
   sf::Font font;
   if (!font.loadFromFile("./Fonts/Retale-Regular.ttf"))
     throw("COULDN'T LOAD FONT");
-  sf::Text elapsedTime;
-  elapsedTime.setFont(font);
-  elapsedTime.setCharacterSize(50);
-  elapsedTime.setFillColor(sf::Color::Cyan);
-  */
-  LinkedList linkedList(window);
-  sf::Vector2i mousePos;
+  sf::Text LLText;
+  LLText.setFont(font);
+  LinkedList linkedList(window, LLText);
+  sf::Vector2i mpos;
   LLNode* pUser = NULL;
-  LLNode* pCurrActive = NULL;
 
   while (window.isOpen()) {
     sf::Event event;
@@ -45,24 +41,24 @@ int main() {
     // event takes all values in the program event queue and handles it until clear
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(window, event);
-      mousePos = sf::Mouse::getPosition(window);
+      mpos = sf::Mouse::getPosition(window);
       switch (event.type) {
         case sf::Event::Closed: {
           window.close();
         } break;
 
+        // TODO: check if on linkedlist context, useless operations if not
         case sf::Event::MouseButtonPressed: {
           if (event.mouseButton.button == sf::Mouse::Left) {
-            control.isDragging = true;
-            pUser = linkedList.search(mousePos);
+            pUser = linkedList.search(mpos);
+            if (pUser)
+              control.isDragging = true;
           }
         } break;
 
         case sf::Event::MouseButtonReleased: {
           if (event.mouseButton.button == sf::Mouse::Left) {
             control.isDragging = false;
-            control.isActive = false;
-            pUser = NULL;
           }
         } break;
 
@@ -74,7 +70,7 @@ int main() {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
     ImGui::SFML::Update(window, imguiClock.restart());
 
-    // Dockspace TODO: set up defaults and disable certain customizability
+    // Dockspace TODO: set up defaults and max/min sizes
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
     //ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -91,6 +87,8 @@ int main() {
 
     // GUI
     ImGui::Begin("Visualizer");
+    
+    // scales viewport with gui width
     float guiWidth = ImGui::GetWindowSize().x;
     float winWidth = window.getSize().x;
     float viewWidth = winWidth - guiWidth;
@@ -230,43 +228,13 @@ int main() {
           linkedList.remove();
         }
 
-        // mapCoordsToPixel goes from world coordinates(game world, the relative view, objects in the view) to pixel coordinates(window / actual screen).
-        // mapPixelsToCoords goes from pixel coordinates(window / actual screen) to world coordinates(game world, relative view, objects in the view).
-        // Coordinates are relative (sfml getPositions() returns relative coords)
-        // Pixels are absolute
-
-        // I likely need to use mapPixelsToCoords because shapes are all drawn
-        // with relative positioning (coords). So I need to map my cursor's absolute
-        // position (pixels) to the relative pixels of the view (coords). Also, since
-        // I want to keep track of the cursor's positioning within the bounds of the
-        // shape, I have to keep track of the relative sizing of the shape as well,
-        // so converting my absolute mouse position to the relative position is the way to go.
-
         // Mouse position scales with the view transformation (gui width)
+        // TODO: properly handle ptr when a node gets deleted
         ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
-        sf::FloatRect globalBounds(sf::FloatRect(0, 0, 0, 0));
-        sf::Vector2f convertMPos = window.mapPixelToCoords(mousePos, window.getView());
-        bool check = false;
-
-        // TODO: remember to set members to private 
-        // drag clicked node
-        if (pUser) {
-          pCurrActive = pUser;
-          pUser->shape.setPosition(convertMPos);
-        }
-        // track currently active node
-        if (pCurrActive) {
-          globalBounds = pCurrActive->shape.getGlobalBounds();
-          check = globalBounds.contains(convertMPos.x, convertMPos.y);
-        }
-        ImGui::TextColored(check ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
-        ImGui::Text("Shape Relative Coords (x:%0.0f, y:%0.0f)", globalBounds.left, globalBounds.top);
-
-        /* Not used b/c I'd have to convert the dimensions of the shape also
-        sf::Vector2i coords = window.mapCoordsToPixel(sf::Vector2f(globalBounds.left, globalBounds.top), window.getView());
-        ImGui::Text("Mouse Absolute Position (x:%d, y:%d)", mousePos.x, mousePos.y);
-        ImGui::Text("Shape CoordstoPixels    (x:%d, y:%d)", coords.x, coords.y);
-        */
+        sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
+        if (control.isDragging)
+          linkedList.move(pUser, mpos);
+        ImGui::TextColored(linkedList.isInBounds(pUser, mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
         ImGui::EndTabItem();
       }
