@@ -22,5 +22,6 @@ private: // make this private? handle solely in the linkedlist class?
   int data;
   int ID;
   sf::RectangleShape shape;
+  sf::VertexArray nextLine;
   sf::Text dataText;
 };
