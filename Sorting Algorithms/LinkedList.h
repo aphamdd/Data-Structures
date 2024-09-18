@@ -12,15 +12,14 @@ public:
 
   // find node based on shape's current pos relative to mouse pos?
   // think about efficiency: if I've already found the active node, don't search
-  bool search(); // find what node im clicking
+  LLNode* search(const sf::Vector2i mpos); // find what node im clicking
 
   void draw() const;
 
-public: 
-  LLNode* pActive; // ptr to the current interacted node
 
 private:
   // TODO: will probably make a vector of LLNode* head ptrs
   LLNode* head;
+  LLNode* pActive; // ptr to the current interacted node
   sf::RenderWindow& window; // DI
 };

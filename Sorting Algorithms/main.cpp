@@ -36,7 +36,8 @@ int main() {
   */
   LinkedList linkedList(window);
   sf::Vector2i mousePos;
-  LLNode* test = new LLNode(sf::Vector2f(500.f, 500.f));
+  LLNode* pUser = NULL;
+  LLNode* pCurrActive = NULL;
 
   while (window.isOpen()) {
     sf::Event event;
@@ -52,15 +53,16 @@ int main() {
 
         case sf::Event::MouseButtonPressed: {
           if (event.mouseButton.button == sf::Mouse::Left) {
-            cout << "Click" << endl;
             control.isDragging = true;
+            pUser = linkedList.search(mousePos);
           }
         } break;
 
         case sf::Event::MouseButtonReleased: {
           if (event.mouseButton.button == sf::Mouse::Left) {
-            cout << "Release" << endl;
             control.isDragging = false;
+            control.isActive = false;
+            pUser = NULL;
           }
         } break;
 
@@ -242,17 +244,23 @@ int main() {
 
         // Mouse position scales with the view transformation (gui width)
         ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
-        sf::FloatRect globalBounds = test->shape.getGlobalBounds();
+        sf::FloatRect globalBounds(sf::FloatRect(0, 0, 0, 0));
         sf::Vector2f convertMPos = window.mapPixelToCoords(mousePos, window.getView());
-        bool check = globalBounds.contains(convertMPos.x, convertMPos.y);
+        bool check = false;
+
+        // TODO: remember to set members to private 
+        // drag clicked node
+        if (pUser) {
+          pCurrActive = pUser;
+          pUser->shape.setPosition(convertMPos);
+        }
+        // track currently active node
+        if (pCurrActive) {
+          globalBounds = pCurrActive->shape.getGlobalBounds();
+          check = globalBounds.contains(convertMPos.x, convertMPos.y);
+        }
         ImGui::TextColored(check ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
         ImGui::Text("Shape Relative Coords (x:%0.0f, y:%0.0f)", globalBounds.left, globalBounds.top);
-        //ImGui::Text("Shape Size   (w:%0.2f, h:%0.2f)", globalBounds.width, globalBounds.height);
-
-        // cursor in shape and dragging is enabled
-        if (check && control.isDragging) {
-          test->shape.setPosition(convertMPos);
-        }
 
         /* Not used b/c I'd have to convert the dimensions of the shape also
         sf::Vector2i coords = window.mapCoordsToPixel(sf::Vector2f(globalBounds.left, globalBounds.top), window.getView());
@@ -292,7 +300,6 @@ int main() {
     }
     else if (control.isLinkedList) {
       linkedList.draw();
-      window.draw(*test);
     }
     else
       throw("DRAW PROBLEM");

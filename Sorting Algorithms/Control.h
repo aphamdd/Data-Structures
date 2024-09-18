@@ -14,6 +14,8 @@ struct Control {
   bool isInsertion = false;
 
   bool isDragging = false;
+  // allows cursor to move at fast speeds w/o losing the shape
+  bool isActive = false;
 
   int bubbleCompares = 0;
   int selectionCompares = 0;

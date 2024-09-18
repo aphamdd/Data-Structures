@@ -48,24 +48,36 @@ bool LinkedList::remove() {
     prev = current;
     current = current->next;
   }
+  if (current == pActive)
+    pActive = NULL;
   delete current;
   prev->next = NULL;
 
   return true;
 }
 
-bool LinkedList::search() {
+LLNode* LinkedList::search(const sf::Vector2i mpos) {
+  sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (!head)
-    return false;
+    return NULL;
 
-  /*
-  ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
-  sf::FloatRect globalBounds = test->shape.getGlobalBounds();
-  sf::Vector2f convertMPos = window.mapPixelToCoords(mousePos, window.getView());
-  bool check = globalBounds.contains(convertMPos.x, convertMPos.y);
-  ImGui::TextColored(check ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
-  ImGui::Text("Shape Relative Coords (x:%0.0f, y:%0.0f)", globalBounds.left, globalBounds.top);
-  */
+  // if active ptr on a node, check if its the correct one and return if so
+  if (pActive) {
+    sf::FloatRect activeBounds = pActive->shape.getGlobalBounds();
+    if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
+      return pActive;
+    }
+  }
+  // otherwise, search all nodes and return if found
+  sf::FloatRect currentBounds;
+  for (LLNode* current = head; current; current = current->next) {
+    currentBounds = current->shape.getGlobalBounds();
+    if (currentBounds.contains(convertMPos.x, convertMPos.y)) {
+      return current;
+    }
+  }
+  // null if not found
+  return NULL;
 }
 
 void LinkedList::draw() const {

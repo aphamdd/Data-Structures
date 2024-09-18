@@ -7,7 +7,7 @@ LLNode::LLNode(const sf::Vector2f pos) : next(NULL), data(0), ID(1) {
   shape.setFillColor(sf::Color::White);
   shape.setOutlineThickness(1.5f);
   shape.setOutlineColor(sf::Color::Black);
-  shape.setOrigin(sf::Vector2f(50.f, 25.f));
+  shape.setOrigin(sf::Vector2f(shape.getSize().x/2, shape.getSize().y/2));
 }
 
 LLNode::~LLNode() {
