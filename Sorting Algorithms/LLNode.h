@@ -10,7 +10,8 @@ public:
   LLNode(const sf::Vector2f pos, sf::Text& text);
   ~LLNode();
 
-  void update(const sf::Vector2f mpos);
+  void update(const sf::Vector2f mpos, LLNode* prev);
+  void updateNext(LLNode* prev);
 
   int getID() { return ID; };
 

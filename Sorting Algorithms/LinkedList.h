@@ -20,6 +20,7 @@ private:
   // TODO: will probably make a vector of LLNode* head ptrs
   LLNode* head;
   LLNode* pActive; // ptr to the current interacted node
+  LLNode* pPrev;
   sf::RenderWindow& window; // DI
   sf::Text LLText;
 };

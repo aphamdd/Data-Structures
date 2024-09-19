@@ -6,7 +6,8 @@ LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   window(win),
   LLText(text),
   head(NULL), 
-  pActive(NULL) {
+  pActive(NULL), 
+  pPrev(NULL) {
 }
 LinkedList::~LinkedList() {
   LLNode* temp = head;
@@ -18,6 +19,7 @@ LinkedList::~LinkedList() {
   temp = NULL;
   head = NULL;
   pActive = NULL;
+  pPrev = NULL;
 }
 
 void LinkedList::add() {
@@ -54,7 +56,9 @@ bool LinkedList::remove() {
     prev = current;
     current = current->next;
   }
-  if (current == pActive)
+  if (pPrev == current)
+    pPrev = NULL;
+  if (pActive == current)
     pActive = NULL;
   delete current;
   prev->next = NULL;
@@ -89,7 +93,8 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
   }
   // otherwise, search all nodes and return if found
   sf::FloatRect currentBounds;
-  for (LLNode* current = head; current; current = current->next) {
+  LLNode* current = head;
+  while (current) {
     currentBounds = current->shape.getGlobalBounds();
     if (currentBounds.contains(convertMPos.x, convertMPos.y)) {
       // set pactive color to white, set new pactive, highlight new pactive
@@ -99,6 +104,8 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
       pActive->shape.setFillColor(sf::Color::Green);
       return pActive;
     }
+    pPrev = current;
+    current = current->next;
   }
   // null if not found
   return NULL;
@@ -107,7 +114,7 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
 bool LinkedList::move(LLNode* p, const sf::Vector2i mpos) {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (p) {
-    p->update(convertMPos);
+    p->update(convertMPos, pPrev);
     return true;
   }
   return false;
