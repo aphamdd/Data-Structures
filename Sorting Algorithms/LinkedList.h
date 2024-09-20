@@ -21,12 +21,13 @@ public:
 public:
   bool findNodeBounds(LLNode* p);
 
+public:
+  LLNode* pActive; // the active selected node
 private:
   std::vector<sf::FloatRect> nBounds;
 
   // TODO: maybe make a vector of LLNode* head ptrs?
   LLNode* head;
-  LLNode* pActive; // ptr to the current interacted node
   LLNode* pPrev; // handles the previous vectorarray line
   sf::RenderWindow& window; // DI
   sf::Text LLText; // passes in text object into LLNode

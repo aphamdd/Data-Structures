@@ -33,6 +33,7 @@ int main() {
   LinkedList linkedList(window, LLText);
   sf::Vector2i mpos;
   LLNode* pUser = NULL;
+  int nodeNum = 0;
 
   while (window.isOpen()) {
     sf::Event event;
@@ -49,6 +50,7 @@ int main() {
         // TODO: check if on linkedlist context, useless operations if not
         case sf::Event::MouseButtonPressed: {
           if (event.mouseButton.button == sf::Mouse::Left) {
+            // !pUser when clicked anywhere outside of a node
             pUser = linkedList.search(mpos);
             if (pUser)
               control.isDragging = true;
@@ -241,6 +243,15 @@ int main() {
           }
         }
         ImGui::TextColored(linkedList.isInBounds(pUser, mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+
+        ImGui::Text("pUser: %p", pUser);
+        ImGui::Text("pActive: %p", linkedList.pActive);
+
+        ImGui::InputInt("Set Node Value:", &nodeNum);
+        if (ImGui::Button("Update Node")) {
+          if (linkedList.pActive)
+            linkedList.pActive->updateText(nodeNum);
+        }
 
         ImGui::EndTabItem();
       }

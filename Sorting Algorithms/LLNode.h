@@ -13,6 +13,7 @@ public:
 
   void update(const sf::Vector2f mpos, LLNode* prev); // moves node position
   void updateNext(LLNode* prev); // draws the next ptr line
+  void updateText(const int val);
 
 private:
   void draw(sf::RenderTarget& target, sf::RenderStates states) const;
