@@ -253,6 +253,15 @@ int main() {
             linkedList.pActive->updateText(nodeNum);
         }
 
+        ImGui::Text("Find Value: %d", nodeNum);
+        if (ImGui::Button("Find"))
+          control.isSearching = true;
+        if (control.isSearching)
+          if (linkedList.findValue(nodeNum)) {
+            cout << "done" << endl;
+            control.isSearching = false;
+          }
+
         ImGui::EndTabItem();
       }
 

@@ -8,7 +8,10 @@ LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   nBounds(),
   head(NULL), 
   pActive(NULL), 
-  pPrev(NULL) {
+  pPrev(NULL),
+  state(LLState::ENTRY),
+  prevState(LLState::ENTRY),
+  current(NULL) {
 }
 LinkedList::~LinkedList() {
   clear();
@@ -25,6 +28,7 @@ void LinkedList::clear() {
   head = NULL;
   pActive = NULL;
   pPrev = NULL;
+  current = NULL;
 }
 
 void LinkedList::add() {
@@ -165,4 +169,71 @@ bool LinkedList::findNodeBounds(LLNode* p) {
     current = current->next;
   }
   return true;
+}
+
+bool LinkedList::findValue(const int val) {
+  // true means found or finished search space
+  if (!head) {
+    resetState();
+    return true;
+  }
+
+  switch (state) {
+    case LLState::ENTRY: {
+      current = head;
+      state = LLState::COMPARE;
+      delayClock.restart();
+    } break;
+    case LLState::HIGHLIGHT: {
+      if (current) {
+        current->shape.setFillColor(sf::Color::Yellow);
+      }
+      else {
+        resetState();
+        return true;
+      }
+      prevState = state;
+      state = LLState::WAIT;
+      delayClock.restart();
+    } break;
+    case LLState::WAIT: {
+      if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
+        if (prevState == LLState::HIGHLIGHT) {
+          prevState = state;
+          state = LLState::COMPARE;
+        }
+        else if (prevState == LLState::COMPARE) {
+          prevState = state;
+          state = LLState::HIGHLIGHT;
+        }
+      }
+    } break;
+    case LLState::COMPARE: {
+      if (current->ID == val) {
+        current->shape.setFillColor(sf::Color::Magenta);
+        resetState();
+        std::cout << "found " << val << std::endl;
+        return true;
+      }
+      if (current->next) {
+        current->shape.setFillColor(sf::Color::White);
+        current = current->next;
+      }
+      else {
+        current->shape.setFillColor(sf::Color::White);
+        resetState();
+        return true;
+      }
+      prevState = state;
+      state = LLState::WAIT;
+      delayClock.restart();
+    } break;
+  }
+  return false;
+}
+
+void LinkedList::resetState() {
+  current = NULL;
+  state = LLState::ENTRY;
+  prevState = state;
 }

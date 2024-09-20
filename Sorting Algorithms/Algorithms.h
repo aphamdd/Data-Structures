@@ -25,6 +25,7 @@ private:
   SortState prevState;
 public:
   // dependency injection, problem is this creates complexity and coupling
+  // TODO: do this in cpp so i dont have to have SortState above this
   Algorithms(Control& c) :
     control(c),
     i(0), j(0), min(0),
