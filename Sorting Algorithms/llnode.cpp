@@ -17,7 +17,8 @@ LLNode::LLNode(const sf::Vector2f pos, sf::Text& text) :
   shape.setOrigin(sf::Vector2f(shape.getSize().x/2, shape.getSize().y/2));
 
   sf::Vector2f textPos = pos;
-  textPos.y += -size.y / 1.5;
+  textPos.x -= size.x / 2;
+  textPos.y -= size.y / 1.5;
   dataText.setPosition(textPos);
   dataText.setCharacterSize(50);
   dataText.setFillColor(sf::Color::Black);
@@ -26,7 +27,7 @@ LLNode::LLNode(const sf::Vector2f pos, sf::Text& text) :
   sf::Vector2f nextPos = pos;
   nextPos.x += size.x / 2;
   nextLine[0].position = nextPos;
-  nextPos.x += 10.f;
+  nextPos.x += 10;
   nextLine[1].position = nextPos;
   nextLine[0].color = sf::Color::Yellow;
   nextLine[1].color = sf::Color::Yellow;
@@ -39,12 +40,13 @@ LLNode::~LLNode() {
   // TODO: delete shape??
 }
 
-void LLNode::update(const sf::Vector2f mpos, LLNode* prev) {
-  shape.setPosition(mpos);
-
-  sf::Vector2f textPos = shape.getPosition();
-  textPos.y += -shape.getSize().y / 1.5;
+void LLNode::update(const sf::Vector2f pos, LLNode* prev) {
+  // TODO: handle boundaries and collision
+  sf::Vector2f textPos = pos;
+  textPos.x -= shape.getSize().x / 2;
+  textPos.y -= shape.getSize().y / 1.5;
   dataText.setPosition(textPos);
+  shape.setPosition(pos);
 
   // I need a previous pointer to update the next pointer line accordingly
   updateNext(prev);
@@ -54,6 +56,9 @@ void LLNode::updateNext(LLNode* prev) {
   sf::Vector2f nextPos = shape.getPosition();
   nextPos.x += shape.getSize().x / 2;
   nextLine[0].position = nextPos;
+  if (!next) {
+    nextLine[1].position = nextPos;
+  }
 
   sf::Vector2f prevPos = shape.getPosition();
   prevPos.x -= shape.getSize().x / 2;

@@ -1,10 +1,12 @@
 #pragma once
 #include "LLNode.h"
 
+// handles linked list operations
 class LinkedList {
 public:
   LinkedList(sf::RenderWindow& win, sf::Text& text);
   ~LinkedList();
+  void clear();
 
   void add();
   bool remove();
@@ -16,11 +18,16 @@ public:
 
   void draw() const;
 
+public:
+  bool findNodeBounds(LLNode* p);
+
 private:
-  // TODO: will probably make a vector of LLNode* head ptrs
+  std::vector<sf::FloatRect> nBounds;
+
+  // TODO: maybe make a vector of LLNode* head ptrs?
   LLNode* head;
   LLNode* pActive; // ptr to the current interacted node
-  LLNode* pPrev;
+  LLNode* pPrev; // handles the previous vectorarray line
   sf::RenderWindow& window; // DI
-  sf::Text LLText;
+  sf::Text LLText; // passes in text object into LLNode
 };

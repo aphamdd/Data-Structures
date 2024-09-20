@@ -2,14 +2,19 @@
 #include "LinkedList.h"
 
 // TODO: is there a way to skip having to pass in my text through LinkedList->LLNode
-LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) : 
+LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   window(win),
   LLText(text),
+  nBounds(),
   head(NULL), 
   pActive(NULL), 
   pPrev(NULL) {
 }
 LinkedList::~LinkedList() {
+  clear();
+}
+
+void LinkedList::clear() {
   LLNode* temp = head;
   while (head) {
     head = head->next;
@@ -113,8 +118,16 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
 
 bool LinkedList::move(LLNode* p, const sf::Vector2i mpos) {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
+  sf::Vector2f lastPos = p->shape.getPosition();
   if (p) {
     p->update(convertMPos, pPrev);
+    // handle collision
+    sf::FloatRect currentShape = p->shape.getGlobalBounds();
+    findNodeBounds(p);
+    for (const auto& anyShape : nBounds) {
+      if (currentShape.intersects(anyShape))
+        p->update(lastPos, pPrev);
+    }
     return true;
   }
   return false;
@@ -137,4 +150,19 @@ void LinkedList::draw() const {
     window.draw(*current); // invokes overridden draw function in LLNode
     current = current->next;
   }
+}
+
+bool LinkedList::findNodeBounds(LLNode* p) {
+  nBounds.clear();
+  if (!head)
+    return false;
+
+  LLNode* current = head;
+  while (current) {
+    // don't insert the active node 
+    if (current != p)
+      nBounds.push_back(current->shape.getGlobalBounds());
+    current = current->next;
+  }
+  return true;
 }

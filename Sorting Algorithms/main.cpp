@@ -14,7 +14,6 @@ int main() {
   //sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Titlebar | sf::Style::Close);
   sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
   sf::View view = window.getDefaultView();
-  window.setVerticalSyncEnabled(true);
   window.setFramerateLimit(FPS);
   ImGui::SFML::Init(window);
   sf::Clock imguiClock;
@@ -27,7 +26,7 @@ int main() {
 
   // linked list params
   sf::Font font;
-  if (!font.loadFromFile("./Fonts/Retale-Regular.ttf"))
+  if (!font.loadFromFile("./Fonts/Bungee-Regular.ttf"))
     throw("COULDN'T LOAD FONT");
   sf::Text LLText;
   LLText.setFont(font);
@@ -73,8 +72,9 @@ int main() {
     // Dockspace TODO: set up defaults and max/min sizes
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
     ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-    //ImGui::SetNextWindowPos(ImVec2(0, 0));
-    //ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
+    // updates dockspace if window resizes
+    ImGui::SetNextWindowPos(ImVec2(0, 0));
+    ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
     ImGui::SetNextWindowBgAlpha(0.0f);
     // ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
     ImGuiStyle& style = ImGui::GetStyle();
@@ -140,7 +140,7 @@ int main() {
           graph.shuffle();
         }
         int prev = numBars;
-        ImGui::SliderInt("# of Bars", &numBars, 2, 50);
+        ImGui::SliderInt("# of Bars", &numBars, 2, 100);
         if (prev != numBars) {
           graph.build(numBars);
           prev = numBars;
@@ -227,13 +227,19 @@ int main() {
         if (ImGui::Button("Remove")) {
           linkedList.remove();
         }
+        if (ImGui::Button("Clear")) {
+          linkedList.clear();
+        }
 
         // Mouse position scales with the view transformation (gui width)
         // TODO: properly handle ptr when a node gets deleted
         ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
         sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-        if (control.isDragging)
-          linkedList.move(pUser, mpos);
+        if (control.isDragging) {
+          if (!linkedList.move(pUser, mpos)) {
+            throw("idk how I'm moving nothing");
+          }
+        }
         ImGui::TextColored(linkedList.isInBounds(pUser, mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
         ImGui::EndTabItem();
