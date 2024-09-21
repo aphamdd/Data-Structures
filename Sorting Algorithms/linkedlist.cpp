@@ -6,71 +6,82 @@ LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   window(win),
   LLText(text),
   nBounds(),
-  head(NULL), 
-  pActive(NULL), 
-  pPrev(NULL),
+  mHead(NULL), 
+  mActive(NULL), 
+  mPrev(NULL),
   state(LLState::ENTRY),
   prevState(LLState::ENTRY),
-  current(NULL) {
+  mStatePtr(NULL) {
 }
 LinkedList::~LinkedList() {
   clear();
 }
 
 void LinkedList::clear() {
-  LLNode* temp = head;
-  while (head) {
-    head = head->next;
+  LLNode* temp = mHead;
+  while (mHead) {
+    mHead = mHead->next;
     delete temp;
-    temp = head;
+    temp = mHead;
   }
   temp = NULL;
-  head = NULL;
-  pActive = NULL;
-  pPrev = NULL;
-  current = NULL;
+  mHead = NULL;
+  mActive = NULL;
+  mPrev = NULL;
+  mStatePtr = NULL;
 }
 
 void LinkedList::add() {
   sf::Vector2f tempPos(75.f, 400.f);
-  if (!head) {
-    head = new LLNode(tempPos, LLText);
-    head->shape.setFillColor(sf::Color::Red);
+  if (!mHead) {
+    mHead = new LLNode(tempPos, LLText);
+    mHead->shape.setFillColor(sf::Color::Red);
   }
   else {
-    LLNode* current = head;
-    while (current->next) {
-      current = current->next;
+    LLNode* curr = mHead;
+    while (curr->next) {
+      curr = curr->next;
     }
-    sf::Vector2f temp = current->shape.getPosition();
+    sf::Vector2f temp = curr->shape.getPosition();
     temp.x += 110.f;
-    current->next = new LLNode(temp, LLText);
-    current->next->ID += current->ID;
+    curr->next = new LLNode(temp, LLText);
+    curr->next->ID += curr->ID;
+    curr->next->updateNext(curr);
     // TODO: create a function to update any changes to text/shape
-    current->next->dataText.setString(std::to_string(current->next->ID));
+    curr->next->dataText.setString(std::to_string(curr->next->ID));
   }
 }
 
 bool LinkedList::remove() {
-  if (!head)
-    return true;
-  else if (!head->next) {
-    delete head;
-    head = NULL;
+  // 0 nodes
+  if (!mHead) {
     return true;
   }
+  // 1 node
+  else if (!mHead->next) {
+    delete mHead;
+    mHead = NULL;
+    mActive = NULL;
+    mPrev = NULL;
+    mStatePtr = NULL;
+    return true;
+  }
+  // 2+ nodes
   LLNode* prev = NULL;
-  LLNode* current = head;
-  while (current->next) {
-    prev = current;
-    current = current->next;
+  LLNode* curr = mHead;
+  while (curr->next) {
+    prev = curr;
+    curr = curr->next;
   }
-  if (pPrev == current)
-    pPrev = NULL;
-  if (pActive == current)
-    pActive = NULL;
-  delete current;
+  if (mPrev == curr)
+    mPrev = NULL;
+  if (mActive == curr)
+    mActive = NULL;
+  delete curr;
+  curr = NULL;
   prev->next = NULL;
+  prev->updateNext();
+  prev = NULL;
 
   return true;
 }
@@ -90,103 +101,111 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
   // so converting my absolute mouse position to the relative position is the way to go.
   
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-  if (!head)
+  if (!mHead)
     return NULL;
 
   // check if we clicked on the same active node
-  if (pActive) {
-    sf::FloatRect activeBounds = pActive->shape.getGlobalBounds();
+  if (mActive) {
+    sf::FloatRect activeBounds = mActive->shape.getGlobalBounds();
     if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
-      return pActive;
+      return mActive;
     }
   }
-  // otherwise, search all nodes and return if found
-  sf::FloatRect currentBounds;
-  LLNode* current = head;
-  while (current) {
-    currentBounds = current->shape.getGlobalBounds();
-    if (currentBounds.contains(convertMPos.x, convertMPos.y)) {
+  // otherwise, compare curr mpos with nodes or a spot on the screen
+  for (LLNode* curr = mHead; curr; curr = curr->next) {
+    sf::FloatRect currBounds = curr->shape.getGlobalBounds();
+    if (currBounds.contains(convertMPos.x, convertMPos.y)) {
       // set pactive color to white, set new pactive, highlight new pactive
-      if (pActive)
-        pActive->shape.setFillColor(sf::Color::White);
-      pActive = current;
-      pActive->shape.setFillColor(sf::Color::Green);
-      return pActive;
+      if (mActive)
+        mActive->shape.setFillColor(sf::Color::White);
+      mActive = curr;
+      mActive->shape.setFillColor(sf::Color::Green);
+      // update previous pointer after setting mActive
+      updatePrev();
+      return mActive;
     }
-    pPrev = current;
-    current = current->next;
   }
-  // null if not found
   return NULL;
 }
 
-bool LinkedList::move(LLNode* p, const sf::Vector2i mpos) {
+void LinkedList::updatePrev() {
+  if (!mHead || !mHead->next || !mActive || mActive == mHead) {
+    mPrev = NULL;
+    return;
+  }
+  mPrev = mHead;
+  while (mPrev->next != mActive) {
+    mPrev = mPrev->next;
+  }
+}
+
+bool LinkedList::move(const sf::Vector2i mpos) {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-  sf::Vector2f lastPos = p->shape.getPosition();
-  if (p) {
-    p->update(convertMPos, pPrev);
+  sf::Vector2f lastPos = mActive->shape.getPosition();
+  if (mActive) {
+    mActive->update(convertMPos, mPrev);
     // handle collision
-    sf::FloatRect currentShape = p->shape.getGlobalBounds();
-    findNodeBounds(p);
+    sf::FloatRect currShape = mActive->shape.getGlobalBounds();
+    findNodeBounds();
     for (const auto& anyShape : nBounds) {
-      if (currentShape.intersects(anyShape))
-        p->update(lastPos, pPrev);
+      if (currShape.intersects(anyShape))
+        mActive->update(lastPos, mPrev);
     }
     return true;
   }
   return false;
 }
 
-bool LinkedList::isInBounds(const LLNode* p, const sf::Vector2i mpos) const {
+bool LinkedList::isInBounds(const sf::Vector2i mpos) const {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-  if (p) {
-    sf::FloatRect globalBounds = p->shape.getGlobalBounds();
+  if (mActive) {
+    sf::FloatRect globalBounds = mActive->shape.getGlobalBounds();
     return globalBounds.contains(convertMPos.x, convertMPos.y);
   }
   return false;
 }
 
 void LinkedList::draw() const {
-  if (!head)
+  if (!mHead)
     return;
-  LLNode* current = head;
-  while (current) {
-    window.draw(*current); // invokes overridden draw function in LLNode
-    current = current->next;
+  LLNode* curr = mHead;
+  while (curr) {
+    window.draw(*curr); // invokes overridden draw function in LLNode
+    curr = curr->next;
   }
 }
 
-bool LinkedList::findNodeBounds(LLNode* p) {
+bool LinkedList::findNodeBounds() {
   nBounds.clear();
-  if (!head)
+  if (!mHead)
     return false;
 
-  LLNode* current = head;
-  while (current) {
+  LLNode* curr = mHead;
+  while (curr) {
     // don't insert the active node 
-    if (current != p)
-      nBounds.push_back(current->shape.getGlobalBounds());
-    current = current->next;
+    if (curr != mActive)
+      nBounds.push_back(curr->shape.getGlobalBounds());
+    curr = curr->next;
   }
   return true;
 }
 
 bool LinkedList::findValue(const int val) {
   // true means found or finished search space
-  if (!head) {
+  if (!mHead) {
     resetState();
     return true;
   }
 
   switch (state) {
     case LLState::ENTRY: {
-      current = head;
+      mStatePtr = mHead;
       state = LLState::COMPARE;
       delayClock.restart();
     } break;
     case LLState::HIGHLIGHT: {
-      if (current) {
-        current->shape.setFillColor(sf::Color::Yellow);
+      if (mStatePtr) {
+        mStatePtr->shape.setFillColor(sf::Color::Yellow);
       }
       else {
         resetState();
@@ -209,18 +228,18 @@ bool LinkedList::findValue(const int val) {
       }
     } break;
     case LLState::COMPARE: {
-      if (current->ID == val) {
-        current->shape.setFillColor(sf::Color::Magenta);
+      if (mStatePtr->ID == val) {
+        mStatePtr->shape.setFillColor(sf::Color::Magenta);
         resetState();
         std::cout << "found " << val << std::endl;
         return true;
       }
-      if (current->next) {
-        current->shape.setFillColor(sf::Color::White);
-        current = current->next;
+      if (mStatePtr->next) {
+        mStatePtr->shape.setFillColor(sf::Color::White);
+        mStatePtr = mStatePtr->next;
       }
       else {
-        current->shape.setFillColor(sf::Color::White);
+        mStatePtr->shape.setFillColor(sf::Color::White);
         resetState();
         return true;
       }
@@ -233,7 +252,7 @@ bool LinkedList::findValue(const int val) {
 }
 
 void LinkedList::resetState() {
-  current = NULL;
+  mStatePtr = NULL;
   state = LLState::ENTRY;
   prevState = state;
 }

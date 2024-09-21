@@ -13,24 +13,25 @@ public:
   void insert();
 
   LLNode* search(const sf::Vector2i mpos); // find what node im clicking
-  bool move(LLNode* p, const sf::Vector2i mpos);
-  bool isInBounds(const LLNode* p, const sf::Vector2i mpos) const;
+  void updatePrev(); // useful for handling next pointer line
+  bool move(const sf::Vector2i mpos);
+  bool isInBounds(const sf::Vector2i mpos) const;
   bool findValue(const int val);
 
   void draw() const;
 
 private:
-  bool findNodeBounds(LLNode* p);
+  bool findNodeBounds();
   void resetState();
 
 public:
-  LLNode* pActive; // the active selected node
+  LLNode* mActive; // the active selected node
 private:
   std::vector<sf::FloatRect> nBounds;
 
   // TODO: maybe make a vector of LLNode* head ptrs?
-  LLNode* head;
-  LLNode* pPrev; // handles the previous vectorarray line
+  LLNode* mHead;
+  LLNode* mPrev; // handles the previous next pointer line
   sf::RenderWindow& window; // DI
   sf::Text LLText; // passes in text object into LLNode
 
@@ -43,6 +44,6 @@ private:
   };
   LLState state;
   LLState prevState;
-  LLNode* current;
+  LLNode* mStatePtr;
   sf::Clock delayClock;
 };

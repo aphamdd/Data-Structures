@@ -32,7 +32,6 @@ int main() {
   LLText.setFont(font);
   LinkedList linkedList(window, LLText);
   sf::Vector2i mpos;
-  LLNode* pUser = NULL;
   int nodeNum = 0;
 
   while (window.isOpen()) {
@@ -50,10 +49,10 @@ int main() {
         // TODO: check if on linkedlist context, useless operations if not
         case sf::Event::MouseButtonPressed: {
           if (event.mouseButton.button == sf::Mouse::Left) {
-            // !pUser when clicked anywhere outside of a node
-            pUser = linkedList.search(mpos);
-            if (pUser)
+            if (linkedList.search(mpos))
               control.isDragging = true;
+            else
+              cout << "Not a node" << endl;
           }
         } break;
 
@@ -238,19 +237,18 @@ int main() {
         ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
         sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
         if (control.isDragging) {
-          if (!linkedList.move(pUser, mpos)) {
+          if (!linkedList.move(mpos)) {
             throw("idk how I'm moving nothing");
           }
         }
-        ImGui::TextColored(linkedList.isInBounds(pUser, mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+        ImGui::TextColored(linkedList.isInBounds(mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
-        ImGui::Text("pUser: %p", pUser);
-        ImGui::Text("pActive: %p", linkedList.pActive);
+        ImGui::Text("pActive: %p", linkedList.mActive);
 
         ImGui::InputInt("Set Node Value:", &nodeNum);
         if (ImGui::Button("Update Node")) {
-          if (linkedList.pActive)
-            linkedList.pActive->updateText(nodeNum);
+          if (linkedList.mActive)
+            linkedList.mActive->updateText(nodeNum);
         }
 
         ImGui::Text("Find Value: %d", nodeNum);

@@ -27,7 +27,6 @@ LLNode::LLNode(const sf::Vector2f pos, sf::Text& text) :
   sf::Vector2f nextPos = pos;
   nextPos.x += size.x / 2;
   nextLine[0].position = nextPos;
-  nextPos.x += 10;
   nextLine[1].position = nextPos;
   nextLine[0].color = sf::Color::Yellow;
   nextLine[1].color = sf::Color::Yellow;
@@ -52,18 +51,37 @@ void LLNode::update(const sf::Vector2f pos, LLNode* prev) {
   updateNext(prev);
 }
 
+// overloaded method: updates the previous node's line as well
 void LLNode::updateNext(LLNode* prev) {
+  // two cases:
+  // am I the tail node
+  // am I not a tail node
+
+  // update current node next line
   sf::Vector2f nextPos = shape.getPosition();
   nextPos.x += shape.getSize().x / 2;
   nextLine[0].position = nextPos;
+  // if theres no node in front, keep it hidden
   if (!next) {
     nextLine[1].position = nextPos;
   }
 
+  // update the next line behind the current node
   sf::Vector2f prevPos = shape.getPosition();
   prevPos.x -= shape.getSize().x / 2;
   if (prev) {
     prev->nextLine[1].position = prevPos;
+  }
+}
+
+void LLNode::updateNext() {
+  // update current node next line
+  sf::Vector2f nextPos = shape.getPosition();
+  nextPos.x += shape.getSize().x / 2;
+  nextLine[0].position = nextPos;
+  // if theres no node in front, keep it hidden
+  if (!next) {
+    nextLine[1].position = nextPos;
   }
 }
 
