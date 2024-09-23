@@ -246,54 +246,37 @@ void LinkedList::updateCursor() {
     mLastActive = nullptr;
     return;
   }
-  // use state machine to manage cursor movement?
-  // 0. if !mActive, cursor is hidden
-  // 1. if mActive exists, set cursor to show up on that node
-  // 2. if mActive moves, animate the motion to move to the new mActive
-  //    a. mActive only changes if: clicked on a different node
-  //       or if mActive node is removed
-  //    b. How do I know if mActive changed active nodes?
-  // 3. what if I change mActive, but then go back to mLastActive? It teleports back
-
-  // if mActive and !mLastActive, then its the first time mActive
-  if (mActive && !mLastActive) {
+  // handles first time mActive points to a node
+  // TODO: change mLastActive to something else
+  else if (mActive && !mLastActive) {
     mLastActive = mActive;
     sf::Vector2f activeNodePos = mActive->shape.getPosition();
     activeNodePos.y += mActive->shape.getSize().y;
     cursor.setRadius(10.f);
     cursor.setPosition(activeNodePos);
   }
-  // cursor should animate its movement to the new active node
-  else if (mLastActive != mActive) {
-    float k = 1000; // dampening constant
-    sf::Vector2f cursorPos = cursor.getPosition();
-    sf::Vector2f cursorGoal = mActive->shape.getPosition();
-    float dx = cursorGoal.x - cursorPos.x;
-    float dy = cursorGoal.y - cursorPos.y;
-    float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
-    sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
-    float dt = delayClock.restart().asSeconds();
-    float velx = (k * distance * direction.x)*dt;
-    float vely = (k * distance * direction.y)*dt;
-    // not 0 because itll never reach 0, just needs to be "close enough"
-    if (distance >= 5) { 
-      sf::Vector2f res(cursorPos.x + velx, cursorPos.y + vely);
-      cursor.setPosition(res);
-    }
-    else {
-      cursor.setPosition(cursorGoal);
-      mActive->shape.setFillColor(sf::Color::Red);
-      mLastActive = mActive;
-    }
+
+  // TODO: refactor for efficiency
+  float k = 10000; // dampening constant
+  sf::Vector2f cursorPos = cursor.getPosition();
+  sf::Vector2f cursorGoal = mActive->shape.getPosition();
+  cursorGoal.y += mActive->shape.getSize().y;
+  float dx = cursorGoal.x - cursorPos.x;
+  float dy = cursorGoal.y - cursorPos.y;
+  float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
+  sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
+  float dt = delayClock.restart().asSeconds();
+  float velx = (k * distance * direction.x)*dt;
+  float vely = (k * distance * direction.y)*dt;
+  // not 0 because itll never reach 0, just needs to be "close enough"
+  if (distance >= 5) { 
+    sf::Vector2f res(cursorPos.x + velx, cursorPos.y + vely);
+    cursor.setPosition(res);
   }
   else {
-    // if we're on the same active node, cursor should follow albeit lagging behind
-    sf::Vector2f activeNodePos = mActive->shape.getPosition();
-    activeNodePos.y += mActive->shape.getSize().y;
-    cursor.setRadius(10.f);
-    cursor.setPosition(activeNodePos);
+    cursor.setPosition(cursorGoal);
+    mLastActive = mActive;
   }
-
 }
 
 void LinkedList::resetState() {

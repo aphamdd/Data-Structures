@@ -237,11 +237,9 @@ int main() {
         ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
         sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
         if (control.isDragging) {
-          linkedList.delayClock.restart();
           if (!linkedList.move(mpos)) {
             throw("idk how I'm moving nothing");
           }
-          linkedList.updateCursor();
         }
         ImGui::TextColored(linkedList.isInBounds(mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
@@ -256,11 +254,15 @@ int main() {
         ImGui::Text("Find Value: %d", nodeNum);
         if (ImGui::Button("Find"))
           control.isSearching = true;
-        if (control.isSearching)
+        if (control.isSearching) {
           if (linkedList.findValue(nodeNum)) {
             cout << "done" << endl;
             control.isSearching = false;
           }
+        }
+        
+        linkedList.delayClock.restart();
+        linkedList.updateCursor();
 
         ImGui::EndTabItem();
       }
