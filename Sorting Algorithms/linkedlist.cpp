@@ -5,13 +5,10 @@
 LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   window(win),
   LLText(text),
-  nBounds(),
-  mHead(NULL), 
-  mActive(NULL), 
-  mPrev(NULL),
-  state(LLState::ENTRY),
-  prevState(LLState::ENTRY),
-  mStatePtr(NULL) {
+  cursor(0.f, 3) {
+  cursor.setFillColor(sf::Color::Green);
+  cursor.setOutlineThickness(1.5f);
+  cursor.setOutlineColor(sf::Color::Black);
 }
 LinkedList::~LinkedList() {
   clear();
@@ -24,11 +21,11 @@ void LinkedList::clear() {
     delete temp;
     temp = mHead;
   }
-  temp = NULL;
-  mHead = NULL;
-  mActive = NULL;
-  mPrev = NULL;
-  mStatePtr = NULL;
+  temp = nullptr;
+  mHead = nullptr;
+  mActive = nullptr;
+  mPrev = nullptr;
+  mStatePtr = nullptr;
 }
 
 void LinkedList::add() {
@@ -60,28 +57,28 @@ bool LinkedList::remove() {
   // 1 node
   else if (!mHead->next) {
     delete mHead;
-    mHead = NULL;
-    mActive = NULL;
-    mPrev = NULL;
-    mStatePtr = NULL;
+    mHead = nullptr;
+    mActive = nullptr;
+    mPrev = nullptr;
+    mStatePtr = nullptr;
     return true;
   }
   // 2+ nodes
-  LLNode* prev = NULL;
+  LLNode* prev = nullptr;
   LLNode* curr = mHead;
   while (curr->next) {
     prev = curr;
     curr = curr->next;
   }
   if (mPrev == curr)
-    mPrev = NULL;
+    mPrev = nullptr;
   if (mActive == curr)
-    mActive = NULL;
+    mActive = nullptr;
   delete curr;
-  curr = NULL;
-  prev->next = NULL;
+  curr = nullptr;
+  prev->next = nullptr;
   prev->updateNext();
-  prev = NULL;
+  prev = nullptr;
 
   return true;
 }
@@ -102,7 +99,7 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
   
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (!mHead)
-    return NULL;
+    return nullptr;
 
   // check if we clicked on the same active node
   if (mActive) {
@@ -125,12 +122,12 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
       return mActive;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 void LinkedList::updatePrev() {
   if (!mHead || !mHead->next || !mActive || mActive == mHead) {
-    mPrev = NULL;
+    mPrev = nullptr;
     return;
   }
   mPrev = mHead;
@@ -163,16 +160,6 @@ bool LinkedList::isInBounds(const sf::Vector2i mpos) const {
     return globalBounds.contains(convertMPos.x, convertMPos.y);
   }
   return false;
-}
-
-void LinkedList::draw() const {
-  if (!mHead)
-    return;
-  LLNode* curr = mHead;
-  while (curr) {
-    window.draw(*curr); // invokes overridden draw function in LLNode
-    curr = curr->next;
-  }
 }
 
 bool LinkedList::findNodeBounds() {
@@ -251,8 +238,67 @@ bool LinkedList::findValue(const int val) {
   return false;
 }
 
+void LinkedList::updateCursor() {
+  // doesn't ever get called cuz updateCursor() only gets called when moved
+  if (!mActive) {
+    cursor.setRadius(0.f);
+    cursor.setPosition(sf::Vector2f(0, 0));
+    mLastActive = nullptr;
+    return;
+  }
+  // use state machine to manage cursor movement?
+  // 0. if !mActive, cursor is hidden
+  // 1. if mActive exists, set cursor to show up on that node
+  // 2. if mActive moves, animate the motion to move to the new mActive
+  //    a. mActive only changes if: clicked on a different node
+  //       or if mActive node is removed
+  //    b. How do I know if mActive changed active nodes?
+  // 3. what if I change mActive, but then go back to mLastActive? It teleports back
+
+  // if mActive and !mLastActive, then its the first time mActive
+  if (mActive && !mLastActive) {
+    mLastActive = mActive;
+    sf::Vector2f activeNodePos = mActive->shape.getPosition();
+    activeNodePos.y += mActive->shape.getSize().y;
+    cursor.setRadius(10.f);
+    cursor.setPosition(activeNodePos);
+  }
+  // cursor should animate its movement to the new active node
+  else if (mLastActive != mActive) {
+    sf::Vector2f cursorGoal = mActive->shape.getPosition();
+    if (cursor.getPosition() != cursorGoal) { 
+      // dt needs to get refreshed beforehand the first time somehow
+      float dtVel = -100 * delayClock.restart().asSeconds();
+      sf::Vector2f test(cursor.getPosition().x + dtVel, cursor.getPosition().y);
+      cursor.setPosition(test);
+    }
+    else {
+      mLastActive = mActive;
+    }
+  }
+  else {
+    // if we're on the same active node, cursor should follow albeit lagging behind
+    sf::Vector2f activeNodePos = mActive->shape.getPosition();
+    activeNodePos.y += mActive->shape.getSize().y;
+    cursor.setRadius(10.f);
+    cursor.setPosition(activeNodePos);
+  }
+
+}
+
 void LinkedList::resetState() {
-  mStatePtr = NULL;
+  mStatePtr = nullptr;
   state = LLState::ENTRY;
   prevState = state;
+}
+
+void LinkedList::draw() const {
+  if (!mHead)
+    return;
+  LLNode* curr = mHead;
+  while (curr) {
+    window.draw(*curr); // invokes overridden draw function in LLNode
+    curr = curr->next;
+  }
+  window.draw(cursor);
 }

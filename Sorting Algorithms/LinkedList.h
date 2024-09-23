@@ -13,10 +13,11 @@ public:
   void insert();
 
   LLNode* search(const sf::Vector2i mpos); // find what node im clicking
-  void updatePrev(); // useful for handling next pointer line
-  bool move(const sf::Vector2i mpos);
-  bool isInBounds(const sf::Vector2i mpos) const;
+  void updatePrev(); // moves mPrev to the node behind mActive
+  bool move(const sf::Vector2i mpos); // handles LLNode positioning
+  bool isInBounds(const sf::Vector2i mpos) const; // checks if mouse is inside mActive Node
   bool findValue(const int val);
+  void updateCursor();
 
   void draw() const;
 
@@ -24,17 +25,22 @@ private:
   bool findNodeBounds();
   void resetState();
 
+ // TODO: composition, compose some of this stuff into structs or delegate to other classes
 public:
-  LLNode* mActive; // the active selected node
+  sf::CircleShape cursor;
+  LLNode* mActive =  nullptr; // the active selected node
+  sf::Clock delayClock;
+
 private:
-  std::vector<sf::FloatRect> nBounds;
+  std::vector<sf::FloatRect> nBounds; // vector of all node bounds
 
   // TODO: maybe make a vector of LLNode* head ptrs?
-  LLNode* mHead;
-  LLNode* mPrev; // handles the previous next pointer line
-  sf::RenderWindow& window; // DI
-  sf::Text LLText; // passes in text object into LLNode
+  LLNode* mHead = nullptr;
+  LLNode* mPrev = nullptr; // handles the previous next pointer line
 
+  LLNode* mLastActive = nullptr; // the last node active was on
+
+  // LinkedList Operation Animation State Machine
   enum class LLState {
     ENTRY,
     HIGHLIGHT,
@@ -42,8 +48,11 @@ private:
     COMPARE,
     RESET
   };
-  LLState state;
-  LLState prevState;
-  LLNode* mStatePtr;
-  sf::Clock delayClock;
+  LLState state = LLState::ENTRY;
+  LLState prevState = LLState::ENTRY;
+  LLNode* mStatePtr = nullptr;
+
+
+  sf::RenderWindow& window; // DI
+  sf::Text LLText; // passes in text object into LLNode
 };

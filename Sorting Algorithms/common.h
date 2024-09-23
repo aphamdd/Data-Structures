@@ -1,6 +1,8 @@
 #pragma once
 
-extern int SCREEN_WIDTH;
-extern int SCREEN_HEIGHT;
-extern int FPS;
-extern float DELAY;
+//namespace Params {
+  inline int SCREEN_WIDTH = 2200;
+  inline int SCREEN_HEIGHT = 1000;
+  inline int FPS = 2040;
+  inline float DELAY = 0.1;
+//}

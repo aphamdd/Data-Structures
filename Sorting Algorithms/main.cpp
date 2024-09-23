@@ -240,6 +240,7 @@ int main() {
           if (!linkedList.move(mpos)) {
             throw("idk how I'm moving nothing");
           }
+          linkedList.updateCursor();
         }
         ImGui::TextColored(linkedList.isInBounds(mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 

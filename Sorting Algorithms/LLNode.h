@@ -20,9 +20,8 @@ private:
   void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 private:
-  LLNode* next;
-  int data;
-  int ID;
+  LLNode* next = nullptr;
+  int ID = 1;
   sf::RectangleShape shape;
   sf::VertexArray nextLine;
   sf::Text dataText;

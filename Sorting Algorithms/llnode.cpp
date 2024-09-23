@@ -3,11 +3,8 @@
 
 // TODO: properly handle text centering
 LLNode::LLNode(const sf::Vector2f pos, sf::Text& text) :
-  next(NULL),
   dataText(text),
-  nextLine(sf::Lines, 2),
-  data(0), 
-  ID(1) { 
+  nextLine(sf::Lines, 2) {
   sf::Vector2f size(100.f, 50.f);
   shape.setSize(size);
   shape.setPosition(pos);
@@ -32,15 +29,13 @@ LLNode::LLNode(const sf::Vector2f pos, sf::Text& text) :
   nextLine[1].color = sf::Color::Yellow;
 }
 
+// TODO: delete shape?? I don't create anything on the heap here
 LLNode::~LLNode() {
-  next = NULL;
-  data = 0;
+  next = nullptr;
   ID = 0;
-  // TODO: delete shape??
 }
 
 void LLNode::update(const sf::Vector2f pos, LLNode* prev) {
-  // TODO: handle boundaries and collision
   sf::Vector2f textPos = pos;
   textPos.x -= shape.getSize().x / 2;
   textPos.y -= shape.getSize().y / 1.5;
@@ -96,7 +91,7 @@ void LLNode::updateText(const int val) {
 }
 
 void LLNode::draw(sf::RenderTarget& target, sf::RenderStates states) const {
-  states.texture = NULL;
+  states.texture = nullptr;
   target.draw(shape, states);
   target.draw(dataText, states);
   target.draw(nextLine, states);
