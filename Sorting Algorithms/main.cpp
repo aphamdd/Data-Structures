@@ -261,9 +261,9 @@ int main() {
           }
         }
         
-        linkedList.delayClock.restart();
         linkedList.updateCursor();
 
+        linkedList.dtRestart();
         ImGui::EndTabItem();
       }
 

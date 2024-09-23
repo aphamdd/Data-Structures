@@ -18,6 +18,7 @@ public:
   bool isInBounds(const sf::Vector2i mpos) const; // checks if mouse is inside mActive Node
   bool findValue(const int val);
   void updateCursor();
+  void dtRestart();
 
   void draw() const;
 
@@ -29,9 +30,9 @@ private:
 public:
   sf::CircleShape cursor;
   LLNode* mActive =  nullptr; // the active selected node
-  sf::Clock delayClock;
 
 private:
+  float dt = 0;
   std::vector<sf::FloatRect> nBounds; // vector of all node bounds
 
   // TODO: maybe make a vector of LLNode* head ptrs?
@@ -51,7 +52,7 @@ private:
   LLState state = LLState::ENTRY;
   LLState prevState = LLState::ENTRY;
   LLNode* mStatePtr = nullptr;
-
+  sf::Clock delayClock;
 
   sf::RenderWindow& window; // DI
   sf::Text LLText; // passes in text object into LLNode

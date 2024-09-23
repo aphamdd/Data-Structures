@@ -188,7 +188,7 @@ bool LinkedList::findValue(const int val) {
     case LLState::ENTRY: {
       mStatePtr = mHead;
       state = LLState::COMPARE;
-      delayClock.restart();
+      //delayClock.restart();
     } break;
     case LLState::HIGHLIGHT: {
       if (mStatePtr) {
@@ -200,7 +200,7 @@ bool LinkedList::findValue(const int val) {
       }
       prevState = state;
       state = LLState::WAIT;
-      delayClock.restart();
+      //delayClock.restart();
     } break;
     case LLState::WAIT: {
       if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
@@ -232,7 +232,7 @@ bool LinkedList::findValue(const int val) {
       }
       prevState = state;
       state = LLState::WAIT;
-      delayClock.restart();
+      //delayClock.restart();
     } break;
   }
   return false;
@@ -257,7 +257,7 @@ void LinkedList::updateCursor() {
   }
 
   // TODO: refactor for efficiency
-  float k = 10000; // dampening constant
+  float k = 15; // dampening constant
   sf::Vector2f cursorPos = cursor.getPosition();
   sf::Vector2f cursorGoal = mActive->shape.getPosition();
   cursorGoal.y += mActive->shape.getSize().y;
@@ -265,7 +265,6 @@ void LinkedList::updateCursor() {
   float dy = cursorGoal.y - cursorPos.y;
   float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
   sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
-  float dt = delayClock.restart().asSeconds();
   float velx = (k * distance * direction.x)*dt;
   float vely = (k * distance * direction.y)*dt;
   // not 0 because itll never reach 0, just needs to be "close enough"
@@ -294,4 +293,9 @@ void LinkedList::draw() const {
     curr = curr->next;
   }
   window.draw(cursor);
+}
+
+void LinkedList::dtRestart() {
+  if (state != LLState::WAIT)
+    dt = delayClock.restart().asSeconds();
 }
