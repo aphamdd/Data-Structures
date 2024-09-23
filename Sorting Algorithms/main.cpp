@@ -237,6 +237,7 @@ int main() {
         ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
         sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
         if (control.isDragging) {
+          linkedList.delayClock.restart();
           if (!linkedList.move(mpos)) {
             throw("idk how I'm moving nothing");
           }

@@ -265,14 +265,24 @@ void LinkedList::updateCursor() {
   }
   // cursor should animate its movement to the new active node
   else if (mLastActive != mActive) {
+    float k = 1000; // dampening constant
+    sf::Vector2f cursorPos = cursor.getPosition();
     sf::Vector2f cursorGoal = mActive->shape.getPosition();
-    if (cursor.getPosition() != cursorGoal) { 
-      // dt needs to get refreshed beforehand the first time somehow
-      float dtVel = -100 * delayClock.restart().asSeconds();
-      sf::Vector2f test(cursor.getPosition().x + dtVel, cursor.getPosition().y);
-      cursor.setPosition(test);
+    float dx = cursorGoal.x - cursorPos.x;
+    float dy = cursorGoal.y - cursorPos.y;
+    float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
+    sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
+    float dt = delayClock.restart().asSeconds();
+    float velx = (k * distance * direction.x)*dt;
+    float vely = (k * distance * direction.y)*dt;
+    // not 0 because itll never reach 0, just needs to be "close enough"
+    if (distance >= 5) { 
+      sf::Vector2f res(cursorPos.x + velx, cursorPos.y + vely);
+      cursor.setPosition(res);
     }
     else {
+      cursor.setPosition(cursorGoal);
+      mActive->shape.setFillColor(sf::Color::Red);
       mLastActive = mActive;
     }
   }
