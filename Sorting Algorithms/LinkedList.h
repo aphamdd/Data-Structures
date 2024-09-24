@@ -17,24 +17,25 @@ public:
   bool move(const sf::Vector2i mpos); // handles LLNode positioning
   bool isInBounds(const sf::Vector2i mpos) const; // checks if mouse is inside mActive Node
   bool findValue(const int val);
-  void updateCursor(LLNode* ptr); // cursor follows any ptr
+  void updateCursor(LLNode* ptr); // cursor follows ptr
   void dtRestart();
+  bool resetActive();
 
   void draw() const;
 
 private:
   bool findNodeBounds();
   void resetState();
+  void shiftForward(); // move nodes forward after inserting
 
  // TODO: composition, compose some of this stuff into structs or delegate to other classes
 public:
-  sf::CircleShape cursor;
   LLNode* mActive =  nullptr; // the active selected node
-  LLNode* mStatePtr = nullptr;
 
 private:
   float dt = 0;
   std::vector<sf::FloatRect> nBounds; // vector of all node bounds
+  sf::CircleShape cursor;
 
   // TODO: maybe make a vector of LLNode* head ptrs?
   LLNode* mHead = nullptr;
@@ -51,6 +52,7 @@ private:
   LLState state = LLState::ENTRY;
   LLState prevState = LLState::ENTRY;
   sf::Clock delayClock;
+  LLNode* mStatePtr = nullptr;
 
   sf::RenderWindow& window; // DI
   sf::Text LLText; // passes in text object into LLNode

@@ -59,6 +59,10 @@ int main() {
           if (event.mouseButton.button == sf::Mouse::Left) {
             control.isDragging = false;
           }
+          else if (event.mouseButton.button == sf::Mouse::Right) {
+            if (linkedList.resetActive())
+              control.isDragging = false;
+          }
         } break;
 
         default:
@@ -251,16 +255,23 @@ int main() {
         }
 
         ImGui::Text("Find Value: %d", nodeNum);
-        if (ImGui::Button("Find"))
+        if (ImGui::Button(control.isSearching ? "Searching..." : "Find"))
           control.isSearching = true;
         if (control.isSearching) {
-          linkedList.updateCursor(linkedList.mStatePtr);
           if (linkedList.findValue(nodeNum))
             control.isSearching = false;
         }
         else
           linkedList.updateCursor(linkedList.mActive);
+
+        //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
+        ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
         
+        ImGui::Text("Add: creates new node at tail or at Active\nRemove: removes node at tail\n"
+                    "Clear: removes all nodes\nLeft click on a node to select\n"
+                    "Right click anywhere to de-select\nSet Value: select a node"
+                    "and set value to change node value\nType a value from 0-99"
+                    "and click find to search for a node, purple when found");
 
         linkedList.dtRestart();
         ImGui::EndTabItem();

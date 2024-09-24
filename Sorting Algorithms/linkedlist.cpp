@@ -29,24 +29,47 @@ void LinkedList::clear() {
 }
 
 void LinkedList::add() {
-  sf::Vector2f tempPos(75.f, 400.f);
+  LLNode* curr = nullptr;
+  // create head
   if (!mHead) {
-    mHead = new LLNode(tempPos, LLText);
+    sf::Vector2f pos(75.f, 400.f);
+    mHead = new LLNode(pos, LLText);
     mHead->shape.setFillColor(sf::Color::Red);
+    return;
   }
-  else {
-    LLNode* curr = mHead;
+  // insert at active
+  else if (mActive) {
+    if (mActive->next) {
+      LLNode* temp = mActive->next;
+      sf::Vector2f pos = mActive->shape.getPosition();
+      pos.x += mActive->shape.getSize().x + 10.f;
+      mActive->next = new LLNode(pos, LLText);
+      mActive->next->next = temp;
+      mActive->next->ID += mActive->ID;
+      mActive->next->updateNext(mActive);
+      mActive->next->next->updateNext(mActive->next);
+      mActive->next->dataText.setString(std::to_string(mActive->next->ID));
+      temp = nullptr;
+      return;
+    }
+    else
+      curr = mActive;
+  }
+  // insert end
+  if (!curr) {
+    curr = mHead;
     while (curr->next) {
       curr = curr->next;
     }
-    sf::Vector2f temp = curr->shape.getPosition();
-    temp.x += 110.f;
-    curr->next = new LLNode(temp, LLText);
-    curr->next->ID += curr->ID;
-    curr->next->updateNext(curr);
-    // TODO: create a function to update any changes to text/shape
-    curr->next->dataText.setString(std::to_string(curr->next->ID));
   }
+  sf::Vector2f pos = curr->shape.getPosition();
+  pos.x += curr->shape.getSize().x + 10.f;
+  curr->next = new LLNode(pos, LLText);
+  curr->next->ID += curr->ID;
+  curr->next->updateNext(curr);
+  // TODO: create a function to update any changes to text/shape
+  curr->next->dataText.setString(std::to_string(curr->next->ID));
+  return;
 }
 
 bool LinkedList::remove() {
@@ -184,6 +207,7 @@ bool LinkedList::findValue(const int val) {
     return true;
   }
 
+  updateCursor(mStatePtr);
   switch (state) {
     case LLState::ENTRY: {
       mStatePtr = mHead;
@@ -271,6 +295,14 @@ void LinkedList::resetState() {
   state = LLState::ENTRY;
   prevState = state;
 }
+
+bool LinkedList::resetActive() {
+  if (mActive)
+    mActive->shape.setFillColor(sf::Color::White);
+  mActive = nullptr;
+  return true;
+}
+
 
 void LinkedList::draw() const {
   if (!mHead)
