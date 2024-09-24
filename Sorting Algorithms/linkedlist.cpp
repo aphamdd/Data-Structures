@@ -49,6 +49,7 @@ void LinkedList::add() {
       mActive->next->updateNext(mActive);
       mActive->next->next->updateNext(mActive->next);
       mActive->next->dataText.setString(std::to_string(mActive->next->ID));
+      shiftForward();
       temp = nullptr;
       return;
     }
@@ -72,6 +73,9 @@ void LinkedList::add() {
   return;
 }
 
+void LinkedList::shiftForward() {
+}
+
 bool LinkedList::remove() {
   // 0 nodes
   if (!mHead) {
@@ -87,6 +91,28 @@ bool LinkedList::remove() {
     return true;
   }
   // 2+ nodes
+  if (mActive) {
+    if (mActive == mHead) {
+      mActive = mActive->next;
+      mActive->shape.setFillColor(sf::Color::Red);
+      delete mHead;
+      mHead = mActive;
+      return true;
+    }
+    else if (mActive->next) {
+      updatePrev();
+      LLNode* prev = mPrev;
+      LLNode* temp = mActive->next;
+      delete mActive;
+      prev->next = temp;
+      temp->updateNext(prev);
+      mActive = nullptr;
+      prev = nullptr;
+      temp = nullptr;
+      return true;
+    }
+  }
+  // default tail removal
   LLNode* prev = nullptr;
   LLNode* curr = mHead;
   while (curr->next) {

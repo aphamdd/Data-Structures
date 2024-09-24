@@ -10,7 +10,6 @@ public:
 
   void add();
   bool remove();
-  void insert();
 
   LLNode* search(const sf::Vector2i mpos); // find what node im clicking
   void updatePrev(); // moves mPrev to the node behind mActive
