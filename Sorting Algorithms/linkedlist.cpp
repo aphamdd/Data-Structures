@@ -187,8 +187,7 @@ bool LinkedList::findValue(const int val) {
   switch (state) {
     case LLState::ENTRY: {
       mStatePtr = mHead;
-      state = LLState::COMPARE;
-      //delayClock.restart();
+      state = LLState::HIGHLIGHT;
     } break;
     case LLState::HIGHLIGHT: {
       if (mStatePtr) {
@@ -200,7 +199,6 @@ bool LinkedList::findValue(const int val) {
       }
       prevState = state;
       state = LLState::WAIT;
-      //delayClock.restart();
     } break;
     case LLState::WAIT: {
       if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
@@ -232,50 +230,40 @@ bool LinkedList::findValue(const int val) {
       }
       prevState = state;
       state = LLState::WAIT;
-      //delayClock.restart();
     } break;
   }
   return false;
 }
 
-void LinkedList::updateCursor() {
-  // doesn't ever get called cuz updateCursor() only gets called when moved
-  if (!mActive) {
+void LinkedList::updateCursor(LLNode* curr) {
+  sf::Clock clock;
+  if (!curr) {
     cursor.setRadius(0.f);
-    cursor.setPosition(sf::Vector2f(0, 0));
-    mLastActive = nullptr;
     return;
   }
-  // handles first time mActive points to a node
-  // TODO: change mLastActive to something else
-  else if (mActive && !mLastActive) {
-    mLastActive = mActive;
-    sf::Vector2f activeNodePos = mActive->shape.getPosition();
-    activeNodePos.y += mActive->shape.getSize().y;
-    cursor.setRadius(10.f);
-    cursor.setPosition(activeNodePos);
-  }
+  
+  cursor.setRadius(10.f);
 
   // TODO: refactor for efficiency
-  float k = 15; // dampening constant
-  sf::Vector2f cursorPos = cursor.getPosition();
-  sf::Vector2f cursorGoal = mActive->shape.getPosition();
-  cursorGoal.y += mActive->shape.getSize().y;
-  float dx = cursorGoal.x - cursorPos.x;
-  float dy = cursorGoal.y - cursorPos.y;
+  float k = 50; // dampening constant
+  sf::Vector2f target = cursor.getPosition();
+  sf::Vector2f goal = curr->shape.getPosition();
+  goal.y += curr->shape.getSize().y;
+  float dx = goal.x - target.x;
+  float dy = goal.y - target.y;
   float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
+  std::cout << distance << "\r";
   sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
-  float velx = (k * distance * direction.x)*dt;
-  float vely = (k * distance * direction.y)*dt;
+  float deltaTime = clock.restart().asSeconds();
+  float velx = (k * distance * direction.x) * deltaTime;
+  float vely = (k * distance * direction.y) * deltaTime;
   // not 0 because itll never reach 0, just needs to be "close enough"
   if (distance >= 5) { 
-    sf::Vector2f res(cursorPos.x + velx, cursorPos.y + vely);
+    sf::Vector2f res(target.x + velx, target.y + vely);
     cursor.setPosition(res);
-  }
-  else {
-    cursor.setPosition(cursorGoal);
-    mLastActive = mActive;
-  }
+  } 
+  else
+    cursor.setPosition(goal);
 }
 
 void LinkedList::resetState() {

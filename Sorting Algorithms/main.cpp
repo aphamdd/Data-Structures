@@ -11,7 +11,8 @@ using namespace std;
 
 int main() {
   // window and gui params
-  //sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Titlebar | sf::Style::Close);
+  sf::ContextSettings settings;
+  settings.antialiasingLevel = 8;
   sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
   sf::View view = window.getDefaultView();
   window.setFramerateLimit(FPS);
@@ -51,8 +52,6 @@ int main() {
           if (event.mouseButton.button == sf::Mouse::Left) {
             if (linkedList.search(mpos))
               control.isDragging = true;
-            else
-              cout << "Not a node" << endl;
           }
         } break;
 
@@ -255,13 +254,13 @@ int main() {
         if (ImGui::Button("Find"))
           control.isSearching = true;
         if (control.isSearching) {
-          if (linkedList.findValue(nodeNum)) {
-            cout << "done" << endl;
+          linkedList.updateCursor(linkedList.mStatePtr);
+          if (linkedList.findValue(nodeNum))
             control.isSearching = false;
-          }
         }
+        else
+          linkedList.updateCursor(linkedList.mActive);
         
-        linkedList.updateCursor();
 
         linkedList.dtRestart();
         ImGui::EndTabItem();

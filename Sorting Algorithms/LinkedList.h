@@ -17,7 +17,7 @@ public:
   bool move(const sf::Vector2i mpos); // handles LLNode positioning
   bool isInBounds(const sf::Vector2i mpos) const; // checks if mouse is inside mActive Node
   bool findValue(const int val);
-  void updateCursor();
+  void updateCursor(LLNode* ptr); // cursor follows any ptr
   void dtRestart();
 
   void draw() const;
@@ -30,6 +30,7 @@ private:
 public:
   sf::CircleShape cursor;
   LLNode* mActive =  nullptr; // the active selected node
+  LLNode* mStatePtr = nullptr;
 
 private:
   float dt = 0;
@@ -38,8 +39,6 @@ private:
   // TODO: maybe make a vector of LLNode* head ptrs?
   LLNode* mHead = nullptr;
   LLNode* mPrev = nullptr; // handles the previous next pointer line
-
-  LLNode* mLastActive = nullptr; // the last node active was on
 
   // LinkedList Operation Animation State Machine
   enum class LLState {
@@ -51,7 +50,6 @@ private:
   };
   LLState state = LLState::ENTRY;
   LLState prevState = LLState::ENTRY;
-  LLNode* mStatePtr = nullptr;
   sf::Clock delayClock;
 
   sf::RenderWindow& window; // DI
