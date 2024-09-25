@@ -23,4 +23,5 @@ struct Control {
   // Linked List
   bool isDragging = false;
   bool isSearching = false;
+  bool isPopup = false;
 };

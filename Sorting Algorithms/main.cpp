@@ -63,6 +63,10 @@ int main() {
             if (linkedList.resetActive())
               control.isDragging = false;
           }
+          else if (event.mouseButton.button == sf::Mouse::Middle) {
+            if (linkedList.mouseInBounds(mpos))
+              control.isPopup = true;
+          }
         } break;
 
         default:
@@ -277,6 +281,18 @@ int main() {
           "Set Value: select a node and set value to change node value\n"
           "Find Value: select node and type a # to search for a node\n"
         );
+
+        if (control.isPopup) {
+          ImGui::OpenPopup("Node_popup");
+          control.isPopup = false;
+        }
+        if (ImGui::BeginPopup("Node_popup")) {
+          ImGui::Text("I'm a popup!");
+          int n = 0;
+          ImGui::InputInt("Test", &n, 1, 3);
+          ImGui::Button("dummy button");
+          ImGui::EndPopup();
+        }
 
         ImGui::Begin("Linked List Data");
         std::string str(linkedList.getListString());
