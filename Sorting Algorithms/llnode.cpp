@@ -84,9 +84,7 @@ void LLNode::updateText(const int val) {
   if (val < 0 || val >= 100)
     return;
 
-  std::cout << "update text" << std::endl;
   ID = val;
-  std::cout << ID << std::endl;
   dataText.setString(std::to_string(ID));
 }
 

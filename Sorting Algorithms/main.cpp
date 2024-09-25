@@ -244,7 +244,7 @@ int main() {
             throw("idk how I'm moving nothing");
           }
         }
-        ImGui::TextColored(linkedList.isInBounds(mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+        ImGui::TextColored(linkedList.mouseInBounds(mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
         ImGui::Text("pActive: %p", linkedList.mActive);
 
@@ -267,11 +267,16 @@ int main() {
         //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
         ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
         
-        ImGui::Text("Add: creates new node at tail or at Active\nRemove: removes node at tail\n"
-                    "Clear: removes all nodes\nLeft click on a node to select\n"
-                    "Right click anywhere to de-select\nSet Value: select a node"
-                    "and set value to change node value\nType a value from 0-99"
-                    "and click find to search for a node, purple when found");
+        ImGui::Text(
+          "This data structure is an actual linked list, not a simulated one\n"
+          "Left click: click to select the node\n"
+          "Right click: anywhere to de-select node\n"
+          "Add: create node at tail or after active node\n"
+          "Remove: removes node at tail or the active node\n"
+          "Clear: removes all nodes\n"
+          "Set Value: select a node and set value to change node value\n"
+          "Find Value: select node and type a # to search for a node\n"
+        );
 
         linkedList.dtRestart();
         ImGui::EndTabItem();

@@ -10,22 +10,22 @@ public:
 
   void add();
   bool remove();
-
   LLNode* search(const sf::Vector2i mpos); // find what node im clicking
-  void updatePrev(); // moves mPrev to the node behind mActive
   bool move(const sf::Vector2i mpos); // handles LLNode positioning
-  bool isInBounds(const sf::Vector2i mpos) const; // checks if mouse is inside mActive Node
-  bool findValue(const int val);
+
   void updateCursor(LLNode* ptr); // cursor follows ptr
+  bool mouseInBounds(const sf::Vector2i mpos) const; // is mouse in mActive node
+  bool findValue(const int val);
+
+  void draw() const;
   void dtRestart();
   bool resetActive();
 
-  void draw() const;
-
 private:
-  bool findNodeBounds();
+  void updatePrev(); // moves mPrev to the node behind mActive
+  bool findNodeBounds(LLNode* ptr); // excludes passed ptr's nodes bounds 
+  bool shiftForward(LLNode* prev, LLNode* curr); // move nodes forward after inserting
   void resetState();
-  void shiftForward(); // move nodes forward after inserting
 
  // TODO: composition, compose some of this stuff into structs or delegate to other classes
 public:
@@ -39,6 +39,7 @@ private:
   // TODO: maybe make a vector of LLNode* head ptrs?
   LLNode* mHead = nullptr;
   LLNode* mPrev = nullptr; // handles the previous next pointer line
+  LLNode* mTail = nullptr; 
 
   // LinkedList Operation Animation State Machine
   enum class LLState {

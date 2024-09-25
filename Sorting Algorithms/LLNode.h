@@ -11,7 +11,7 @@ public:
   LLNode(const sf::Vector2f pos, sf::Text& text);
   ~LLNode();
 
-  void update(const sf::Vector2f mpos, LLNode* prev); // moves node position
+  void update(const sf::Vector2f pos, LLNode* prev); // moves node position
   void updateNext(); // draws the next ptr line
   void updateNext(LLNode* prev); // draws the next+previous ptr line
   void updateText(const int val);

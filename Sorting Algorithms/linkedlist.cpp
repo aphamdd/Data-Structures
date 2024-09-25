@@ -26,8 +26,11 @@ void LinkedList::clear() {
   mActive = nullptr;
   mPrev = nullptr;
   mStatePtr = nullptr;
+  mTail = nullptr;
 }
 
+// TODO: don't return midway of a statement, return at the end
+// so I can shift any intersecting node
 void LinkedList::add() {
   LLNode* curr = nullptr;
   // create head
@@ -35,6 +38,7 @@ void LinkedList::add() {
     sf::Vector2f pos(75.f, 400.f);
     mHead = new LLNode(pos, LLText);
     mHead->shape.setFillColor(sf::Color::Red);
+    mTail = mHead;
     return;
   }
   // insert at active
@@ -49,20 +53,17 @@ void LinkedList::add() {
       mActive->next->updateNext(mActive);
       mActive->next->next->updateNext(mActive->next);
       mActive->next->dataText.setString(std::to_string(mActive->next->ID));
-      shiftForward();
+      // TODO: I don't like having a loop like this, fix it. recursion?
+      // bug: only if mActive->next, needs to apply when ANY node is added
+      while (!shiftForward(mActive, mActive->next)) {
+        continue;
+      }
       temp = nullptr;
       return;
     }
-    else
-      curr = mActive;
   }
-  // insert end
-  if (!curr) {
-    curr = mHead;
-    while (curr->next) {
-      curr = curr->next;
-    }
-  }
+  // insert end (end isn't always positioned at the end of a list coordinate-wise)
+  curr = mTail;
   sf::Vector2f pos = curr->shape.getPosition();
   pos.x += curr->shape.getSize().x + 10.f;
   curr->next = new LLNode(pos, LLText);
@@ -70,10 +71,28 @@ void LinkedList::add() {
   curr->next->updateNext(curr);
   // TODO: create a function to update any changes to text/shape
   curr->next->dataText.setString(std::to_string(curr->next->ID));
+  if (mTail != mActive && mTail != mHead)
+    mTail->shape.setFillColor(sf::Color::White);
+  mTail = curr->next;
+  mTail->shape.setFillColor(sf::Color::Blue);
+  curr = nullptr;
   return;
 }
 
-void LinkedList::shiftForward() {
+bool LinkedList::shiftForward(LLNode* prev, LLNode* curr) {
+  // ez solution is to just shift the newly inserted node forward until no intersection
+  // harder and inefficient solution is to continually shift the nodes in front
+  // of the newly inserted node until theres space for all nodes
+  findNodeBounds(curr);
+  sf::Vector2f pos = curr->shape.getPosition();
+  pos.x += curr->shape.getSize().x + 10.f;
+  for (const auto& anyShape : nBounds) {
+    if (curr->shape.getGlobalBounds().intersects(anyShape)) {
+      curr->update(pos, prev);
+      return false;
+    }
+  }
+  return true;
 }
 
 bool LinkedList::remove() {
@@ -88,6 +107,7 @@ bool LinkedList::remove() {
     mActive = nullptr;
     mPrev = nullptr;
     mStatePtr = nullptr;
+    mTail = nullptr;
     return true;
   }
   // 2+ nodes
@@ -113,6 +133,7 @@ bool LinkedList::remove() {
     }
   }
   // default tail removal
+  // TODO: replace current with mTail
   LLNode* prev = nullptr;
   LLNode* curr = mHead;
   while (curr->next) {
@@ -127,6 +148,8 @@ bool LinkedList::remove() {
   curr = nullptr;
   prev->next = nullptr;
   prev->updateNext();
+  mTail = prev;
+  mTail->shape.setFillColor(sf::Color::Blue);
   prev = nullptr;
 
   return true;
@@ -162,10 +185,11 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
     sf::FloatRect currBounds = curr->shape.getGlobalBounds();
     if (currBounds.contains(convertMPos.x, convertMPos.y)) {
       // set pactive color to white, set new pactive, highlight new pactive
-      if (mActive)
+      if (mActive && mActive != mHead && mActive != mTail)
         mActive->shape.setFillColor(sf::Color::White);
       mActive = curr;
-      mActive->shape.setFillColor(sf::Color::Green);
+      if (mActive != mHead && mActive != mTail)
+        mActive->shape.setFillColor(sf::Color::Green);
       // update previous pointer after setting mActive
       updatePrev();
       return mActive;
@@ -191,8 +215,9 @@ bool LinkedList::move(const sf::Vector2i mpos) {
   if (mActive) {
     mActive->update(convertMPos, mPrev);
     // handle collision
+    // TODO: maybe use cursorUpdate calculations to handle collision?
     sf::FloatRect currShape = mActive->shape.getGlobalBounds();
-    findNodeBounds();
+    findNodeBounds(mActive);
     for (const auto& anyShape : nBounds) {
       if (currShape.intersects(anyShape))
         mActive->update(lastPos, mPrev);
@@ -202,7 +227,7 @@ bool LinkedList::move(const sf::Vector2i mpos) {
   return false;
 }
 
-bool LinkedList::isInBounds(const sf::Vector2i mpos) const {
+bool LinkedList::mouseInBounds(const sf::Vector2i mpos) const {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (mActive) {
     sf::FloatRect globalBounds = mActive->shape.getGlobalBounds();
@@ -211,18 +236,19 @@ bool LinkedList::isInBounds(const sf::Vector2i mpos) const {
   return false;
 }
 
-bool LinkedList::findNodeBounds() {
+bool LinkedList::findNodeBounds(LLNode* curr) {
   nBounds.clear();
   if (!mHead)
     return false;
 
-  LLNode* curr = mHead;
-  while (curr) {
+  LLNode* temp = mHead;
+  while (temp) {
     // don't insert the active node 
-    if (curr != mActive)
-      nBounds.push_back(curr->shape.getGlobalBounds());
-    curr = curr->next;
+    if (temp != curr)
+      nBounds.push_back(temp->shape.getGlobalBounds());
+    temp = temp->next;
   }
+  temp = nullptr;
   return true;
 }
 
@@ -241,7 +267,8 @@ bool LinkedList::findValue(const int val) {
     } break;
     case LLState::HIGHLIGHT: {
       if (mStatePtr) {
-        mStatePtr->shape.setFillColor(sf::Color::Yellow);
+        if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
+          mStatePtr->shape.setFillColor(sf::Color::Yellow);
       }
       else {
         resetState();
@@ -266,15 +293,16 @@ bool LinkedList::findValue(const int val) {
       if (mStatePtr->ID == val) {
         mStatePtr->shape.setFillColor(sf::Color::Magenta);
         resetState();
-        std::cout << "found " << val << std::endl;
         return true;
       }
       if (mStatePtr->next) {
-        mStatePtr->shape.setFillColor(sf::Color::White);
+        if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
+          mStatePtr->shape.setFillColor(sf::Color::White);
         mStatePtr = mStatePtr->next;
       }
       else {
-        mStatePtr->shape.setFillColor(sf::Color::White);
+        if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
+          mStatePtr->shape.setFillColor(sf::Color::White);
         resetState();
         return true;
       }
@@ -295,25 +323,26 @@ void LinkedList::updateCursor(LLNode* curr) {
   cursor.setRadius(10.f);
 
   // TODO: refactor for efficiency
-  float k = 50; // dampening constant
+  float k = 1800; // dampening constant
   sf::Vector2f target = cursor.getPosition();
   sf::Vector2f goal = curr->shape.getPosition();
   goal.y += curr->shape.getSize().y;
   float dx = goal.x - target.x;
   float dy = goal.y - target.y;
   float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
-  std::cout << distance << "\r";
   sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
   float deltaTime = clock.restart().asSeconds();
   float velx = (k * distance * direction.x) * deltaTime;
   float vely = (k * distance * direction.y) * deltaTime;
   // not 0 because itll never reach 0, just needs to be "close enough"
-  if (distance >= 5) { 
+  if (distance >= 3) { 
     sf::Vector2f res(target.x + velx, target.y + vely);
     cursor.setPosition(res);
   } 
-  else
+  else {
+    // TODO: idle animation
     cursor.setPosition(goal);
+  }
 }
 
 void LinkedList::resetState() {
@@ -323,7 +352,7 @@ void LinkedList::resetState() {
 }
 
 bool LinkedList::resetActive() {
-  if (mActive)
+  if (mActive && mActive != mHead && mActive != mTail)
     mActive->shape.setFillColor(sf::Color::White);
   mActive = nullptr;
   return true;
