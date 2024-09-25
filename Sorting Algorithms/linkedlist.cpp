@@ -6,7 +6,7 @@ LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   window(win),
   LLText(text),
   cursor(0.f, 3) {
-  cursor.setFillColor(sf::Color::Green);
+  cursor.setFillColor(sf::Color::White);
   cursor.setOutlineThickness(1.5f);
   cursor.setOutlineColor(sf::Color::Black);
 }
@@ -321,6 +321,7 @@ void LinkedList::updateCursor(LLNode* curr) {
   }
   
   cursor.setRadius(10.f);
+  cursor.setFillColor(curr->shape.getFillColor());
 
   // TODO: refactor for efficiency
   float k = 1800; // dampening constant
@@ -345,6 +346,25 @@ void LinkedList::updateCursor(LLNode* curr) {
   }
 }
 
+std::string LinkedList::getListString() {
+  if (!mHead)
+    return "";
+
+  // TODO: this is HELLA scuffed, theres definitely a more efficient and cleaner way
+  LLNode* curr = mHead;
+  std::string str = "";
+
+  while (curr) {
+    str += "[" + std::to_string(curr->ID) + "]";
+    if (curr->next)
+      str += "->";
+    curr = curr->next;
+  }
+  curr = nullptr;
+
+  return str;
+}
+
 void LinkedList::resetState() {
   mStatePtr = nullptr;
   state = LLState::ENTRY;
@@ -357,7 +377,6 @@ bool LinkedList::resetActive() {
   mActive = nullptr;
   return true;
 }
-
 
 void LinkedList::draw() const {
   if (!mHead)

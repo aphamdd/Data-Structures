@@ -278,6 +278,11 @@ int main() {
           "Find Value: select node and type a # to search for a node\n"
         );
 
+        ImGui::Begin("Linked List Data");
+        std::string str(linkedList.getListString());
+        ImGui::Text("head->%s->null", str.c_str());
+        ImGui::End();
+
         linkedList.dtRestart();
         ImGui::EndTabItem();
       }
@@ -302,9 +307,10 @@ int main() {
     }
     ImGui::End(); // End GUI Block
 
+
     // rendering
     window.setView(view);
-    window.clear(sf::Color::Black);
+    window.clear(sf::Color(18, 18, 18));
 
     if (control.isAlgorithm) {
       window.draw(graph);
