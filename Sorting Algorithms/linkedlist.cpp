@@ -346,23 +346,75 @@ void LinkedList::updateCursor(LLNode* curr) {
   }
 }
 
-std::string LinkedList::getListString() {
+// TODO: this is HELLA scuffed
+std::vector<std::string> LinkedList::parseString() {
   if (!mHead)
-    return "";
+    return {};
 
-  // TODO: this is HELLA scuffed, theres definitely a more efficient and cleaner way
+  std::vector<int> data;
+  int i = 0;
+  int colorIndex = -1;
   LLNode* curr = mHead;
-  std::string str = "";
 
-  while (curr) {
-    str += "[" + std::to_string(curr->ID) + "]";
-    if (curr->next)
-      str += "->";
-    curr = curr->next;
+  for (LLNode* curr = mHead; curr; curr = curr->next) {
+    data.push_back(curr->ID);
+    if (mActive && curr == mActive)
+      colorIndex = i;
+    ++i;
   }
-  curr = nullptr;
 
-  return str;
+  std::vector<std::string> text;
+  if (colorIndex == -1) {
+    // there's no colored index
+    text.reserve(1);
+    std::string str;
+    for (int i = 0; i < data.size(); ++i) {
+      str += std::to_string(data.at(i)) + " -> ";
+    }
+    text.push_back(str);
+  }
+  else if (colorIndex == 0 || colorIndex == data.size() - 1) {
+    text.reserve(2);
+    std::string colorStr;
+    std::string str;
+    // color at the ends
+    // but which end... how do i differentiate which end when i return
+    // NOW THIS IS SCUFFED
+    if (colorIndex == 0) {
+      colorStr += 'f';
+      for (int i = 1; i < data.size(); ++i) {
+        str += std::to_string(data.at(i)) + " -> ";
+      }
+    }
+    else {
+      colorStr += 'b';
+      for (int i = 0; i < data.size() - 1; ++i) {
+        str += std::to_string(data.at(i)) + " -> ";
+      }
+    }
+    colorStr += (std::to_string(data.at(colorIndex)) + " -> ");
+    text.push_back(colorStr);
+
+    text.push_back(str);
+  }
+  else {
+    // color is in the middle
+    text.reserve(3);
+    std::string leftStr;
+    std::string colorStr(std::to_string(data.at(colorIndex)) + " -> ");
+    std::string rightStr;
+    for (int i = 0; i < colorIndex; ++i) {
+      leftStr += std::to_string(data.at(i)) + " -> ";
+    }
+    for (int i = colorIndex + 1; i < data.size(); ++i) {
+      rightStr += std::to_string(data.at(i)) + " -> ";
+    }
+    text.push_back(leftStr);
+    text.push_back(colorStr);
+    text.push_back(rightStr);
+  }
+
+  return text;
 }
 
 void LinkedList::resetState() {

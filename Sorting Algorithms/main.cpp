@@ -74,7 +74,8 @@ int main() {
       }
     }
 
-    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
     ImGui::SFML::Update(window, imguiClock.restart());
 
     // Dockspace TODO: set up defaults and max/min sizes
@@ -91,7 +92,7 @@ int main() {
     ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
     ImGui::End();
 
-    //ImGui::ShowDemoWindow();
+    ImGui::ShowDemoWindow();
 
     // GUI
     ImGui::Begin("Visualizer");
@@ -252,12 +253,6 @@ int main() {
 
         ImGui::Text("pActive: %p", linkedList.mActive);
 
-        ImGui::InputInt("Set Node Value:", &nodeNum);
-        if (ImGui::Button("Update Node")) {
-          if (linkedList.mActive)
-            linkedList.mActive->updateText(nodeNum);
-        }
-
         ImGui::Text("Find Value: %d", nodeNum);
         if (ImGui::Button(control.isSearching ? "Searching..." : "Find"))
           control.isSearching = true;
@@ -275,6 +270,7 @@ int main() {
           "This data structure is an actual linked list, not a simulated one\n"
           "Left click: click to select the node\n"
           "Right click: anywhere to de-select node\n"
+          "Middle click: select node first, then middle click on node to popup\n"
           "Add: create node at tail or after active node\n"
           "Remove: removes node at tail or the active node\n"
           "Clear: removes all nodes\n"
@@ -288,15 +284,52 @@ int main() {
         }
         if (ImGui::BeginPopup("Node_popup")) {
           ImGui::Text("I'm a popup!");
-          int n = 0;
-          ImGui::InputInt("Test", &n, 1, 3);
-          ImGui::Button("dummy button");
+          ImGui::InputInt("Set Node Value:", &nodeNum);
+          if (ImGui::Button("Set"))
+            linkedList.mActive->updateText(nodeNum);
           ImGui::EndPopup();
         }
 
         ImGui::Begin("Linked List Data");
-        std::string str(linkedList.getListString());
-        ImGui::Text("head->%s->null", str.c_str());
+        std::vector<std::string> text(linkedList.parseString());
+        if (text.size() > 0) {
+          if (text.size() == 1) {
+            ImGui::Text("head -> %s", text.at(0).c_str());
+            ImGui::SameLine(0, 0);
+            ImGui::Text("null");
+          }
+          else if (text.size() == 2) {
+            // Note: this is so fking scuffed
+            if (text.at(0).at(0) == 'f') {
+              text.at(0).erase(text.at(0).begin());
+              ImGui::TextColored(green, "head -> %s", text.at(0).c_str());
+              ImGui::SameLine(0, 0);
+              ImGui::Text("%s", text.at(1).c_str());
+              ImGui::SameLine(0, 0);
+              ImGui::Text("null");
+            }
+            else if (text.at(0).at(0) == 'b') {
+              text.at(0).erase(text.at(0).begin());
+              ImGui::Text("head -> %s", text.at(1).c_str());
+              ImGui::SameLine(0, 0);
+              ImGui::TextColored(green, "%s", text.at(0).c_str());
+              ImGui::SameLine(0, 0);
+              ImGui::Text("null");
+            }
+            else
+              cout << "holup we ahve a problem" << endl;
+            cout << text.at(0) << endl;
+          }
+          else if (text.size() == 3) {
+            ImGui::Text("head -> %s", text.at(0).c_str());
+            ImGui::SameLine(0, 0);
+            ImGui::TextColored(green, "%s", text.at(1).c_str());
+            ImGui::SameLine(0, 0);
+            ImGui::Text("%s", text.at(2).c_str());
+            ImGui::SameLine(0, 0);
+            ImGui::Text("null");
+          }
+        }
         ImGui::End();
 
         linkedList.dtRestart();

@@ -16,7 +16,7 @@ public:
   void updateCursor(LLNode* ptr); // cursor follows ptr
   bool mouseInBounds(const sf::Vector2i mpos) const; // is mouse in mActive node
   bool findValue(const int val);
-  std::string getListString();
+  std::vector<std::string> parseString();
 
   void draw() const;
   void dtRestart();
