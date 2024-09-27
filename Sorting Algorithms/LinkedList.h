@@ -1,5 +1,7 @@
 #pragma once
 #include "LLNode.h"
+#include "imgui.h"
+#include "imgui-SFML.h"
 
 // handles linked list operations
 class LinkedList {
@@ -16,7 +18,8 @@ public:
   void updateCursor(LLNode* ptr); // cursor follows ptr
   bool mouseInBounds(const sf::Vector2i mpos) const; // is mouse in mActive node
   bool findValue(const int val);
-  std::vector<std::string> parseString();
+  std::vector<std::string> parseString(LLNode* follow); // highlights the followed ptr
+  float calcTextPadding(const std::vector<std::string>& text);
 
   void draw() const;
   void dtRestart();
@@ -31,6 +34,7 @@ private:
  // TODO: composition, compose some of this stuff into structs or delegate to other classes
 public:
   LLNode* mActive =  nullptr; // the active selected node
+  LLNode* mStatePtr = nullptr;
 
 private:
   float dt = 0;
@@ -53,7 +57,6 @@ private:
   LLState state = LLState::ENTRY;
   LLState prevState = LLState::ENTRY;
   sf::Clock delayClock;
-  LLNode* mStatePtr = nullptr;
 
   sf::RenderWindow& window; // DI
   sf::Text LLText; // passes in text object into LLNode

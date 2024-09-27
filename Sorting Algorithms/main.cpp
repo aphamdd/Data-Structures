@@ -9,6 +9,7 @@
 #include "imgui-SFML.h"
 using namespace std;
 
+
 int main() {
   // window and gui params
   sf::ContextSettings settings;
@@ -290,19 +291,31 @@ int main() {
           ImGui::EndPopup();
         }
 
+        // Note: this is so fking scuffed
         ImGui::Begin("Linked List Data");
-        std::vector<std::string> text(linkedList.parseString());
+        std::vector<std::string> text;
+        if (control.isSearching)
+          text = linkedList.parseString(linkedList.mStatePtr);
+        else
+          text = linkedList.parseString(linkedList.mActive);
+
+        float padding = linkedList.calcTextPadding(text);
+        ImGui::SetCursorPosX(padding);
+
         if (text.size() > 0) {
           if (text.size() == 1) {
-            ImGui::Text("head -> %s", text.at(0).c_str());
+            ImGui::Text("head->%s", text.at(0).c_str());
             ImGui::SameLine(0, 0);
             ImGui::Text("null");
           }
           else if (text.size() == 2) {
-            // Note: this is so fking scuffed
             if (text.at(0).at(0) == 'f') {
               text.at(0).erase(text.at(0).begin());
-              ImGui::TextColored(green, "head -> %s", text.at(0).c_str());
+              ImGui::Text("head->");
+              ImGui::SameLine(0, 0);
+              ImGui::TextColored(green, "%s", text.at(0).c_str());
+              ImGui::SameLine(0, 0);
+              ImGui::Text("->");
               ImGui::SameLine(0, 0);
               ImGui::Text("%s", text.at(1).c_str());
               ImGui::SameLine(0, 0);
@@ -310,20 +323,21 @@ int main() {
             }
             else if (text.at(0).at(0) == 'b') {
               text.at(0).erase(text.at(0).begin());
-              ImGui::Text("head -> %s", text.at(1).c_str());
+              ImGui::Text("head->%s", text.at(1).c_str());
               ImGui::SameLine(0, 0);
               ImGui::TextColored(green, "%s", text.at(0).c_str());
               ImGui::SameLine(0, 0);
+              ImGui::Text("->");
+              ImGui::SameLine(0, 0);
               ImGui::Text("null");
             }
-            else
-              cout << "holup we ahve a problem" << endl;
-            cout << text.at(0) << endl;
           }
           else if (text.size() == 3) {
-            ImGui::Text("head -> %s", text.at(0).c_str());
+            ImGui::Text("head->%s", text.at(0).c_str());
             ImGui::SameLine(0, 0);
             ImGui::TextColored(green, "%s", text.at(1).c_str());
+            ImGui::SameLine(0, 0);
+            ImGui::Text("->");
             ImGui::SameLine(0, 0);
             ImGui::Text("%s", text.at(2).c_str());
             ImGui::SameLine(0, 0);

@@ -347,7 +347,9 @@ void LinkedList::updateCursor(LLNode* curr) {
 }
 
 // TODO: this is HELLA scuffed
-std::vector<std::string> LinkedList::parseString() {
+// takes the linked list values in text form, finds which value is selected/highlighted
+// and returns them to be handled with the imgui text to be colored
+std::vector<std::string> LinkedList::parseString(LLNode* follow) {
   if (!mHead)
     return {};
 
@@ -358,7 +360,7 @@ std::vector<std::string> LinkedList::parseString() {
 
   for (LLNode* curr = mHead; curr; curr = curr->next) {
     data.push_back(curr->ID);
-    if (mActive && curr == mActive)
+    if (follow && curr == follow)
       colorIndex = i;
     ++i;
   }
@@ -369,7 +371,7 @@ std::vector<std::string> LinkedList::parseString() {
     text.reserve(1);
     std::string str;
     for (int i = 0; i < data.size(); ++i) {
-      str += std::to_string(data.at(i)) + " -> ";
+      str += std::to_string(data.at(i)) + "->";
     }
     text.push_back(str);
   }
@@ -379,20 +381,20 @@ std::vector<std::string> LinkedList::parseString() {
     std::string str;
     // color at the ends
     // but which end... how do i differentiate which end when i return
-    // NOW THIS IS SCUFFED
+    // SCUFFED
     if (colorIndex == 0) {
       colorStr += 'f';
       for (int i = 1; i < data.size(); ++i) {
-        str += std::to_string(data.at(i)) + " -> ";
+        str += std::to_string(data.at(i)) + "->";
       }
     }
     else {
       colorStr += 'b';
       for (int i = 0; i < data.size() - 1; ++i) {
-        str += std::to_string(data.at(i)) + " -> ";
+        str += std::to_string(data.at(i)) + "->";
       }
     }
-    colorStr += (std::to_string(data.at(colorIndex)) + " -> ");
+    colorStr += (std::to_string(data.at(colorIndex)));
     text.push_back(colorStr);
 
     text.push_back(str);
@@ -401,13 +403,13 @@ std::vector<std::string> LinkedList::parseString() {
     // color is in the middle
     text.reserve(3);
     std::string leftStr;
-    std::string colorStr(std::to_string(data.at(colorIndex)) + " -> ");
+    std::string colorStr(std::to_string(data.at(colorIndex)));
     std::string rightStr;
     for (int i = 0; i < colorIndex; ++i) {
-      leftStr += std::to_string(data.at(i)) + " -> ";
+      leftStr += std::to_string(data.at(i)) + "->";
     }
     for (int i = colorIndex + 1; i < data.size(); ++i) {
-      rightStr += std::to_string(data.at(i)) + " -> ";
+      rightStr += std::to_string(data.at(i)) + "->";
     }
     text.push_back(leftStr);
     text.push_back(colorStr);
@@ -444,4 +446,48 @@ void LinkedList::draw() const {
 void LinkedList::dtRestart() {
   if (state != LLState::WAIT)
     dt = delayClock.restart().asSeconds();
+}
+
+float LinkedList::calcTextPadding(const std::vector<std::string>& text) {
+  if (text.empty())
+    return 0;
+
+  std::string str;
+  ImVec2 textSize(0, 0);
+  ImVec2 availSpace = ImGui::GetContentRegionAvail();
+  if (text.size() == 1) {
+    str += "head->" + text.at(0) + "null";
+    /*
+    textSize.x += ImGui::CalcTextSize("head->").x;
+    textSize.x += ImGui::CalcTextSize(text.at(0).c_str()).x;
+    textSize.x += ImGui::CalcTextSize("null").x;
+    */
+  }
+  else if (text.size() == 2) {
+    // ">null" is on purpose because I need to account for the extra 'f'/'b' char
+    str += "head->" + text.at(0) + text.at(1) + ">null";
+    /*
+    textSize.x += ImGui::CalcTextSize("head->").x;
+    textSize.x += ImGui::CalcTextSize(text.at(0).c_str()).x;
+    textSize.x += ImGui::CalcTextSize(text.at(1).c_str()).x;
+    textSize.x += ImGui::CalcTextSize("->null").x;
+    */
+  }
+  else if (text.size() == 3) {
+    str += "head->" + text.at(0) + text.at(1) + text.at(2) + "->null";
+    /*
+    textSize.x += ImGui::CalcTextSize("head->").x;
+    textSize.x += ImGui::CalcTextSize(text.at(0).c_str()).x;
+    textSize.x += ImGui::CalcTextSize(text.at(1).c_str()).x;
+    textSize.x += ImGui::CalcTextSize(text.at(2).c_str()).x;
+    textSize.x += ImGui::CalcTextSize("->null").x;
+    */
+  }
+  else
+    throw("erm wrong");
+   
+  return (availSpace.x - ImGui::CalcTextSize(str.c_str()).x) / 2;
+  /*
+  return (availSpace.x - textSize.x) / 2;
+  */
 }
