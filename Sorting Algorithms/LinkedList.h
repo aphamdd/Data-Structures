@@ -19,7 +19,7 @@ public:
   bool mouseInBounds(const sf::Vector2i mpos) const; // is mouse in mActive node
   bool findValue(const int val);
   std::vector<std::string> parseString(LLNode* follow); // highlights the followed ptr
-  float calcTextPadding(const std::vector<std::string>& text);
+  ImVec2 calcTextPadding(const std::vector<std::string>& text);
 
   void draw() const;
   void dtRestart();

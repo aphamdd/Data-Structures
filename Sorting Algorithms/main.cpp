@@ -299,8 +299,9 @@ int main() {
         else
           text = linkedList.parseString(linkedList.mActive);
 
-        float padding = linkedList.calcTextPadding(text);
-        ImGui::SetCursorPosX(padding);
+        ImVec2 padding = linkedList.calcTextPadding(text);
+        ImGui::SetWindowFontScale(3);
+        ImGui::SetCursorPos(padding);
 
         if (text.size() > 0) {
           if (text.size() == 1) {

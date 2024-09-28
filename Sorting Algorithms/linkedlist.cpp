@@ -210,17 +210,36 @@ void LinkedList::updatePrev() {
 }
 
 bool LinkedList::move(const sf::Vector2i mpos) {
+  sf::Clock clock;
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   sf::Vector2f lastPos = mActive->shape.getPosition();
   if (mActive) {
-    mActive->update(convertMPos, mPrev);
-    // handle collision
-    // TODO: maybe use cursorUpdate calculations to handle collision?
+    float k = 500;
+    sf::Vector2f target = mActive->shape.getPosition();
+    sf::Vector2f goal = convertMPos;
+    float dx = goal.x - target.x;
+    float dy = goal.y - target.y;
+    float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
+    sf::Vector2f direction(dx, dy);
+    float deltaTime = clock.restart().asSeconds();
+    float velx = (k * distance * direction.x) * deltaTime;
+    float vely = (k * distance * direction.y) * deltaTime;
+    sf::Vector2f res(target.x + velx, target.y + vely);
+    mActive->update(res, mPrev);
+
+    // TODO: fix collision
+
     sf::FloatRect currShape = mActive->shape.getGlobalBounds();
     findNodeBounds(mActive);
     for (const auto& anyShape : nBounds) {
-      if (currShape.intersects(anyShape))
-        mActive->update(lastPos, mPrev);
+      if (currShape.intersects(anyShape)) {
+        if (abs(velx) > abs(vely))
+          mActive->update(sf::Vector2f(lastPos.x, target.y+vely), mPrev);
+        else if (abs(velx) < abs(vely))
+          mActive->update(sf::Vector2f(target.x+velx, lastPos.y), mPrev);
+        else
+          mActive->update(lastPos, mPrev);
+      }
     }
     return true;
   }
@@ -448,13 +467,11 @@ void LinkedList::dtRestart() {
     dt = delayClock.restart().asSeconds();
 }
 
-float LinkedList::calcTextPadding(const std::vector<std::string>& text) {
+ImVec2 LinkedList::calcTextPadding(const std::vector<std::string>& text) {
   if (text.empty())
-    return 0;
+    return ImVec2(0, 0);
 
   std::string str;
-  ImVec2 textSize(0, 0);
-  ImVec2 availSpace = ImGui::GetContentRegionAvail();
   if (text.size() == 1) {
     str += "head->" + text.at(0) + "null";
     /*
@@ -486,7 +503,13 @@ float LinkedList::calcTextPadding(const std::vector<std::string>& text) {
   else
     throw("erm wrong");
    
-  return (availSpace.x - ImGui::CalcTextSize(str.c_str()).x) / 2;
+  ImVec2 availSpace = ImGui::GetContentRegionAvail();
+  ImVec2 textSize = ImGui::CalcTextSize(str.c_str());
+  ImVec2 res(0, 0);
+  res.x = (availSpace.x - textSize.x) / 2;
+  res.y = (availSpace.y - textSize.y) / 2;
+  return res;
+
   /*
   return (availSpace.x - textSize.x) / 2;
   */
