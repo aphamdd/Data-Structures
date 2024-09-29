@@ -35,6 +35,8 @@ private:
 public:
   LLNode* mActive =  nullptr; // the active selected node
   LLNode* mStatePtr = nullptr;
+  float textScale = 10;
+  float originalTextSize = 0;
 
 private:
   float dt = 0;

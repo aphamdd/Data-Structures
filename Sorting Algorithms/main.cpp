@@ -300,7 +300,7 @@ int main() {
           text = linkedList.parseString(linkedList.mActive);
 
         ImVec2 padding = linkedList.calcTextPadding(text);
-        ImGui::SetWindowFontScale(3);
+        ImGui::SetWindowFontScale(linkedList.textScale);
         ImGui::SetCursorPos(padding);
 
         if (text.size() > 0) {

@@ -474,43 +474,32 @@ ImVec2 LinkedList::calcTextPadding(const std::vector<std::string>& text) {
   std::string str;
   if (text.size() == 1) {
     str += "head->" + text.at(0) + "null";
-    /*
-    textSize.x += ImGui::CalcTextSize("head->").x;
-    textSize.x += ImGui::CalcTextSize(text.at(0).c_str()).x;
-    textSize.x += ImGui::CalcTextSize("null").x;
-    */
   }
   else if (text.size() == 2) {
     // ">null" is on purpose because I need to account for the extra 'f'/'b' char
     str += "head->" + text.at(0) + text.at(1) + ">null";
-    /*
-    textSize.x += ImGui::CalcTextSize("head->").x;
-    textSize.x += ImGui::CalcTextSize(text.at(0).c_str()).x;
-    textSize.x += ImGui::CalcTextSize(text.at(1).c_str()).x;
-    textSize.x += ImGui::CalcTextSize("->null").x;
-    */
   }
   else if (text.size() == 3) {
     str += "head->" + text.at(0) + text.at(1) + text.at(2) + "->null";
-    /*
-    textSize.x += ImGui::CalcTextSize("head->").x;
-    textSize.x += ImGui::CalcTextSize(text.at(0).c_str()).x;
-    textSize.x += ImGui::CalcTextSize(text.at(1).c_str()).x;
-    textSize.x += ImGui::CalcTextSize(text.at(2).c_str()).x;
-    textSize.x += ImGui::CalcTextSize("->null").x;
-    */
   }
   else
     throw("erm wrong");
    
   ImVec2 availSpace = ImGui::GetContentRegionAvail();
   ImVec2 textSize = ImGui::CalcTextSize(str.c_str());
+
+  float scaleAmount = 0.1;
+  if (originalTextSize != textSize.x && availSpace.x / textSize.x < 1.f) {
+    originalTextSize = textSize.x;
+    textScale -= scaleAmount;
+  }
+  else if (originalTextSize != textSize.x && availSpace.x / (textSize.x * (1 + scaleAmount)) > 1.f) {
+    originalTextSize = textSize.x;
+    textScale += scaleAmount;
+  }
+
   ImVec2 res(0, 0);
   res.x = (availSpace.x - textSize.x) / 2;
   res.y = (availSpace.y - textSize.y) / 2;
   return res;
-
-  /*
-  return (availSpace.x - textSize.x) / 2;
-  */
 }
