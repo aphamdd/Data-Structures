@@ -35,64 +35,69 @@ void LinkedList::clear() {
 
 // TODO: don't return midway of a statement, return at the end
 // so I can shift any intersecting node
-void LinkedList::add() {
-  LLNode* curr = nullptr;
+int LinkedList::add() {
   // create head
   if (!mHead) {
     sf::Vector2f pos(75.f, 400.f);
     mHead = new LLNode(pos, LLText, texture);
     mHead->sprite.setColor(sf::Color::Red);
     mTail = mHead;
-    return;
   }
-  // insert at active
+  // insert in front of active ptr
   else if (mActive) {
     if (mActive->next) {
       LLNode* temp = mActive->next;
       sf::Vector2f pos = mActive->sprite.getPosition();
       pos.x += mActive->size.x + 10.f;
       mActive->next = new LLNode(pos, LLText, texture);
-      mActive->next->next = temp;
-      mActive->next->ID += mActive->ID;
-      mActive->next->updateNext(mActive);
-      mActive->next->next->updateNext(mActive->next);
-      mActive->next->dataText.setString(std::to_string(mActive->next->ID));
+      if (mActive != mHead)
+        mActive->sprite.setColor(sf::Color::White);
+      mActive = mActive->next;
+      updatePrevPtr(mActive);
+      if (mActive != mTail)
+        mActive->sprite.setColor(sf::Color::Green);
+      mActive->next = temp;
+      mActive->data += mPrev->data;
+      mActive->updateLine(mPrev);
+      mActive->next->updateLine(mActive);
+      mActive->setText(mActive->data);
       // TODO: I don't like having a loop like this, fix it. recursion?
       // bug: only if mActive->next, needs to apply when ANY node is added
       while (!shiftForward(mActive, mActive->next)) {
         continue;
       }
       temp = nullptr;
-      return;
     }
   }
   // insert end (end isn't always positioned at the end of a list coordinate-wise)
-  curr = mTail;
-  sf::Vector2f pos = curr->sprite.getPosition();
-  pos.x += curr->size.x + 10.f;
-  curr->next = new LLNode(pos, LLText, texture);
-  curr->next->ID += curr->ID;
-  curr->next->updateNext(curr);
-  // TODO: create a function to update any changes to text/sprite
-  curr->next->dataText.setString(std::to_string(curr->next->ID));
-  if (mTail != mActive && mTail != mHead)
-    mTail->sprite.setColor(sf::Color::White);
-  mTail = curr->next;
-  mTail->sprite.setColor(sf::Color::Blue);
-  curr = nullptr;
-  return;
+  else {
+    LLNode* curr = mTail;
+    sf::Vector2f pos = curr->sprite.getPosition();
+    pos.x += curr->size.x + 10.f;
+    curr->next = new LLNode(pos, LLText, texture);
+    curr->next->data += curr->data;
+    curr->next->updateLine(curr);
+    curr->next->setText(curr->next->data);
+    if (mTail != mActive && mTail != mHead)
+      mTail->sprite.setColor(sf::Color::White);
+    mTail = curr->next;
+    mTail->sprite.setColor(sf::Color(50, 140, 235));
+    curr = nullptr;
+  }
+  return 1;
 }
 
 bool LinkedList::shiftForward(LLNode* prev, LLNode* curr) {
   // ez solution is to just shift the newly inserted node forward until no intersection
   // harder and inefficient solution is to continually shift the nodes in front
   // of the newly inserted node until theres space for all nodes
-  findNodeBounds(curr);
+  findAllNodeBounds(curr);
   sf::Vector2f pos = curr->sprite.getPosition();
   pos.x += curr->size.x + 10.f;
   for (const auto& anysprite : nBounds) {
     if (curr->sprite.getGlobalBounds().intersects(anysprite)) {
-      curr->update(pos, prev);
+      curr->move(pos);
+      curr->updateLine(prev);
       return false;
     }
   }
@@ -101,9 +106,8 @@ bool LinkedList::shiftForward(LLNode* prev, LLNode* curr) {
 
 bool LinkedList::remove() {
   // 0 nodes
-  if (!mHead) {
+  if (!mHead)
     return true;
-  }
   // 1 node
   else if (!mHead->next) {
     delete mHead;
@@ -112,49 +116,39 @@ bool LinkedList::remove() {
     mPrev = nullptr;
     mStatePtr = nullptr;
     mTail = nullptr;
-    return true;
   }
   // 2+ nodes
-  if (mActive) {
+  else if (mActive) {
     if (mActive == mHead) {
       mActive = mActive->next;
       mActive->sprite.setColor(sf::Color::Red);
       delete mHead;
       mHead = mActive;
-      return true;
     }
     else if (mActive->next) {
-      updatePrev();
-      LLNode* prev = mPrev;
+      updatePrevPtr(mActive);
       LLNode* temp = mActive->next;
       delete mActive;
-      prev->next = temp;
-      temp->updateNext(prev);
+      mPrev->next = temp;
+      temp->updateLine(mPrev);
       mActive = nullptr;
-      prev = nullptr;
+      mPrev = nullptr;
       temp = nullptr;
-      return true;
     }
   }
   // default tail removal
-  // TODO: replace current with mTail
-  LLNode* prev = nullptr;
-  LLNode* curr = mHead;
-  while (curr->next) {
-    prev = curr;
-    curr = curr->next;
+  else {
+    updatePrevPtr(mTail);
+    LLNode* curr = mTail;
+    if (mActive == curr)
+      mActive = nullptr;
+    delete curr;
+    curr = nullptr;
+    mPrev->next = nullptr;
+    mPrev->updateLine(nullptr);
+    mTail = mPrev;
+    mTail->sprite.setColor(sf::Color(50, 140, 235));
   }
-  if (mPrev == curr)
-    mPrev = nullptr;
-  if (mActive == curr)
-    mActive = nullptr;
-  delete curr;
-  curr = nullptr;
-  prev->next = nullptr;
-  prev->updateNext();
-  mTail = prev;
-  mTail->sprite.setColor(sf::Color::Blue);
-  prev = nullptr;
 
   return true;
 }
@@ -180,45 +174,46 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
   // check if we clicked on the same active node
   if (mActive) {
     sf::FloatRect activeBounds = mActive->sprite.getGlobalBounds();
-    if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
+    if (activeBounds.contains(convertMPos.x, convertMPos.y))
       return mActive;
-    }
   }
   // otherwise, compare curr mpos with nodes or a spot on the screen
   for (LLNode* curr = mHead; curr; curr = curr->next) {
     sf::FloatRect currBounds = curr->sprite.getGlobalBounds();
     if (currBounds.contains(convertMPos.x, convertMPos.y)) {
-      // set pactive color to white, set new pactive, highlight new pactive
       if (mActive && mActive != mHead && mActive != mTail)
         mActive->sprite.setColor(sf::Color::White);
       mActive = curr;
       if (mActive != mHead && mActive != mTail)
         mActive->sprite.setColor(sf::Color::Green);
       // update previous pointer after setting mActive
-      updatePrev();
+      updatePrevPtr(mActive);
       return mActive;
     }
   }
   return nullptr;
 }
 
-void LinkedList::updatePrev() {
-  if (!mHead || !mHead->next || !mActive || mActive == mHead) {
+int LinkedList::updatePrevPtr(LLNode* ptr) {
+  if (!mHead || !mHead->next || !ptr || ptr == mHead) {
     mPrev = nullptr;
-    return;
+    return 0;
   }
+
   mPrev = mHead;
-  while (mPrev->next != mActive) {
+  while (mPrev->next != ptr) {
     mPrev = mPrev->next;
   }
+
+  return 1;
 }
 
 bool LinkedList::move(const sf::Vector2i mpos) {
   sf::Clock clock;
-  sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-  sf::Vector2f lastPos = mActive->sprite.getPosition();
   if (mActive) {
+    sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
     /*
+    sf::Vector2f lastPos = mActive->sprite.getPosition();
     float k = 500;
     sf::Vector2f target = mActive->sprite.getPosition();
     sf::Vector2f goal = convertMPos;
@@ -232,22 +227,25 @@ bool LinkedList::move(const sf::Vector2i mpos) {
     sf::Vector2f res(target.x + velx, target.y + vely);
     mActive->update(res, mPrev);
     */
-    mActive->update(convertMPos, mPrev);
+    mActive->move(convertMPos); // moves sprite
+    mActive->updateLine(mPrev); // update lines to follow sprite
 
+    /*
     sf::FloatRect currsprite = mActive->sprite.getGlobalBounds();
-    findNodeBounds(mActive);
+    findAllNodeBounds(mActive);
     for (const auto& anysprite : nBounds) {
       if (currsprite.intersects(anysprite)) {
-        /*
+        //
         if (abs(velx) > abs(vely))
           mActive->update(sf::Vector2f(lastPos.x, target.y+vely), mPrev);
         else if (abs(velx) < abs(vely))
           mActive->update(sf::Vector2f(target.x+velx, lastPos.y), mPrev);
         else
-        */
+        //
           mActive->update(lastPos, mPrev);
       }
     }
+    */
     return true;
   }
   return false;
@@ -262,23 +260,21 @@ bool LinkedList::mouseInBounds(const sf::Vector2i mpos) const {
   return false;
 }
 
-bool LinkedList::findNodeBounds(LLNode* curr) {
+bool LinkedList::findAllNodeBounds(LLNode* curr) {
   nBounds.clear();
   if (!mHead)
     return false;
 
-  LLNode* temp = mHead;
-  while (temp) {
-    // don't insert the active node 
+  // exclude the compared node
+  for (LLNode* temp = mHead; temp; temp = temp->next) {
     if (temp != curr)
       nBounds.push_back(temp->sprite.getGlobalBounds());
-    temp = temp->next;
   }
-  temp = nullptr;
+
   return true;
 }
 
-bool LinkedList::findValue(const int val) {
+bool LinkedList::findValueAnimated(const int val) {
   // true means found or finished search space
   if (!mHead) {
     resetState();
@@ -292,14 +288,13 @@ bool LinkedList::findValue(const int val) {
       state = LLState::HIGHLIGHT;
     } break;
     case LLState::HIGHLIGHT: {
-      if (mStatePtr) {
-        if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
-          mStatePtr->sprite.setColor(sf::Color::Yellow);
-      }
-      else {
+      if (!mStatePtr) {
         resetState();
         return true;
       }
+      
+      if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
+          mStatePtr->sprite.setColor(sf::Color::Yellow);
       prevState = state;
       state = LLState::WAIT;
     } break;
@@ -316,12 +311,12 @@ bool LinkedList::findValue(const int val) {
       }
     } break;
     case LLState::COMPARE: {
-      if (mStatePtr->ID == val) {
+      if (mStatePtr->data == val) {
         mStatePtr->sprite.setColor(sf::Color::Magenta);
         resetState();
         return true;
       }
-      if (mStatePtr->next) {
+      else if (mStatePtr->next) {
         if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
           mStatePtr->sprite.setColor(sf::Color::White);
         mStatePtr = mStatePtr->next;
@@ -339,32 +334,36 @@ bool LinkedList::findValue(const int val) {
   return false;
 }
 
-void LinkedList::updateCursor(LLNode* curr) {
+void LinkedList::dtRestart() {
+  if (state != LLState::WAIT)
+    delayClock.restart();
+}
+
+void LinkedList::updateCursor(LLNode* target) {
   sf::Clock clock;
-  if (!curr) {
+  if (!target) {
     cursor.setRadius(0.f);
     return;
   }
   
   cursor.setRadius(10.f);
-  cursor.setFillColor(curr->sprite.getColor());
+  cursor.setFillColor(target->sprite.getColor());
 
-  // TODO: refactor for efficiency
-  float k = 1800; // dampening constant
-  sf::Vector2f target = cursor.getPosition();
-  sf::Vector2f goal = curr->sprite.getPosition();
-  goal.y += curr->size.y;
-  float dx = goal.x - target.x;
-  float dy = goal.y - target.y;
+  sf::Vector2f currPos = cursor.getPosition();
+  sf::Vector2f goal = target->sprite.getPosition();
+  goal.y += target->size.y;
+  float dx = goal.x - currPos.x;
+  float dy = goal.y - currPos.y;
   float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
-  sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
   float deltaTime = clock.restart().asSeconds();
-  float velx = (k * distance * direction.x) * deltaTime;
-  float vely = (k * distance * direction.y) * deltaTime;
   // not 0 because itll never reach 0, just needs to be "close enough"
   if (distance >= 3) { 
-    sf::Vector2f res(target.x + velx, target.y + vely);
-    cursor.setPosition(res);
+    // calculate whats necessary
+    float k = 1800; // dampening constant
+    sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
+    float velx = (k * distance * direction.x) * deltaTime;
+    float vely = (k * distance * direction.y) * deltaTime;
+    cursor.move(sf::Vector2f(velx, vely));
   } 
   else {
     // TODO: idle animation
@@ -385,7 +384,7 @@ std::vector<std::string> LinkedList::parseString(LLNode* follow) {
   LLNode* curr = mHead;
 
   for (LLNode* curr = mHead; curr; curr = curr->next) {
-    data.push_back(curr->ID);
+    data.push_back(curr->data);
     if (follow && curr == follow)
       colorIndex = i;
     ++i;
@@ -447,66 +446,63 @@ std::vector<std::string> LinkedList::parseString(LLNode* follow) {
 
 void LinkedList::resetState() {
   mStatePtr = nullptr;
+  prevState = LLState::ENTRY;
   state = LLState::ENTRY;
-  prevState = state;
 }
 
-bool LinkedList::resetActive() {
+bool LinkedList::resetActiveNode() {
   if (mActive && mActive != mHead && mActive != mTail)
     mActive->sprite.setColor(sf::Color::White);
   mActive = nullptr;
   return true;
 }
 
-void LinkedList::draw() const {
+int LinkedList::draw() const {
   if (!mHead)
-    return;
+    return 0;
   LLNode* curr = mHead;
   while (curr) {
     window.draw(*curr); // invokes overridden draw function in LLNode
     curr = curr->next;
   }
   window.draw(cursor);
+  return 1;
 }
 
-void LinkedList::dtRestart() {
-  if (state != LLState::WAIT)
-    dt = delayClock.restart().asSeconds();
-}
-
-ImVec2 LinkedList::calcTextPadding(const std::vector<std::string>& text) {
+int LinkedList::transformText(const std::vector<std::string>& text) {
   if (text.empty())
-    return ImVec2(0, 0);
+    return 0;
 
   std::string str;
-  if (text.size() == 1) {
+  if (text.size() == 1)
     str += "head->" + text.at(0) + "null";
-  }
   else if (text.size() == 2) {
     // ">null" is on purpose because I need to account for the extra 'f'/'b' char
     str += "head->" + text.at(0) + text.at(1) + ">null";
   }
-  else if (text.size() == 3) {
+  else if (text.size() == 3)
     str += "head->" + text.at(0) + text.at(1) + text.at(2) + "->null";
-  }
   else
     throw("erm wrong");
    
   ImVec2 availSpace = ImGui::GetContentRegionAvail();
   ImVec2 textSize = ImGui::CalcTextSize(str.c_str());
 
+  // scale text
   float scaleAmount = 0.1;
   if (prevTextSize != textSize.x && availSpace.x / textSize.x < 1.f) {
     prevTextSize = textSize.x;
     textScale -= scaleAmount;
   }
-  else if (prevTextSize != textSize.x && availSpace.x / (textSize.x * (1 + scaleAmount)) > 1.f && textScale < 8) {
+  else if (prevTextSize != textSize.x && availSpace.x / (textSize.x * (1 + scaleAmount)) > 1.f && textScale < 6) {
     prevTextSize = textSize.x;
     textScale += scaleAmount;
   }
 
-  ImVec2 res(0, 0);
-  res.x = (availSpace.x - textSize.x) / 2;
-  res.y = (availSpace.y - textSize.y) / 2;
-  return res;
+  ImVec2 padding(0, 0);
+  padding.x = (availSpace.x - textSize.x) / 2;
+  padding.y = (availSpace.y - textSize.y) / 2;
+  ImGui::SetWindowFontScale(textScale);
+  ImGui::SetCursorPos(padding);
+  return 1;
 }

@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="algorithms.cpp" />
+    <ClCompile Include="drawimgui.cpp" />
     <ClCompile Include="graph.cpp" />
     <ClCompile Include="imgui\imgui-SFML.cpp" />
     <ClCompile Include="imgui\imgui.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="Control.h" />
     <ClInclude Include="Algorithms.h" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="DrawImgui.h" />
     <ClInclude Include="Graph.h" />
     <ClInclude Include="LinkedList.h" />
     <ClInclude Include="imgui\imconfig-SFML.h" />

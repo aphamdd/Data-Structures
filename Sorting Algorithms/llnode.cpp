@@ -19,7 +19,7 @@ LLNode::LLNode(const sf::Vector2f pos, sf::Text& text, sf::Texture& texture) :
   dataText.setPosition(textPos);
   dataText.setCharacterSize(size.y/1.2);
   dataText.setFillColor(sf::Color::Black);
-  dataText.setString(std::to_string(ID));
+  dataText.setString(std::to_string(data));
 
   sf::Vector2f nextPos = pos;
   nextPos.x += size.x * 0.5;
@@ -32,27 +32,19 @@ LLNode::LLNode(const sf::Vector2f pos, sf::Text& text, sf::Texture& texture) :
 // TODO: delete sprite?? I don't create anything on the heap here
 LLNode::~LLNode() {
   next = nullptr;
-  ID = 0;
+  data = 0;
 }
 
-void LLNode::update(const sf::Vector2f pos, LLNode* prev) {
+void LLNode::move(const sf::Vector2f pos) {
   sf::Vector2f textPos = pos;
   textPos.x -= size.x / shiftFactor.x;
   textPos.y -= size.y / shiftFactor.y;
   dataText.setPosition(textPos);
   sprite.setPosition(pos);
-
-  // I need a previous pointer to update the next pointer line accordingly
-  updateNext(prev);
 }
 
-// overloaded method: updates the previous node's line as well
-void LLNode::updateNext(LLNode* prev) {
-  // two cases:
-  // am I the tail node
-  // am I not a tail node
-
-  // update current node next line
+void LLNode::updateLine(LLNode* prevNode) {
+  // update next line
   sf::Vector2f nextPos = sprite.getPosition();
   nextPos.x += size.x / 2;
   nextLine[0].position = nextPos;
@@ -61,31 +53,21 @@ void LLNode::updateNext(LLNode* prev) {
     nextLine[1].position = nextPos;
   }
 
-  // update the next line behind the current node
-  sf::Vector2f prevPos = sprite.getPosition();
-  prevPos.x -= size.x / 2;
-  if (prev) {
-    prev->nextLine[1].position = prevPos;
+  // update line behind
+  if (prevNode) {
+    nextPos.x -= size.x;
+    prevNode->nextLine[1].position = nextPos;
   }
 }
 
-void LLNode::updateNext() {
-  // update current node next line
-  sf::Vector2f nextPos = sprite.getPosition();
-  nextPos.x += size.x / 2;
-  nextLine[0].position = nextPos;
-  // if theres no node in front, keep it hidden
-  if (!next) {
-    nextLine[1].position = nextPos;
+int LLNode::setText(const int val) {
+  if (val < 0 || val >= 100) {
+    dataText.setString(std::to_string(-1));
+    return 0;
   }
-}
-
-void LLNode::updateText(const int val) {
-  if (val < 0 || val >= 100)
-    return;
-
-  ID = val;
-  dataText.setString(std::to_string(ID));
+  data = val;
+  dataText.setString(std::to_string(data));
+  return 1;
 }
 
 void LLNode::draw(sf::RenderTarget& target, sf::RenderStates states) const {

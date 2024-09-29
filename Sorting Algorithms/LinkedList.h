@@ -10,24 +10,24 @@ public:
   ~LinkedList();
   void clear();
 
-  void add();
+  int add();
   bool remove();
-  LLNode* search(const sf::Vector2i mpos); // find what node im clicking
-  bool move(const sf::Vector2i mpos); // handles LLNode positioning
+  LLNode* search(const sf::Vector2i pos); // find what node im clicking
+  bool move(const sf::Vector2i pos); // handles LLNode positioning
 
-  void updateCursor(LLNode* ptr); // cursor follows ptr
+  void updateCursor(LLNode* target); // cursor follows ptr
   bool mouseInBounds(const sf::Vector2i mpos) const; // is mouse in mActive node
-  bool findValue(const int val);
+  bool findValueAnimated(const int val);
   std::vector<std::string> parseString(LLNode* follow); // highlights the followed ptr
-  ImVec2 calcTextPadding(const std::vector<std::string>& text);
+  int transformText(const std::vector<std::string>& text);
 
-  void draw() const;
+  int draw() const;
+  bool resetActiveNode();
   void dtRestart();
-  bool resetActive();
 
 private:
-  void updatePrev(); // moves mPrev to the node behind mActive
-  bool findNodeBounds(LLNode* ptr); // excludes passed ptr's nodes bounds 
+  int updatePrevPtr(LLNode* ptr); // moves prev ptr to a given node
+  bool findAllNodeBounds(LLNode* ptr); // excludes passed ptr's nodes bounds 
   bool shiftForward(LLNode* prev, LLNode* curr); // move nodes forward after inserting
   void resetState();
 
@@ -35,12 +35,11 @@ private:
 public:
   LLNode* mActive =  nullptr; // the active selected node
   LLNode* mStatePtr = nullptr;
-  float textScale = 8;
+  float textScale = 6;
   float prevTextSize = 0;
 
 private:
   sf::Texture texture;
-  float dt = 0;
   std::vector<sf::FloatRect> nBounds; // vector of all node bounds
   sf::CircleShape cursor;
 

@@ -1,12 +1,6 @@
-#include "common.h"
-#include "Graph.h"
-#include "Algorithms.h"
-#include "LLNode.h"
-#include "LinkedList.h"
+#include "DrawImgui.h"
 #include <iostream>
 #include <SFML/Graphics.hpp>
-#include "imgui.h"
-#include "imgui-SFML.h"
 using namespace std;
 
 
@@ -37,6 +31,8 @@ int main() {
   sf::Vector2i mpos;
   int nodeNum = 0;
 
+  DrawImgui img(window, algo, graph, linkedList);
+
   while (window.isOpen()) {
     sf::Event event;
 
@@ -62,7 +58,7 @@ int main() {
             control.isDragging = false;
           }
           else if (event.mouseButton.button == sf::Mouse::Right) {
-            if (linkedList.resetActive())
+            if (linkedList.resetActiveNode())
               control.isDragging = false;
           }
           else if (event.mouseButton.button == sf::Mouse::Middle) {
@@ -80,36 +76,14 @@ int main() {
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable docking
     ImGui::SFML::Update(window, imguiClock.restart());
 
-    // Dockspace TODO: set up defaults and max/min sizes
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-    // updates dockspace if window resizes
-    ImGui::SetNextWindowPos(ImVec2(0, 0));
-    ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
-    ImGui::SetNextWindowBgAlpha(0.0f);
-    // ImGui::SetNextWindowDockID(dockspace_id, ImGuiCond_FirstUseEver);
-    ImGuiStyle& style = ImGui::GetStyle();
-    style.WindowPadding = ImVec2(0, 0);
-    ImGui::Begin("DockSpace", nullptr, window_flags);
-    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
-    ImGui::End();
-
-    ImGui::ShowDemoWindow();
+    img.dockspace();
 
     // GUI
     ImGui::Begin("Visualizer");
     ImGui::SetWindowFontScale(fontScale);
     
     // scales viewport with gui width
-    float guiWidth = ImGui::GetWindowSize().x;
-    float winWidth = window.getSize().x;
-    float viewWidth = winWidth - guiWidth;
-    view.setViewport(sf::FloatRect(
-      0.f, // x left
-      0.f, // y top
-      viewWidth / winWidth, // x right
-      1.f // y bottom
-    ));
+    view.setViewport(img.calcViewport());
 
     if (ImGui::BeginTabBar("Tab Bar")) {
       if (ImGui::BeginTabItem("Algorithms")) {
@@ -260,7 +234,7 @@ int main() {
         if (ImGui::Button(control.isSearching ? "Searching..." : "Find"))
           control.isSearching = true;
         if (control.isSearching) {
-          if (linkedList.findValue(nodeNum))
+          if (linkedList.findValueAnimated(nodeNum))
             control.isSearching = false;
         }
         else
@@ -289,7 +263,7 @@ int main() {
           ImGui::Text("I'm a popup!");
           ImGui::InputInt("Set Node Value:", &nodeNum);
           if (ImGui::Button("Set"))
-            linkedList.mActive->updateText(nodeNum);
+            linkedList.mActive->setText(nodeNum);
           ImGui::EndPopup();
         }
 
@@ -301,9 +275,7 @@ int main() {
         else
           text = linkedList.parseString(linkedList.mActive);
 
-        ImVec2 padding = linkedList.calcTextPadding(text);
-        ImGui::SetWindowFontScale(linkedList.textScale);
-        ImGui::SetCursorPos(padding);
+        linkedList.transformText(text);
 
         if (text.size() > 0) {
           if (text.size() == 1) {
