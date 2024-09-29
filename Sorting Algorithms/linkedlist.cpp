@@ -9,6 +9,10 @@ LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   cursor.setFillColor(sf::Color::White);
   cursor.setOutlineThickness(1.5f);
   cursor.setOutlineColor(sf::Color::Black);
+
+  if (!texture.loadFromFile("./Textures/testframe.png"))
+    throw ("texture error");
+  texture.setRepeated(true);
 }
 LinkedList::~LinkedList() {
   clear();
@@ -36,8 +40,8 @@ void LinkedList::add() {
   // create head
   if (!mHead) {
     sf::Vector2f pos(75.f, 400.f);
-    mHead = new LLNode(pos, LLText);
-    mHead->shape.setFillColor(sf::Color::Red);
+    mHead = new LLNode(pos, LLText, texture);
+    mHead->sprite.setColor(sf::Color::Red);
     mTail = mHead;
     return;
   }
@@ -45,9 +49,9 @@ void LinkedList::add() {
   else if (mActive) {
     if (mActive->next) {
       LLNode* temp = mActive->next;
-      sf::Vector2f pos = mActive->shape.getPosition();
-      pos.x += mActive->shape.getSize().x + 10.f;
-      mActive->next = new LLNode(pos, LLText);
+      sf::Vector2f pos = mActive->sprite.getPosition();
+      pos.x += mActive->size.x + 10.f;
+      mActive->next = new LLNode(pos, LLText, texture);
       mActive->next->next = temp;
       mActive->next->ID += mActive->ID;
       mActive->next->updateNext(mActive);
@@ -64,17 +68,17 @@ void LinkedList::add() {
   }
   // insert end (end isn't always positioned at the end of a list coordinate-wise)
   curr = mTail;
-  sf::Vector2f pos = curr->shape.getPosition();
-  pos.x += curr->shape.getSize().x + 10.f;
-  curr->next = new LLNode(pos, LLText);
+  sf::Vector2f pos = curr->sprite.getPosition();
+  pos.x += curr->size.x + 10.f;
+  curr->next = new LLNode(pos, LLText, texture);
   curr->next->ID += curr->ID;
   curr->next->updateNext(curr);
-  // TODO: create a function to update any changes to text/shape
+  // TODO: create a function to update any changes to text/sprite
   curr->next->dataText.setString(std::to_string(curr->next->ID));
   if (mTail != mActive && mTail != mHead)
-    mTail->shape.setFillColor(sf::Color::White);
+    mTail->sprite.setColor(sf::Color::White);
   mTail = curr->next;
-  mTail->shape.setFillColor(sf::Color::Blue);
+  mTail->sprite.setColor(sf::Color::Blue);
   curr = nullptr;
   return;
 }
@@ -84,10 +88,10 @@ bool LinkedList::shiftForward(LLNode* prev, LLNode* curr) {
   // harder and inefficient solution is to continually shift the nodes in front
   // of the newly inserted node until theres space for all nodes
   findNodeBounds(curr);
-  sf::Vector2f pos = curr->shape.getPosition();
-  pos.x += curr->shape.getSize().x + 10.f;
-  for (const auto& anyShape : nBounds) {
-    if (curr->shape.getGlobalBounds().intersects(anyShape)) {
+  sf::Vector2f pos = curr->sprite.getPosition();
+  pos.x += curr->size.x + 10.f;
+  for (const auto& anysprite : nBounds) {
+    if (curr->sprite.getGlobalBounds().intersects(anysprite)) {
       curr->update(pos, prev);
       return false;
     }
@@ -114,7 +118,7 @@ bool LinkedList::remove() {
   if (mActive) {
     if (mActive == mHead) {
       mActive = mActive->next;
-      mActive->shape.setFillColor(sf::Color::Red);
+      mActive->sprite.setColor(sf::Color::Red);
       delete mHead;
       mHead = mActive;
       return true;
@@ -149,7 +153,7 @@ bool LinkedList::remove() {
   prev->next = nullptr;
   prev->updateNext();
   mTail = prev;
-  mTail->shape.setFillColor(sf::Color::Blue);
+  mTail->sprite.setColor(sf::Color::Blue);
   prev = nullptr;
 
   return true;
@@ -162,11 +166,11 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
   // Coordinates are relative (sfml getPositions() returns relative coords)
   // Pixels are absolute
   //
-  // I likely need to use mapPixelsToCoords because shapes are all drawn
+  // I likely need to use mapPixelsToCoords because sprites are all drawn
   // with relative positioning (coords). So I need to map my cursor's absolute
   // position (pixels) to the relative pixels of the view (coords). Also, since
   // I want to keep track of the cursor's positioning within the bounds of the
-  // shape, I have to keep track of the relative sizing of the shape as well,
+  // sprite, I have to keep track of the relative sizing of the sprite as well,
   // so converting my absolute mouse position to the relative position is the way to go.
   
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
@@ -175,21 +179,21 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
 
   // check if we clicked on the same active node
   if (mActive) {
-    sf::FloatRect activeBounds = mActive->shape.getGlobalBounds();
+    sf::FloatRect activeBounds = mActive->sprite.getGlobalBounds();
     if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
       return mActive;
     }
   }
   // otherwise, compare curr mpos with nodes or a spot on the screen
   for (LLNode* curr = mHead; curr; curr = curr->next) {
-    sf::FloatRect currBounds = curr->shape.getGlobalBounds();
+    sf::FloatRect currBounds = curr->sprite.getGlobalBounds();
     if (currBounds.contains(convertMPos.x, convertMPos.y)) {
       // set pactive color to white, set new pactive, highlight new pactive
       if (mActive && mActive != mHead && mActive != mTail)
-        mActive->shape.setFillColor(sf::Color::White);
+        mActive->sprite.setColor(sf::Color::White);
       mActive = curr;
       if (mActive != mHead && mActive != mTail)
-        mActive->shape.setFillColor(sf::Color::Green);
+        mActive->sprite.setColor(sf::Color::Green);
       // update previous pointer after setting mActive
       updatePrev();
       return mActive;
@@ -212,10 +216,11 @@ void LinkedList::updatePrev() {
 bool LinkedList::move(const sf::Vector2i mpos) {
   sf::Clock clock;
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-  sf::Vector2f lastPos = mActive->shape.getPosition();
+  sf::Vector2f lastPos = mActive->sprite.getPosition();
   if (mActive) {
+    /*
     float k = 500;
-    sf::Vector2f target = mActive->shape.getPosition();
+    sf::Vector2f target = mActive->sprite.getPosition();
     sf::Vector2f goal = convertMPos;
     float dx = goal.x - target.x;
     float dy = goal.y - target.y;
@@ -226,18 +231,20 @@ bool LinkedList::move(const sf::Vector2i mpos) {
     float vely = (k * distance * direction.y) * deltaTime;
     sf::Vector2f res(target.x + velx, target.y + vely);
     mActive->update(res, mPrev);
+    */
+    mActive->update(convertMPos, mPrev);
 
-    // TODO: fix collision
-
-    sf::FloatRect currShape = mActive->shape.getGlobalBounds();
+    sf::FloatRect currsprite = mActive->sprite.getGlobalBounds();
     findNodeBounds(mActive);
-    for (const auto& anyShape : nBounds) {
-      if (currShape.intersects(anyShape)) {
+    for (const auto& anysprite : nBounds) {
+      if (currsprite.intersects(anysprite)) {
+        /*
         if (abs(velx) > abs(vely))
           mActive->update(sf::Vector2f(lastPos.x, target.y+vely), mPrev);
         else if (abs(velx) < abs(vely))
           mActive->update(sf::Vector2f(target.x+velx, lastPos.y), mPrev);
         else
+        */
           mActive->update(lastPos, mPrev);
       }
     }
@@ -249,7 +256,7 @@ bool LinkedList::move(const sf::Vector2i mpos) {
 bool LinkedList::mouseInBounds(const sf::Vector2i mpos) const {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (mActive) {
-    sf::FloatRect globalBounds = mActive->shape.getGlobalBounds();
+    sf::FloatRect globalBounds = mActive->sprite.getGlobalBounds();
     return globalBounds.contains(convertMPos.x, convertMPos.y);
   }
   return false;
@@ -264,7 +271,7 @@ bool LinkedList::findNodeBounds(LLNode* curr) {
   while (temp) {
     // don't insert the active node 
     if (temp != curr)
-      nBounds.push_back(temp->shape.getGlobalBounds());
+      nBounds.push_back(temp->sprite.getGlobalBounds());
     temp = temp->next;
   }
   temp = nullptr;
@@ -287,7 +294,7 @@ bool LinkedList::findValue(const int val) {
     case LLState::HIGHLIGHT: {
       if (mStatePtr) {
         if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
-          mStatePtr->shape.setFillColor(sf::Color::Yellow);
+          mStatePtr->sprite.setColor(sf::Color::Yellow);
       }
       else {
         resetState();
@@ -310,18 +317,18 @@ bool LinkedList::findValue(const int val) {
     } break;
     case LLState::COMPARE: {
       if (mStatePtr->ID == val) {
-        mStatePtr->shape.setFillColor(sf::Color::Magenta);
+        mStatePtr->sprite.setColor(sf::Color::Magenta);
         resetState();
         return true;
       }
       if (mStatePtr->next) {
         if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
-          mStatePtr->shape.setFillColor(sf::Color::White);
+          mStatePtr->sprite.setColor(sf::Color::White);
         mStatePtr = mStatePtr->next;
       }
       else {
         if (mStatePtr != mHead && mStatePtr != mTail && mStatePtr != mActive)
-          mStatePtr->shape.setFillColor(sf::Color::White);
+          mStatePtr->sprite.setColor(sf::Color::White);
         resetState();
         return true;
       }
@@ -340,13 +347,13 @@ void LinkedList::updateCursor(LLNode* curr) {
   }
   
   cursor.setRadius(10.f);
-  cursor.setFillColor(curr->shape.getFillColor());
+  cursor.setFillColor(curr->sprite.getColor());
 
   // TODO: refactor for efficiency
   float k = 1800; // dampening constant
   sf::Vector2f target = cursor.getPosition();
-  sf::Vector2f goal = curr->shape.getPosition();
-  goal.y += curr->shape.getSize().y;
+  sf::Vector2f goal = curr->sprite.getPosition();
+  goal.y += curr->size.y;
   float dx = goal.x - target.x;
   float dy = goal.y - target.y;
   float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
@@ -446,7 +453,7 @@ void LinkedList::resetState() {
 
 bool LinkedList::resetActive() {
   if (mActive && mActive != mHead && mActive != mTail)
-    mActive->shape.setFillColor(sf::Color::White);
+    mActive->sprite.setColor(sf::Color::White);
   mActive = nullptr;
   return true;
 }
@@ -489,12 +496,12 @@ ImVec2 LinkedList::calcTextPadding(const std::vector<std::string>& text) {
   ImVec2 textSize = ImGui::CalcTextSize(str.c_str());
 
   float scaleAmount = 0.1;
-  if (originalTextSize != textSize.x && availSpace.x / textSize.x < 1.f) {
-    originalTextSize = textSize.x;
+  if (prevTextSize != textSize.x && availSpace.x / textSize.x < 1.f) {
+    prevTextSize = textSize.x;
     textScale -= scaleAmount;
   }
-  else if (originalTextSize != textSize.x && availSpace.x / (textSize.x * (1 + scaleAmount)) > 1.f) {
-    originalTextSize = textSize.x;
+  else if (prevTextSize != textSize.x && availSpace.x / (textSize.x * (1 + scaleAmount)) > 1.f && textScale < 8) {
+    prevTextSize = textSize.x;
     textScale += scaleAmount;
   }
 

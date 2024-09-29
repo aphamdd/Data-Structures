@@ -35,10 +35,11 @@ private:
 public:
   LLNode* mActive =  nullptr; // the active selected node
   LLNode* mStatePtr = nullptr;
-  float textScale = 10;
-  float originalTextSize = 0;
+  float textScale = 8;
+  float prevTextSize = 0;
 
 private:
+  sf::Texture texture;
   float dt = 0;
   std::vector<sf::FloatRect> nBounds; // vector of all node bounds
   sf::CircleShape cursor;

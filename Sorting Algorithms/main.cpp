@@ -20,6 +20,7 @@ int main() {
   ImGui::SFML::Init(window);
   sf::Clock imguiClock;
   Control control;
+  float fontScale = 2;
 
   // sorting algorithm params 
   int numBars = 15;
@@ -28,7 +29,7 @@ int main() {
 
   // linked list params
   sf::Font font;
-  if (!font.loadFromFile("./Fonts/Bungee-Regular.ttf"))
+  if (!font.loadFromFile("./Fonts/kongtext.ttf"))
     throw("COULDN'T LOAD FONT");
   sf::Text LLText;
   LLText.setFont(font);
@@ -97,6 +98,7 @@ int main() {
 
     // GUI
     ImGui::Begin("Visualizer");
+    ImGui::SetWindowFontScale(fontScale);
     
     // scales viewport with gui width
     float guiWidth = ImGui::GetWindowSize().x;
@@ -186,16 +188,16 @@ int main() {
         ImGui::Text("STATE: %s", curState);
 
         // TODO: include min compares as well?
-        ImGui::Text("# of comparisons: %d", algo.mCompares);
+        ImGui::TextWrapped("# of comparisons: %d", algo.mCompares);
         if (control.isBubble)
           control.bubbleCompares = max(algo.mCompares, control.bubbleCompares);
         else if (control.isSelection)
           control.selectionCompares = max(algo.mCompares, control.selectionCompares);
         else if (control.isInsertion)
           control.insertionCompares = max(algo.mCompares, control.insertionCompares);
-        ImGui::Text("Bubble Sort MAX Compares: %d", control.bubbleCompares);
-        ImGui::Text("Selection Sort MAX Compares: %d", control.selectionCompares);
-        ImGui::Text("Insertion Sort MAX Compares: %d", control.insertionCompares);
+        ImGui::TextWrapped("Bubble Sort MAX Compares: %d", control.bubbleCompares);
+        ImGui::TextWrapped("Selection Sort MAX Compares: %d", control.selectionCompares);
+        ImGui::TextWrapped("Insertion Sort MAX Compares: %d", control.insertionCompares);
 
         // sorting algorithms
         if (control.isSorting && control.isBubble && !control.isPaused) {
@@ -250,9 +252,9 @@ int main() {
             throw("idk how I'm moving nothing");
           }
         }
-        ImGui::TextColored(linkedList.mouseInBounds(mpos) ? green : white, "Mouse PixelToCoords (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+        ImGui::TextColored(linkedList.mouseInBounds(mpos) ? green : white, "Mapped Mouse (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
-        ImGui::Text("pActive: %p", linkedList.mActive);
+        ImGui::TextWrapped("pActive: %p", linkedList.mActive);
 
         ImGui::Text("Find Value: %d", nodeNum);
         if (ImGui::Button(control.isSearching ? "Searching..." : "Find"))
@@ -267,7 +269,7 @@ int main() {
         //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
         ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
         
-        ImGui::Text(
+        ImGui::TextWrapped(
           "This data structure is an actual linked list, not a simulated one\n"
           "Left click: click to select the node\n"
           "Right click: anywhere to de-select node\n"
