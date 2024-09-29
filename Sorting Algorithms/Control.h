@@ -24,4 +24,6 @@ struct Control {
   bool isDragging = false;
   bool isSearching = false;
   bool isPopup = false;
+  int nodeNum = 0;
+  sf::Vector2i mpos;
 };
