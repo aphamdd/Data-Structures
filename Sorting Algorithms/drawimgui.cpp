@@ -167,6 +167,18 @@ void DrawImgui::linkedListTab() {
     if (ImGui::Button("Add")) {
       linkedList.add();
     }
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
+      //ImGui::SetItemTooltip("hello"); // used if I just need text
+      // this is used if I need more than just text in my tooltip
+      if (ImGui::BeginItemTooltip()) {
+        ImGui::SeparatorText("Help");
+        ImGui::Text("Insert nodes at the end by default.\n"
+                    "Click on a node to insert after that node.");
+        ImGui::EndTooltip();
+      }
+    }
+
+
     if (ImGui::Button("Remove")) {
       linkedList.remove();
     }
@@ -204,6 +216,8 @@ void DrawImgui::linkedListTab() {
     //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
     ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
     
+    ImGui::SeparatorText("Info");
+
     ImGui::TextWrapped(
       "This data structure is an actual linked list, not a simulated one\n"
       "Left click: click to select the node\n"

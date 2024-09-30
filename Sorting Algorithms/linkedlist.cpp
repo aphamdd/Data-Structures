@@ -21,9 +21,6 @@ LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
     std::cerr << "Error: " << e.what() << std::endl;
   }
 }
-LinkedList::~LinkedList() {
-  clear();
-}
 
 void LinkedList::clear() {
   while (head)
@@ -40,50 +37,62 @@ void LinkedList::clear() {
 int LinkedList::add() {
   // create head
   if (!head) {
-    sf::Vector2f pos(75.f, 400.f);
+    sf::Vector2f pos(75.f, 400.f); // random ahh position
     head = std::make_unique<LLNode>(pos, LLText, nodeTexture);
     head->sprite.setColor(sf::Color::Red);
     rawptr.tail = head.get();
   }
   // insert in front of active ptr
-  else if (rawptr.active && rawptr.active->next) {
-    sf::Vector2f pos = rawptr.active->sprite.getPosition();
-    pos.x += rawptr.active->size.x + 10.f;
-    std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos, LLText, nodeTexture);
-    newNode->next = std::move(rawptr.active->next);
-    rawptr.active->next = std::move(newNode);
-    if (rawptr.active != head.get())
-      rawptr.active->sprite.setColor(sf::Color::White);
-    rawptr.active = rawptr.active->next.get();
-    updatePrevPtr(rawptr.active);
-    if (rawptr.active != rawptr.tail)
-      rawptr.active->sprite.setColor(sf::Color::Green);
-    rawptr.active->data += rawptr.prev->data;
-    rawptr.active->updateLine(rawptr.prev);
-    rawptr.active->next.get()->updateLine(rawptr.active);
-    rawptr.active->setText(rawptr.active->data);
-    // TODO: I don't like having a loop like this, fix it. recursion?
-    // bug: only if rawptr.active->next, needs to apply when ANY node is added
-    //while (!shiftForward(rawptr.active, rawptr.active->next.get())) {
-      //continue;
-    //}
+  else if (rawptr.active) {
+    if (rawptr.active->next) {
+      sf::Vector2f pos = rawptr.active->sprite.getPosition();
+      pos.x += rawptr.active->size.x + 10.f;
+      std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos, LLText, nodeTexture);
+      newNode->next = std::move(rawptr.active->next);
+      rawptr.active->next = std::move(newNode);
+      if (rawptr.active != head.get())
+        rawptr.active->sprite.setColor(sf::Color::White);
+      rawptr.active = rawptr.active->next.get();
+      updatePrevPtr(rawptr.active);
+      if (rawptr.active != rawptr.tail)
+        rawptr.active->sprite.setColor(sf::Color::Green);
+      rawptr.active->data += rawptr.prev->data;
+      rawptr.active->updateLine(rawptr.prev);
+      rawptr.active->next.get()->updateLine(rawptr.active);
+      rawptr.active->setText(rawptr.active->data);
+      // TODO: I don't like having a loop like this, fix it. recursion?
+      // bug: only if rawptr.active->next, needs to apply when ANY node is added
+      //while (!shiftForward(rawptr.active, rawptr.active->next.get())) {
+        //continue;
+      //}
+    }
+    else if (!rawptr.active->next) {
+      addTail();
+      if (rawptr.active != head.get())
+        rawptr.active->sprite.setColor(sf::Color::White);
+      rawptr.active = rawptr.active->next.get();
+    }
   }
-  else {
-    assert(rawptr.tail);
-    sf::Vector2f pos = rawptr.tail->sprite.getPosition();
-    pos.x += rawptr.tail->size.x + 10.f;
-    std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos, LLText, nodeTexture);
-    rawptr.tail->next = std::move(newNode);
-    rawptr.tail = rawptr.tail->next.get();
-    updatePrevPtr(rawptr.tail);
-    rawptr.tail->updateLine(rawptr.prev);
-    rawptr.tail->data += rawptr.prev->data;
-    rawptr.tail->setText(rawptr.tail->data);
-    if (rawptr.prev != rawptr.active && rawptr.prev != head.get())
-      rawptr.prev->sprite.setColor(sf::Color::White);
-    rawptr.tail->sprite.setColor(sf::Color(50, 140, 235));
-  }
+  else
+    addTail();
+
   return 1;
+}
+
+void LinkedList::addTail() {
+  assert(rawptr.tail);
+  sf::Vector2f pos = rawptr.tail->sprite.getPosition();
+  pos.x += rawptr.tail->size.x + 10.f;
+  std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos, LLText, nodeTexture);
+  rawptr.tail->next = std::move(newNode);
+  rawptr.tail = rawptr.tail->next.get();
+  updatePrevPtr(rawptr.tail);
+  rawptr.tail->updateLine(rawptr.prev);
+  rawptr.tail->data += rawptr.prev->data;
+  rawptr.tail->setText(rawptr.tail->data);
+  if (rawptr.prev != rawptr.active && rawptr.prev != head.get())
+    rawptr.prev->sprite.setColor(sf::Color::White);
+  rawptr.tail->sprite.setColor(sf::Color(50, 140, 235));
 }
 
 bool LinkedList::shiftForward(LLNode* prev, LLNode* curr) {
@@ -157,29 +166,29 @@ bool LinkedList::remove() {
   return true;
 }
 
+// Notes:
+// mapCoordsToPixel goes from world coordinates(game world, the relative view, objects in the view) to pixel coordinates(window / actual screen).
+// mapPixelsToCoords goes from pixel coordinates(window / actual screen) to world coordinates(game world, relative view, objects in the view).
+// Coordinates are relative (sfml getPositions() returns relative coords)
+// Pixels are absolute
+//
+// I likely need to use mapPixelsToCoords because sprites are all drawptrn
+// with relative positioning (coords). So I need to map my cursor's absolute
+// position (pixels) to the relative pixels of the view (coords). Also, since
+// I want to keep track of the cursor's positioning within the bounds of the
+// sprite, I have to keep track of the relative sizing of the sprite as well,
+// so converting my absolute mouse position to the relative position is the way to go.
 // find the node the cursor clicks on based on coordinates
-LLNode* LinkedList::search(const sf::Vector2i mpos) {
-  // mapCoordsToPixel goes from world coordinates(game world, the relative view, objects in the view) to pixel coordinates(window / actual screen).
-  // mapPixelsToCoords goes from pixel coordinates(window / actual screen) to world coordinates(game world, relative view, objects in the view).
-  // Coordinates are relative (sfml getPositions() returns relative coords)
-  // Pixels are absolute
-  //
-  // I likely need to use mapPixelsToCoords because sprites are all drawptrn
-  // with relative positioning (coords). So I need to map my cursor's absolute
-  // position (pixels) to the relative pixels of the view (coords). Also, since
-  // I want to keep track of the cursor's positioning within the bounds of the
-  // sprite, I have to keep track of the relative sizing of the sprite as well,
-  // so converting my absolute mouse position to the relative position is the way to go.
-  
+bool LinkedList::search(const sf::Vector2i mpos) {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (!head)
-    return nullptr;
+    return false;
 
   // check if we clicked on the same active node
   if (rawptr.active) {
     sf::FloatRect activeBounds = rawptr.active->sprite.getGlobalBounds();
     if (activeBounds.contains(convertMPos.x, convertMPos.y))
-      return rawptr.active;
+      return true;
   }
   // otherwise, compare curr mpos with nodes or a spot on the screen
   for (LLNode* curr = head.get(); curr; curr = curr->next.get()) {
@@ -192,10 +201,10 @@ LLNode* LinkedList::search(const sf::Vector2i mpos) {
         rawptr.active->sprite.setColor(sf::Color::Green);
       // update previous pointer after setting rawptr.active
       updatePrevPtr(rawptr.active);
-      return rawptr.active;
+      return true;
     }
   }
-  return nullptr;
+  return false;
 }
 
 int LinkedList::updatePrevPtr(LLNode* ptr) {
@@ -498,7 +507,11 @@ int LinkedList::transformText(const std::vector<std::string>& text) {
     prevTextSize = textSize.x;
     textScale -= scaleAmount;
   }
-  else if (prevTextSize != textSize.x && availSpace.x / (textSize.x * (1 + scaleAmount)) > 1.f && textScale < 6) {
+  else if (
+    prevTextSize != textSize.x && 
+    availSpace.x / (textSize.x * (1 + scaleAmount)) > 1.f && 
+    textScale < 5
+    ) {
     prevTextSize = textSize.x;
     textScale += scaleAmount;
   }

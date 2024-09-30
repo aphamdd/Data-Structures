@@ -7,12 +7,11 @@
 class LinkedList {
 public:
   LinkedList(sf::RenderWindow& win, sf::Text& text);
-  ~LinkedList();
   void clear();
 
   int add();
   bool remove();
-  LLNode* search(const sf::Vector2i pos); // find what node im clicking
+  bool search(const sf::Vector2i pos); // find what node im clicking
   bool move(const sf::Vector2i pos); // handles LLNode positioning
 
   void updateCursor(LLNode* target); // cursor follows ptr
@@ -30,6 +29,7 @@ private:
   bool findAllNodeBounds(LLNode* ptr); // excludes passed ptr's nodes bounds 
   bool shiftForward(LLNode* prev, LLNode* curr); // move nodes forward after inserting
   void resetState();
+  void addTail();
 
 public:
   // raw traversal pointers
@@ -51,7 +51,7 @@ private:
   std::vector<sf::FloatRect> nBounds; // vector of all node bounds
 
   // scales linked list text data
-  float textScale = 6;
+  float textScale = 5;
   float prevTextSize = 0;
 
   // LinkedList Operation Animation State Machine
