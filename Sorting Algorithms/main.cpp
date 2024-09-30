@@ -18,8 +18,13 @@ int main() {
 
   // linked list params
   sf::Font font;
-  if (!font.loadFromFile("./Fonts/kongtext.ttf"))
-    throw("COULDN'T LOAD FONT");
+  try {
+    if (!font.loadFromFile("./Fonts/kongtext.ttf"))
+      throw std::runtime_error("couldn't load font");
+  }
+  catch (const std::runtime_error& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
   sf::Text LLText;
   LLText.setFont(font);
   LinkedList linkedList(window, LLText);

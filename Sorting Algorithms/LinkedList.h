@@ -31,22 +31,28 @@ private:
   bool shiftForward(LLNode* prev, LLNode* curr); // move nodes forward after inserting
   void resetState();
 
- // TODO: composition, compose some of this stuff into structs or delegate to other classes
 public:
-  LLNode* mActive =  nullptr; // the active selected node
+  // public raw traversal pointers
+  LLNode* mActive =  nullptr;
   LLNode* mStatePtr = nullptr;
+
+private:
+  sf::Texture texture; 
+
+  std::vector<sf::FloatRect> nBounds; // vector of all node bounds
+
+  sf::CircleShape cursor;
+
   float textScale = 6;
   float prevTextSize = 0;
 
-private:
-  sf::Texture texture;
-  std::vector<sf::FloatRect> nBounds; // vector of all node bounds
-  sf::CircleShape cursor;
-
-  // TODO: maybe make a vector of LLNode* head ptrs?
-  LLNode* mHead = nullptr;
-  LLNode* mPrev = nullptr; // handles the previous next pointer line
-  LLNode* mTail = nullptr; 
+  // Linked List raw pointers
+  struct LinkedListPtrs {
+    LLNode* head = nullptr;
+    LLNode* prev = nullptr;
+    LLNode* tail = nullptr; 
+  };
+  LinkedListPtrs LLPtr;
 
   // LinkedList Operation Animation State Machine
   enum class LLState {

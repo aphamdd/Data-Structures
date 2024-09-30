@@ -179,8 +179,12 @@ void DrawImgui::linkedListTab() {
     ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
     sf::Vector2f convertMPos = window.mapPixelToCoords(control.mpos, window.getView());
     if (control.isDragging) {
-      if (!linkedList.move(control.mpos)) {
-        throw("idk how I'm moving nothing");
+      try {
+        if (!linkedList.move(control.mpos))
+          throw std::runtime_error("idk how I'm moving nothing");
+      }
+      catch (const std::runtime_error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
       }
     }
     ImGui::TextColored(linkedList.mouseInBounds(control.mpos) ? green : white, "Mapped Mouse (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
@@ -232,7 +236,12 @@ void DrawImgui::linkedListTab() {
     else
       text = linkedList.parseString(linkedList.mActive);
 
-    linkedList.transformText(text);
+    try {
+      linkedList.transformText(text);
+    }
+    catch (invalid_argument& e) {
+      std::cerr << "Error: " << e.what() << std::endl;
+    }
 
     if (text.size() > 0) {
       if (text.size() == 1) {

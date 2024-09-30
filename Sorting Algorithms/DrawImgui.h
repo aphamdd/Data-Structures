@@ -30,7 +30,6 @@ public:
   void mazeTab();
   sf::FloatRect calcViewport();
 
-
 private:
   sf::Clock imguiClock;
   float fontScale = 2;
