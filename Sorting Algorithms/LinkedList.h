@@ -32,27 +32,27 @@ private:
   void resetState();
 
 public:
-  // public raw traversal pointers
-  LLNode* mActive =  nullptr;
-  LLNode* mStatePtr = nullptr;
+  // raw traversal pointers
+  struct LinkedListPtrs {
+    LLNode* prev = nullptr;
+    LLNode* tail = nullptr; 
+    LLNode* active =  nullptr;
+    LLNode* currAnimate = nullptr;
+  };
+  LinkedListPtrs rawptr;
 
 private:
-  sf::Texture texture; 
+  std::unique_ptr<LLNode> head = nullptr;
+
+  sf::Texture nodeTexture; 
+  sf::Texture cursorTexture; 
+  sf::CircleShape cursor;
 
   std::vector<sf::FloatRect> nBounds; // vector of all node bounds
 
-  sf::CircleShape cursor;
-
+  // scales linked list text data
   float textScale = 6;
   float prevTextSize = 0;
-
-  // Linked List raw pointers
-  struct LinkedListPtrs {
-    LLNode* head = nullptr;
-    LLNode* prev = nullptr;
-    LLNode* tail = nullptr; 
-  };
-  LinkedListPtrs LLPtr;
 
   // LinkedList Operation Animation State Machine
   enum class LLState {

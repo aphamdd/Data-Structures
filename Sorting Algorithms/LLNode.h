@@ -18,7 +18,7 @@ private:
   void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 private:
-  LLNode* next = nullptr;
+  std::unique_ptr<LLNode> next = nullptr;
   int data = 1;
   sf::VertexArray nextLine;
   sf::Text dataText;
