@@ -189,7 +189,7 @@ void DrawImgui::linkedListTab() {
     }
     ImGui::TextColored(linkedList.mouseInBounds(control.mpos) ? green : white, "Mapped Mouse (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
-    ImGui::TextWrapped("pActive: %p", linkedList.mActive);
+    ImGui::TextWrapped("pActive: %p", linkedList.rawptr.active);
 
     ImGui::Text("Find Value: %d", control.nodeNum);
     if (ImGui::Button(control.isSearching ? "Searching..." : "Find"))
@@ -199,7 +199,7 @@ void DrawImgui::linkedListTab() {
         control.isSearching = false;
     }
     else
-      linkedList.updateCursor(linkedList.mActive);
+      linkedList.updateCursor(linkedList.rawptr.active);
 
     //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
     ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
@@ -224,7 +224,7 @@ void DrawImgui::linkedListTab() {
       ImGui::Text("I'm a popup!");
       ImGui::InputInt("Set Node Value:", &control.nodeNum);
       if (ImGui::Button("Set"))
-        linkedList.mActive->setText(control.nodeNum);
+        linkedList.rawptr.active->setText(control.nodeNum);
       ImGui::EndPopup();
     }
 
@@ -232,9 +232,9 @@ void DrawImgui::linkedListTab() {
     ImGui::Begin("Linked List Data");
     std::vector<std::string> text;
     if (control.isSearching)
-      text = linkedList.parseString(linkedList.mStatePtr);
+      text = linkedList.parseString(linkedList.rawptr.currAnimate);
     else
-      text = linkedList.parseString(linkedList.mActive);
+      text = linkedList.parseString(linkedList.rawptr.active);
 
     try {
       linkedList.transformText(text);
