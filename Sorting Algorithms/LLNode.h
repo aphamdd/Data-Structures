@@ -20,10 +20,10 @@ private:
 private:
   std::unique_ptr<LLNode> next = nullptr;
   int data = 1;
-  sf::VertexArray nextLine;
-  sf::Text dataText;
 
   sf::Sprite sprite;
   sf::Vector2f size;
   sf::Vector2f shiftFactor;
+  sf::VertexArray nextLine;
+  sf::Text dataText;
 };

@@ -5,6 +5,7 @@
 #include "Algorithms.h"
 #include "LLNode.h"
 #include "LinkedList.h"
+#include "TreeNode.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include <iostream>
@@ -25,7 +26,7 @@ public:
   void run();
   void sortingAlgsTab();
   void linkedListTab();
-  void binaryTreeTab();
+  void treeTab();
   void graphTab();
   void mazeTab();
   sf::FloatRect calcViewport();

@@ -4,7 +4,7 @@ struct Control {
   // Tabs 
   bool isAlgorithm = false;
   bool isLinkedList = false;
-  bool isBinaryTree = false;
+  bool isTree = false;
   bool isGraph = false;
   bool isMaze = false;
   

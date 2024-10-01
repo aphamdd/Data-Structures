@@ -173,6 +173,7 @@
     <ClCompile Include="linkedlist.cpp" />
     <ClCompile Include="llnode.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="treenode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Control.h" />
@@ -191,6 +192,7 @@
     <ClInclude Include="imgui\imstb_textedit.h" />
     <ClInclude Include="imgui\imstb_truetype.h" />
     <ClInclude Include="LLNode.h" />
+    <ClInclude Include="TreeNode.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

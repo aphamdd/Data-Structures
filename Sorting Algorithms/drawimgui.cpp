@@ -19,6 +19,7 @@ void DrawImgui::run() {
   if (ImGui::BeginTabBar("Tab Bar")) {
     sortingAlgsTab();
     linkedListTab();
+    treeTab();
     ImGui::EndTabBar();
   }
 
@@ -45,6 +46,7 @@ void DrawImgui::sortingAlgsTab() {
   if (ImGui::BeginTabItem("Algorithms")) {
     control.isAlgorithm = true;
     control.isLinkedList = false;
+    control.isTree = false;
 
     // TODO: disable the button somehow when sorting
     if (ImGui::Button(!control.isBubble ? "Bubble Sort" : "In Progress...")) {
@@ -164,6 +166,7 @@ void DrawImgui::linkedListTab() {
   if (ImGui::BeginTabItem("Linked Lists")) {
     control.isAlgorithm = false;
     control.isLinkedList = true;
+    control.isTree = false;
 
     if (ImGui::Button("Add")) {
       linkedList.add();
@@ -306,9 +309,14 @@ void DrawImgui::linkedListTab() {
   }
 }
 
-void DrawImgui::binaryTreeTab() {
+void DrawImgui::treeTab() {
   if (ImGui::BeginTabItem("Binary Trees")) {
+    control.isAlgorithm = false;
+    control.isLinkedList = false;
+    control.isTree = true;
+
     ImGui::Text("test1");
+
     ImGui::EndTabItem();
   }
 }

@@ -12,10 +12,10 @@ LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
   cursor.setOutlineColor(sf::Color::Black);
 
   try {
-    if (!nodeTexture.loadFromFile("./Textures/testframe.png"))
-      throw std::runtime_error("node texture load error");
-    if (!cursorTexture.loadFromFile("./Textures/testframe.png"))
-      throw std::runtime_error("cursor texture load error");
+    if (!nodeTexture.loadFromFile("./Textures/linkedlistframe.png"))
+      throw std::runtime_error("linked list node texture error");
+    if (!cursorTexture.loadFromFile("./Textures/linkedlistframe.png"))
+      throw std::runtime_error("cursor texture error");
   }
   catch (const std::runtime_error& e) {
     std::cerr << "Error: " << e.what() << std::endl;

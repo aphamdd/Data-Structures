@@ -1,6 +1,5 @@
 #pragma once
 #include "LLNode.h"
-#include <iostream>
 
 // TODO: properly handle text centering
 LLNode::LLNode(const sf::Vector2f pos, sf::Text& text, sf::Texture& texture) :
