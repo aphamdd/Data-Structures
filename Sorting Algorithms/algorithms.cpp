@@ -1,10 +1,12 @@
 #pragma once
+#pragma warning( disable : 4244 )
+#pragma warning( disable : 26451 )
 #include "Algorithms.h"
 using namespace std;
 
 // TODO: bubble sort improvement
 bool Algorithms::bubbleSort(Graph& graph) {
-  int n = graph.m_histogram.size();
+  size_t n = graph.m_histogram.size();
   if (sorted || n <= 1) {
     sorted = true;
     return true;
@@ -48,8 +50,8 @@ bool Algorithms::bubbleSort(Graph& graph) {
       } break;
       case SortState::COMPARE: {
         ++mCompares;
-        int curr = graph.m_histogram[j].getSize().y;
-        int adj = graph.m_histogram[j + 1].getSize().y;
+        float curr = graph.m_histogram[j].getSize().y;
+        float adj = graph.m_histogram[j + 1].getSize().y;
         // if swapping
         if (curr > adj) {
           prevState = state;
@@ -96,7 +98,7 @@ bool Algorithms::bubbleSort(Graph& graph) {
 
 // TODO: colors and pauses aren't quite done yet
 bool Algorithms::selectionSort(Graph& graph) {
-  int n = graph.m_histogram.size();
+  size_t n = graph.m_histogram.size();
   if (sorted || n <= 1) {
     sorted = true;
     return true;
@@ -204,7 +206,7 @@ bool Algorithms::selectionSort(Graph& graph) {
 
 // NOTE: insertion sort typically uses copy and not swap.
 bool Algorithms::insertionSort(Graph& graph) {
-  int n = graph.m_histogram.size();
+  size_t n = graph.m_histogram.size();
   if (sorted || n <= 1) {
     sorted = true;
     return true;

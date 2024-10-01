@@ -1,5 +1,6 @@
 #pragma once
 #include "LLNode.h"
+#include <iostream>
 
 // TODO: properly handle text centering
 LLNode::LLNode(const sf::Vector2f pos, sf::Text& text, sf::Texture& texture) :
@@ -35,12 +36,34 @@ LLNode::~LLNode() {
   data = 0;
 }
 
-void LLNode::move(const sf::Vector2f pos) {
-  sf::Vector2f textPos = pos;
+void LLNode::move(const sf::Vector2f goal) {
+  /* can't get this to be bug free and smooth
+  // sometimes when I wiggle the shape, it disappears
+  sf::Clock clock;
+  sf::Vector2f currPos = sprite.getPosition();
+  float dx = goal.x - currPos.x;
+  float dy = goal.y - currPos.y;
+  auto distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
+
+  if (distance >= 3) {
+    //sf::Vector2f direction(int(dx) >> -1 | 1, int(dy) >> -1 | 1);
+    sf::Vector2f direction(dx, dy);
+    float deltaTime = clock.restart().asSeconds();
+    float k = 10000 * deltaTime;
+    float velx = (k * direction.x);
+    float vely = (k * direction.y);
+    sf::Vector2f offset(velx, vely);
+    dataText.move(offset);
+    sprite.move(offset);
+  }
+  */
+
+  // works but not ideal
+  sf::Vector2f textPos = goal;
   textPos.x -= size.x / shiftFactor.x;
   textPos.y -= size.y / shiftFactor.y;
   dataText.setPosition(textPos);
-  sprite.setPosition(pos);
+  sprite.setPosition(goal);
 }
 
 void LLNode::updateLine(LLNode* prevNode) {

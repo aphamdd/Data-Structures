@@ -1,4 +1,5 @@
 #pragma once
+#pragma warning( disable : 4244 )
 #include "DrawImgui.h"
 
 void DrawImgui::run() {
@@ -178,7 +179,6 @@ void DrawImgui::linkedListTab() {
       }
     }
 
-
     if (ImGui::Button("Remove")) {
       linkedList.remove();
     }
@@ -186,36 +186,37 @@ void DrawImgui::linkedListTab() {
       linkedList.clear();
     }
 
-    // Mouse position scales with the view transformation (gui width)
-    // TODO: properly handle ptr when a node gets deleted
     ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
     sf::Vector2f convertMPos = window.mapPixelToCoords(control.mpos, window.getView());
+    ImGui::TextColored(linkedList.mouseInBounds(control.mpos) ? green : white, "Mapped Mouse (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
+    ImGui::TextWrapped("pActive: %p", linkedList.rawptr.active);
+
+    // edit delay between highlights and search
+    //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
+    ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
+
+    // animated search
+    ImGui::InputInt("Find Node", &control.findNum);
+    if (ImGui::Button(control.isSearching ? "Searching..." : "Find"))
+      control.isSearching = true;
+    if (control.isSearching) {
+      if (linkedList.findValueAnimated(control.findNum))
+        control.isSearching = false;
+    }
+    else
+      linkedList.updateCursor(linkedList.rawptr.active); // cursor sprite
+
+    // drag node
     if (control.isDragging) {
       try {
         if (!linkedList.move(control.mpos))
-          throw std::runtime_error("idk how I'm moving nothing");
+          throw std::runtime_error("moving NULL node");
       }
       catch (const std::runtime_error& e) {
         std::cerr << "Error: " << e.what() << std::endl;
       }
     }
-    ImGui::TextColored(linkedList.mouseInBounds(control.mpos) ? green : white, "Mapped Mouse (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
 
-    ImGui::TextWrapped("pActive: %p", linkedList.rawptr.active);
-
-    ImGui::Text("Find Value: %d", control.nodeNum);
-    if (ImGui::Button(control.isSearching ? "Searching..." : "Find"))
-      control.isSearching = true;
-    if (control.isSearching) {
-      if (linkedList.findValueAnimated(control.nodeNum))
-        control.isSearching = false;
-    }
-    else
-      linkedList.updateCursor(linkedList.rawptr.active);
-
-    //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
-    ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
-    
     ImGui::SeparatorText("Info");
 
     ImGui::TextWrapped(
@@ -235,10 +236,9 @@ void DrawImgui::linkedListTab() {
       control.isPopup = false;
     }
     if (ImGui::BeginPopup("Node_popup")) {
-      ImGui::Text("I'm a popup!");
-      ImGui::InputInt("Set Node Value:", &control.nodeNum);
+      ImGui::InputInt("Node Number", &control.setNum);
       if (ImGui::Button("Set"))
-        linkedList.rawptr.active->setText(control.nodeNum);
+        linkedList.rawptr.active->setText(control.setNum);
       ImGui::EndPopup();
     }
 

@@ -180,6 +180,8 @@ bool LinkedList::remove() {
 // so converting my absolute mouse position to the relative position is the way to go.
 // find the node the cursor clicks on based on coordinates
 bool LinkedList::search(const sf::Vector2i mpos) {
+  // TODO: more efficient is to just store node positions in a vector 
+  // and search through that list. update the vector whenever the LL changes
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
   if (!head)
     return false;
@@ -199,6 +201,10 @@ bool LinkedList::search(const sf::Vector2i mpos) {
       rawptr.active = curr;
       if (rawptr.active != head.get() && rawptr.active != rawptr.tail)
         rawptr.active->sprite.setColor(sf::Color::Green);
+      else if (rawptr.active == head.get() && head->sprite.getColor() == sf::Color::Magenta)
+        rawptr.active->sprite.setColor(sf::Color::Red);
+      else if (rawptr.active == rawptr.tail && rawptr.tail->sprite.getColor() == sf::Color::Magenta)
+        rawptr.active->sprite.setColor(sf::Color(50, 140, 235));
       // update previous pointer after setting rawptr.active
       updatePrevPtr(rawptr.active);
       return true;
@@ -222,24 +228,10 @@ int LinkedList::updatePrevPtr(LLNode* ptr) {
 }
 
 bool LinkedList::move(const sf::Vector2i mpos) {
-  sf::Clock clock;
   if (rawptr.active) {
     sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-    /*
     sf::Vector2f lastPos = rawptr.active->sprite.getPosition();
-    float k = 500;
-    sf::Vector2f target = rawptr.active->sprite.getPosition();
-    sf::Vector2f goal = convertMPos;
-    float dx = goal.x - target.x;
-    float dy = goal.y - target.y;
-    float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
-    sf::Vector2f direction(dx, dy);
-    float deltaTime = clock.restart().asSeconds();
-    float velx = (k * distance * direction.x) * deltaTime;
-    float vely = (k * distance * direction.y) * deltaTime;
-    sf::Vector2f res(target.x + velx, target.y + vely);
-    rawptr.active->update(res, rawptr.prev);
-    */
+
     rawptr.active->move(convertMPos); // moves sprite
     rawptr.active->updateLine(rawptr.prev); // update lines to follow sprite
 
@@ -281,7 +273,7 @@ bool LinkedList::findAllNodeBounds(LLNode* curr) {
   // exclude the compared node
   for (LLNode* temp = head.get(); temp; temp = temp->next.get()) {
     if (temp != curr)
-      nBounds.push_back(temp->sprite.getGlobalBounds());
+      nBounds.emplace_back(temp->sprite.getGlobalBounds());
   }
 
   return true;
@@ -299,6 +291,7 @@ bool LinkedList::findValueAnimated(const int val) {
     case LLState::ENTRY: {
       rawptr.currAnimate = head.get();
       state = LLState::HIGHLIGHT;
+      // TODO: need to restart clock on the first wait cycle
     } break;
     case LLState::HIGHLIGHT: {
       if (!rawptr.currAnimate) {
@@ -308,18 +301,22 @@ bool LinkedList::findValueAnimated(const int val) {
       
       if (rawptr.currAnimate != head.get() && rawptr.currAnimate != rawptr.tail && rawptr.currAnimate != rawptr.active)
           rawptr.currAnimate->sprite.setColor(sf::Color::Yellow);
+
       prevState = state;
       state = LLState::WAIT;
+
     } break;
     case LLState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
-        if (prevState == LLState::HIGHLIGHT) {
-          prevState = state;
-          state = LLState::COMPARE;
-        }
-        else if (prevState == LLState::COMPARE) {
-          prevState = state;
-          state = LLState::HIGHLIGHT;
+      if (cursorReached) {
+        if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
+          if (prevState == LLState::HIGHLIGHT) {
+            prevState = state;
+            state = LLState::COMPARE;
+          }
+          else if (prevState == LLState::COMPARE) {
+            prevState = state;
+            state = LLState::HIGHLIGHT;
+          }
         }
       }
     } break;
@@ -347,8 +344,8 @@ bool LinkedList::findValueAnimated(const int val) {
   return false;
 }
 
-void LinkedList::dtRestart() {
-  if (state != LLState::WAIT)
+void LinkedList::dtRestart() { 
+  if (state != LLState::WAIT || !cursorReached)
     delayClock.restart();
 }
 
@@ -364,23 +361,25 @@ void LinkedList::updateCursor(LLNode* target) {
 
   sf::Vector2f currPos = cursor.getPosition();
   sf::Vector2f goal = target->sprite.getPosition();
-  goal.y += target->size.y;
+  goal.y += (target->size.y * 0.5) + 20;
   float dx = goal.x - currPos.x;
   float dy = goal.y - currPos.y;
-  float distance = sqrt(pow(dx, 2) + pow(dy, 2)); // euclidean distance formula
-  float deltaTime = clock.restart().asSeconds();
-  // not 0 because itll never reach 0, just needs to be "close enough"
+  float distance = float(sqrt(pow(dx, 2) + pow(dy, 2))); // euclidean distance formula
   if (distance >= 3) { 
     // calculate whats necessary
-    float k = 1800; // dampening constant
+    float deltaTime = clock.restart().asSeconds();
+    float k = 2000 * deltaTime; // dampening constant
     sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
-    float velx = (k * distance * direction.x) * deltaTime;
-    float vely = (k * distance * direction.y) * deltaTime;
-    cursor.move(sf::Vector2f(velx, vely));
+    float velx = (k * distance * direction.x);
+    float vely = (k * distance * direction.y);
+    sf::Vector2f offset(velx, vely);
+    cursor.move(offset);
+    cursorReached = false;
   } 
   else {
     // TODO: idle animation
     cursor.setPosition(goal);
+    cursorReached = true;
   }
 }
 
@@ -397,7 +396,7 @@ std::vector<std::string> LinkedList::parseString(LLNode* follow) {
   LLNode* curr = head.get();
 
   for (LLNode* curr = head.get(); curr; curr = curr->next.get()) {
-    data.push_back(curr->data);
+    data.emplace_back(curr->data);
     if (follow && curr == follow)
       colorIndex = i;
     ++i;
@@ -411,7 +410,7 @@ std::vector<std::string> LinkedList::parseString(LLNode* follow) {
     for (int i = 0; i < data.size(); ++i) {
       str += std::to_string(data.at(i)) + "->";
     }
-    text.push_back(str);
+    text.emplace_back(str);
   }
   else if (colorIndex == 0 || colorIndex == data.size() - 1) {
     text.reserve(2);
@@ -433,9 +432,9 @@ std::vector<std::string> LinkedList::parseString(LLNode* follow) {
       }
     }
     colorStr += (std::to_string(data.at(colorIndex)));
-    text.push_back(colorStr);
+    text.emplace_back(colorStr);
 
-    text.push_back(str);
+    text.emplace_back(str);
   }
   else {
     // color is in the middle
@@ -449,9 +448,9 @@ std::vector<std::string> LinkedList::parseString(LLNode* follow) {
     for (int i = colorIndex + 1; i < data.size(); ++i) {
       rightStr += std::to_string(data.at(i)) + "->";
     }
-    text.push_back(leftStr);
-    text.push_back(colorStr);
-    text.push_back(rightStr);
+    text.emplace_back(leftStr);
+    text.emplace_back(colorStr);
+    text.emplace_back(rightStr);
   }
 
   return text;
@@ -502,7 +501,7 @@ int LinkedList::transformText(const std::vector<std::string>& text) {
   ImVec2 textSize = ImGui::CalcTextSize(str.c_str());
 
   // scale text
-  float scaleAmount = 0.1;
+  float scaleAmount = 0.1f;
   if (prevTextSize != textSize.x && availSpace.x / textSize.x < 1.f) {
     prevTextSize = textSize.x;
     textScale -= scaleAmount;

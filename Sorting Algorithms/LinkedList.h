@@ -45,8 +45,11 @@ private:
   std::unique_ptr<LLNode> head = nullptr;
 
   sf::Texture nodeTexture; 
+
   sf::Texture cursorTexture; 
-  sf::CircleShape cursor;
+  sf::CircleShape cursor; 
+  // animated timer starts when the cursor reaches its goal
+  bool cursorReached = false;
 
   std::vector<sf::FloatRect> nBounds; // vector of all node bounds
 
