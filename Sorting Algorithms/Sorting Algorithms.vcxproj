@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="algorithms.cpp" />
+    <ClCompile Include="bst.cpp" />
     <ClCompile Include="drawimgui.cpp" />
     <ClCompile Include="graph.cpp" />
     <ClCompile Include="imgui\imgui-SFML.cpp" />
@@ -176,6 +177,7 @@
     <ClCompile Include="treenode.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BST.h" />
     <ClInclude Include="Control.h" />
     <ClInclude Include="Algorithms.h" />
     <ClInclude Include="common.h" />

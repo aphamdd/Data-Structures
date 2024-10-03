@@ -307,6 +307,7 @@ bool LinkedList::findValueAnimated(const int val) {
 
     } break;
     case LLState::WAIT: {
+      // TODO: need this condition to only apply once, otherwise the animation speed gets wonky.
       if (cursorReached) {
         if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
           if (prevState == LLState::HIGHLIGHT) {

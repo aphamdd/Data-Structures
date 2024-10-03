@@ -43,7 +43,7 @@ void DrawImgui::dockspace() {
 }
 
 void DrawImgui::sortingAlgsTab() {
-  if (ImGui::BeginTabItem("Algorithms")) {
+  if (ImGui::BeginTabItem("Arrays")) {
     control.isAlgorithm = true;
     control.isLinkedList = false;
     control.isTree = false;
@@ -163,7 +163,7 @@ void DrawImgui::sortingAlgsTab() {
 }
 
 void DrawImgui::linkedListTab() {
-  if (ImGui::BeginTabItem("Linked Lists")) {
+  if (ImGui::BeginTabItem("LL")) {
     control.isAlgorithm = false;
     control.isLinkedList = true;
     control.isTree = false;
@@ -310,12 +310,15 @@ void DrawImgui::linkedListTab() {
 }
 
 void DrawImgui::treeTab() {
-  if (ImGui::BeginTabItem("Binary Trees")) {
+  if (ImGui::BeginTabItem("Trees")) {
     control.isAlgorithm = false;
     control.isLinkedList = false;
     control.isTree = true;
 
-    ImGui::Text("test1");
+    ImGui::SeparatorText("Binary Search Tree");
+    if (ImGui::Button("Add")) {
+      bst.add();
+    }
 
     ImGui::EndTabItem();
   }

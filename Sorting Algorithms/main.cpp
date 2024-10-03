@@ -25,26 +25,15 @@ int main() {
   catch (const std::runtime_error& e) {
     std::cerr << "Error: " << e.what() << std::endl;
   }
-  sf::Text LLText;
-  LLText.setFont(font);
-  LinkedList linkedList(window, LLText);
+  sf::Text text;
+  text.setFont(font);
+  LinkedList linkedList(window, text);
 
   // tree params
-  sf::Texture texture;
-  try {
-    if (!texture.loadFromFile("./Textures/treenodeframe.png"))
-      throw std::runtime_error("tree node texture error");
-  }
-  catch (const std::runtime_error& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-  }
-  sf::Vector2f testPos(150.f, 150.f);
-  sf::Text TreeText;
-  TreeText.setFont(font);
-  TreeNode treenode(testPos, TreeText, texture);
+  BST bst(window, text);
 
   // majority of imgui handling done here, with lots of DI
-  DrawImgui img(window, algo, graph, linkedList, control, view);
+  DrawImgui img(window, algo, graph, linkedList, bst, control, view);
 
   while (window.isOpen()) {
     sf::Event event;
@@ -99,7 +88,7 @@ int main() {
       linkedList.draw();
     }
     else if (control.isTree) {
-      window.draw(treenode);
+      bst.draw();
     }
     else
       throw("DRAW PROBLEM");

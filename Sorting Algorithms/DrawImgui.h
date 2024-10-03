@@ -5,7 +5,7 @@
 #include "Algorithms.h"
 #include "LLNode.h"
 #include "LinkedList.h"
-#include "TreeNode.h"
+#include "BST.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
 #include <iostream>
@@ -13,11 +13,18 @@ using namespace std;
 
 class DrawImgui {
 public:
-  DrawImgui(sf::RenderWindow& win, Algorithms& alg, Graph& g, LinkedList& LL, Control& con, sf::View& vw) : 
+  DrawImgui(sf::RenderWindow& win, 
+    Algorithms& alg, 
+    Graph& g, 
+    LinkedList& LL, 
+    BST& tree,
+    Control& con, 
+    sf::View& vw) : 
     window(win),
     algo(alg),
     graph(g),
     linkedList(LL),
+    bst(tree),
     control(con), 
     view(vw) {
   };
@@ -40,6 +47,7 @@ private:
   Algorithms& algo;
   Graph& graph;
   LinkedList& linkedList;
+  BST& bst;
   Control& control;
   sf::View& view;
 };

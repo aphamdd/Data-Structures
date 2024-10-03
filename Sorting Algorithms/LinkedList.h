@@ -70,5 +70,5 @@ private:
   sf::Clock delayClock;
 
   sf::RenderWindow& window; // DI
-  sf::Text LLText; // passes in text object into LLNode
+  sf::Text& LLText; // passes in text object into LLNode
 };

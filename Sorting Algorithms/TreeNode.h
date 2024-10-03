@@ -2,10 +2,11 @@
 #include "SFML/Graphics.hpp"
 #include "Control.h"
 #include "common.h"
+#include <iostream>
 
 // handles the node object and drawing
 class TreeNode : public sf::Drawable, public sf::Transformable {
-  friend class Trees;
+  friend class BST;
 public:
   TreeNode(const sf::Vector2f pos, sf::Text& text, sf::Texture& texture);
 
