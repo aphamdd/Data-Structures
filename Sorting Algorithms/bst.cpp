@@ -15,21 +15,21 @@ BST::BST(sf::RenderWindow& win, sf::Text& text) :
 
 void BST::add() {
   if (!root) {
-    sf::Vector2f pos(100.f, 100.f);
+    sf::Vector2f pos(400.f, 100.f);
+    sf::Vector2f posleft(300.f, 250.f);
+    sf::Vector2f posright(500.f, 250.f);
     root = std::make_unique<TreeNode>(pos, treeText, treeTexture);
+    root->left = std::make_unique<TreeNode>(posleft, treeText, treeTexture);
+    root->right = std::make_unique<TreeNode>(posright, treeText, treeTexture);
   }
 }
 
-void BST::draw() const {
+void BST::draw() {
   if (!root)
     return;
 
-  TreeNode* current = root.get();
-
   // dfs or bfs
-  while (current) {
-    window.draw(*current); // invokes overridden drawptr function in LLNode
-    current = current->left.get();
-  }
-  return;
+  preorder([&](TreeNode* node) {
+    window.draw(*node);
+  });
 }

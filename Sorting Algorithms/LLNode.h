@@ -25,5 +25,5 @@ private:
   sf::Vector2f size;
   sf::Vector2f shiftFactor;
   sf::VertexArray nextLine;
-  sf::Text dataText;
+  sf::Text dataText; // TODO: this could be a template?
 };
