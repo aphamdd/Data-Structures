@@ -1,14 +1,24 @@
 #pragma once
 #include "TreeNode.h"
 
+
 class BST {
+private:
+  std::unique_ptr<TreeNode> root = nullptr;
+  sf::RenderWindow& window;
+  enum class D {
+    LEFT,
+    ROOT,
+    RIGHT
+  };
+
 public:
   BST(sf::RenderWindow& win);
 
   // wrapper insert function
-  void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, 0); }
+  void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, D::ROOT); }
   void remove();
-  void search();
+  void search(const int data) { search(root.get(), data); }
   void clear() { clear(root); }
   void display();
 
@@ -33,8 +43,9 @@ public:
   void draw();
 
 private:
-  void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, signed int x);
+  void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, D direction);
   void clear(std::unique_ptr<TreeNode>& node);
+  void search(TreeNode* node, const int data);
 
   // dfs, tail recursion
   template<typename Func>
@@ -65,9 +76,4 @@ private:
     postorderTraversal(node->right.get(), fn);
     fn(node);
   }
-
-private:
-  std::unique_ptr<TreeNode> root = nullptr;
-
-  sf::RenderWindow& window;
 };

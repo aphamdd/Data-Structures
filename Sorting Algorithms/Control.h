@@ -29,5 +29,6 @@ struct Control {
   sf::Vector2i mpos;
 
   // Trees
-  int treeNum = 0;
+  int setTreeNum = 0;
+  int findTreeNum = 0;
 };

@@ -317,12 +317,16 @@ void DrawImgui::treeTab() {
 
     ImGui::SeparatorText("Binary Search Tree");
 
-    ImGui::InputInt("Node Val", &control.treeNum);
+    ImGui::InputInt("Node Val", &control.setTreeNum);
     if (ImGui::Button("Add")) {
-      bst.insert(control.treeNum, sf::Vector2f(900, 100));
+      bst.insert(control.setTreeNum, sf::Vector2f(900, 100));
     }
     if (ImGui::Button("Display")) {
       bst.display();
+    }
+    ImGui::InputInt("Find", &control.findTreeNum);
+    if (ImGui::Button("Find Node")) {
+      bst.search(control.findTreeNum);
     }
     if (ImGui::Button("Clear")) {
       bst.clear();

@@ -12,19 +12,23 @@ BST::BST(sf::RenderWindow& win) :
   }
 }
 
-void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, signed int x) {
+void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, D direction) {
   if (!node) {
-    sf::Vector2f newPos(pos);
-    if (x == -1)
+    sf::Vector2f newPos;
+    if (direction == D::ROOT)
+      newPos = pos;
+    else if (direction == D::LEFT)
       newPos = sf::Vector2f(pos.x - 100, pos.y + 100);
-    else if (x == 1)
+    else if (direction == D::RIGHT)
       newPos = sf::Vector2f(pos.x + 100, pos.y + 100);
+    else
+      throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
   }
   else {
     data < node->data
-      ? insert(node->left, data, node->sprite.getPosition(), -1)
-      : insert(node->right, data, node->sprite.getPosition(), 1);
+      ? insert(node->left, data, node->sprite.getPosition(), D::LEFT)
+      : insert(node->right, data, node->sprite.getPosition(), D::RIGHT);
   }
 
   return;
@@ -37,6 +41,21 @@ void BST::display() {
   preorderTraversal(root.get(), [](TreeNode* node) {
     std::cout << node->data << std::endl;
   });
+}
+
+void BST::search(TreeNode* node, const int data) {
+  if (!node)
+    return;
+
+  if (node->data == data) {
+    node->sprite.setColor(sf::Color::Green);
+  }
+  else {
+    data < node->data
+      ? search(node->left.get(), data)
+      : search(node->right.get(), data);
+  }
+  return;
 }
 
 void BST::clear(std::unique_ptr<TreeNode>& node) {
