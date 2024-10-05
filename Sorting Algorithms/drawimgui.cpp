@@ -105,7 +105,7 @@ void DrawImgui::sortingAlgsTab() {
     // TODO: insert fancy graph of algorithm data
     // TODO: have a popout window that shows the graph in an array form
     ImGui::SliderFloat("Bar Speed", &control.speedMult, 0.1f, 100.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
-    ImGui::SliderFloat("Pause Timer", &DELAY, 0.f, 0.5f);
+    ImGui::SliderFloat("Pause Timer", &GLOBAL::DELAY, 0.f, 0.5f);
 
     // probably use some var to handle the status message
     if (!control.isSorting && !control.isPaused)
@@ -196,7 +196,7 @@ void DrawImgui::linkedListTab() {
 
     // edit delay between highlights and search
     //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
-    ImGui::SliderFloat("Pause Timer", &DELAY, 0.1f, 0.5f);
+    ImGui::SliderFloat("Pause Timer", &GLOBAL::DELAY, 0.1f, 0.5f);
 
     // animated search
     ImGui::InputInt("Find Node", &control.findNum);
@@ -316,8 +316,16 @@ void DrawImgui::treeTab() {
     control.isTree = true;
 
     ImGui::SeparatorText("Binary Search Tree");
+
+    ImGui::InputInt("Node Val", &control.treeNum);
     if (ImGui::Button("Add")) {
-      bst.add();
+      bst.insert(control.treeNum, sf::Vector2f(900, 100));
+    }
+    if (ImGui::Button("Display")) {
+      bst.display();
+    }
+    if (ImGui::Button("Clear")) {
+      bst.clear();
     }
 
     ImGui::EndTabItem();

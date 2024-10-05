@@ -1,11 +1,10 @@
 #pragma once
 #include "BST.h"
 
-BST::BST(sf::RenderWindow& win, sf::Text& text) :
-  window(win),
-  treeText(text) {
+BST::BST(sf::RenderWindow& win) :
+  window(win) {
   try {
-    if (!treeTexture.loadFromFile("./Textures/treenodewhite.png"))
+    if (!GLOBAL::TREETEXTURE.loadFromFile("./Textures/treenodewhite.png"))
       throw std::runtime_error("tree node texture error");
   }
   catch (const std::runtime_error& e) {
@@ -13,15 +12,40 @@ BST::BST(sf::RenderWindow& win, sf::Text& text) :
   }
 }
 
-void BST::add() {
-  if (!root) {
-    sf::Vector2f pos(400.f, 100.f);
-    sf::Vector2f posleft(300.f, 250.f);
-    sf::Vector2f posright(500.f, 250.f);
-    root = std::make_unique<TreeNode>(pos, treeText, treeTexture);
-    root->left = std::make_unique<TreeNode>(posleft, treeText, treeTexture);
-    root->right = std::make_unique<TreeNode>(posright, treeText, treeTexture);
+void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, signed int x) {
+  if (!node) {
+    sf::Vector2f newPos(pos);
+    if (x == -1)
+      newPos = sf::Vector2f(pos.x - 100, pos.y + 100);
+    else if (x == 1)
+      newPos = sf::Vector2f(pos.x + 100, pos.y + 100);
+    node = std::make_unique<TreeNode>(data, newPos);
   }
+  else {
+    data < node->data
+      ? insert(node->left, data, node->sprite.getPosition(), -1)
+      : insert(node->right, data, node->sprite.getPosition(), 1);
+  }
+
+  return;
+}
+
+void BST::display() {
+  if (!root)
+    return;
+
+  preorderTraversal(root.get(), [](TreeNode* node) {
+    std::cout << node->data << std::endl;
+  });
+}
+
+void BST::clear(std::unique_ptr<TreeNode>& node) {
+  if (!node)
+    return;
+
+  clear(node->left);
+  clear(node->right);
+  node.reset();
 }
 
 void BST::draw() {
@@ -29,7 +53,7 @@ void BST::draw() {
     return;
 
   // dfs or bfs
-  preorder([&](TreeNode* node) {
+  preorderTraversal(root.get(), [&](TreeNode* node) {
     window.draw(*node);
   });
 }

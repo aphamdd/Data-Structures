@@ -3,19 +3,16 @@
 #include <iostream>
 
 // TODO: is there a way to skip having to pass in my text through LinkedList->LLNode
-LinkedList::LinkedList(sf::RenderWindow& win, sf::Text& text) :
+LinkedList::LinkedList(sf::RenderWindow& win) :
   window(win),
-  LLText(text),
   cursor(0.f, 3) {
   cursor.setFillColor(sf::Color::White);
   cursor.setOutlineThickness(1.5f);
   cursor.setOutlineColor(sf::Color::Black);
 
   try {
-    if (!nodeTexture.loadFromFile("./Textures/linkedlistframe.png"))
+    if (!GLOBAL::LLTEXTURE.loadFromFile("./Textures/linkedlistframe.png"))
       throw std::runtime_error("linked list node texture error");
-    if (!cursorTexture.loadFromFile("./Textures/linkedlistframe.png"))
-      throw std::runtime_error("cursor texture error");
   }
   catch (const std::runtime_error& e) {
     std::cerr << "Error: " << e.what() << std::endl;
@@ -38,7 +35,7 @@ int LinkedList::add() {
   // create head
   if (!head) {
     sf::Vector2f pos(75.f, 400.f); // random ahh position
-    head = std::make_unique<LLNode>(pos, LLText, nodeTexture);
+    head = std::make_unique<LLNode>(pos);
     head->sprite.setColor(sf::Color::Red);
     rawptr.tail = head.get();
   }
@@ -47,7 +44,7 @@ int LinkedList::add() {
     if (rawptr.active->next) {
       sf::Vector2f pos = rawptr.active->sprite.getPosition();
       pos.x += rawptr.active->size.x + 10.f;
-      std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos, LLText, nodeTexture);
+      std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos);
       newNode->next = std::move(rawptr.active->next);
       rawptr.active->next = std::move(newNode);
       if (rawptr.active != head.get())
@@ -83,7 +80,7 @@ void LinkedList::addTail() {
   assert(rawptr.tail);
   sf::Vector2f pos = rawptr.tail->sprite.getPosition();
   pos.x += rawptr.tail->size.x + 10.f;
-  std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos, LLText, nodeTexture);
+  std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos);
   rawptr.tail->next = std::move(newNode);
   rawptr.tail = rawptr.tail->next.get();
   updatePrevPtr(rawptr.tail);
@@ -309,7 +306,7 @@ bool LinkedList::findValueAnimated(const int val) {
     case LLState::WAIT: {
       // TODO: need this condition to only apply once, otherwise the animation speed gets wonky.
       if (cursorReached) {
-        if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
+        if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
           if (prevState == LLState::HIGHLIGHT) {
             prevState = state;
             state = LLState::COMPARE;

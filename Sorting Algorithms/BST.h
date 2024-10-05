@@ -3,28 +3,14 @@
 
 class BST {
 public:
-  BST(sf::RenderWindow& win, sf::Text& text);
+  BST(sf::RenderWindow& win);
 
-  void add();
+  // wrapper insert function
+  void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, 0); }
   void remove();
-
-  // recursive dfs|bfs
-  void rDFS();
-  void rBFS();
-
-  // iterative dfs|bfs
-  void iDFS();
-  void iBFS();
-
-  // dfs, tail recursion (do stuff, then recurse)
-  // public API to call template preorder function
-  template <typename Func>
-  void preorder(Func f) {
-    preorderTraversal(root.get(), f);
-  }
-
-  void inorder(); // dfs, head recursion (recursion first)
-  void postorder(); // bfs
+  void search();
+  void clear() { clear(root); }
+  void display();
 
   void IOS(); // in-order successor handling
 
@@ -39,12 +25,20 @@ public:
   void treeHeight();
   void treeSize();
   void findNode();
+  bool isBalanced();
+  bool isComplete();
+  bool isFull() const;
+  bool isPerfect();
 
   void draw();
 
 private:
+  void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, signed int x);
+  void clear(std::unique_ptr<TreeNode>& node);
+
+  // dfs, tail recursion
   template<typename Func>
-  void preorderTraversal(TreeNode* node, Func fn) {
+  void preorderTraversal(TreeNode* node, Func fn) const {
     if (!node)
       return;
     fn(node);
@@ -52,10 +46,28 @@ private:
     preorderTraversal(node->right.get(), fn);
   }
 
+  // dfs, head recursion
+  template<typename Func>
+  void inorderTraversal(TreeNode* node, Func fn) const {
+    if (!node)
+      return;
+    inorderTraversal(node->left.get(), fn);
+    fn(node);
+    inorderTraversal(node->right.get(), fn);
+  }
+
+  // dfs, typically for deleting trees or postfix notation of expressions
+  template<typename Func>
+  void postorderTraversal(TreeNode* node, Func fn) const {
+    if (!node)
+      return;
+    postorderTraversal(node->left.get(), fn);
+    postorderTraversal(node->right.get(), fn);
+    fn(node);
+  }
+
 private:
   std::unique_ptr<TreeNode> root = nullptr;
 
   sf::RenderWindow& window;
-  sf::Text& treeText;
-  sf::Texture treeTexture;
 };

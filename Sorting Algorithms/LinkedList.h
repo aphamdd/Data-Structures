@@ -6,7 +6,7 @@
 // handles linked list operations
 class LinkedList {
 public:
-  LinkedList(sf::RenderWindow& win, sf::Text& text);
+  LinkedList(sf::RenderWindow& win);
   void clear();
 
   int add();
@@ -44,9 +44,6 @@ public:
 private:
   std::unique_ptr<LLNode> head = nullptr;
 
-  sf::Texture nodeTexture; 
-
-  sf::Texture cursorTexture; 
   sf::CircleShape cursor; 
   // animated timer starts when the cursor reaches its goal
   bool cursorReached = false;
@@ -70,5 +67,4 @@ private:
   sf::Clock delayClock;
 
   sf::RenderWindow& window; // DI
-  sf::Text& LLText; // passes in text object into LLNode
 };

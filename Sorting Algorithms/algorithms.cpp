@@ -29,7 +29,7 @@ bool Algorithms::bubbleSort(Graph& graph) {
         delayClock.restart();
       } break;
       case SortState::WAIT: {
-        if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
+        if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
           // highlight -> compare
           if (prevState == SortState::HIGHLIGHT) {
             prevState = state;
@@ -127,7 +127,7 @@ bool Algorithms::selectionSort(Graph& graph) {
       delayClock.restart();
     } break;
     case SortState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
+      if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
         if (prevState == SortState::HIGHLIGHT || prevState == SortState::COMPARE) {
           prevState = state;
           state = SortState::HIGHLIGHT;
@@ -240,7 +240,7 @@ bool Algorithms::insertionSort(Graph& graph) {
       delayClock.restart();
     } break;
     case SortState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= DELAY) {
+      if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
         if (prevState == SortState::HIGHLIGHT) {
           prevState = state;
           state = SortState::COMPARE;

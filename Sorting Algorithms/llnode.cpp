@@ -1,13 +1,23 @@
 #pragma once
 #include "LLNode.h"
+#include <iostream>
 
 // TODO: properly handle text centering
-LLNode::LLNode(const sf::Vector2f pos, sf::Text& text, sf::Texture& texture) :
-  dataText(text),
+LLNode::LLNode(const sf::Vector2f pos) :
   nextLine(sf::Lines, 2),
   size(150.f, 75.f),
   shiftFactor(2.1, 1.8) {
-  sprite.setTexture(texture);
+
+  try {
+    if (!font.loadFromFile("./Fonts/kongtext.ttf"))
+      throw std::runtime_error("couldn't load font");
+  }
+  catch (const std::runtime_error& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
+  dataText.setFont(font);
+
+  sprite.setTexture(GLOBAL::LLTEXTURE);
   sprite.setTextureRect(sf::IntRect(0, 0, size.x, size.y));
   sprite.setOrigin(size.x * 0.5, size.y * 0.5);
   sprite.setPosition(pos);

@@ -7,7 +7,7 @@
 class LLNode : public sf::Drawable, public sf::Transformable {
   friend class LinkedList;
 public:
-  LLNode(const sf::Vector2f pos, sf::Text& text, sf::Texture& texture);
+  LLNode(const sf::Vector2f pos);
   ~LLNode();
 
   void move(const sf::Vector2f pos);
@@ -25,5 +25,7 @@ private:
   sf::Vector2f size;
   sf::Vector2f shiftFactor;
   sf::VertexArray nextLine;
+
+  sf::Font font;
   sf::Text dataText; // TODO: this could be a template?
 };

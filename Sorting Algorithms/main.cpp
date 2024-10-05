@@ -1,14 +1,13 @@
 #include "DrawImgui.h"
 #include <SFML/Graphics.hpp>
 
-
 int main() {
   // window and gui params
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
-  sf::RenderWindow window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
+  sf::RenderWindow window(sf::VideoMode(GLOBAL::SCREEN_WIDTH, GLOBAL::SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
   sf::View view = window.getDefaultView();
-  window.setFramerateLimit(FPS);
+  window.setFramerateLimit(GLOBAL::FPS);
   ImGui::SFML::Init(window);
   Control control;
 
@@ -17,20 +16,10 @@ int main() {
   Algorithms algo(control);
 
   // linked list params
-  sf::Font font;
-  try {
-    if (!font.loadFromFile("./Fonts/kongtext.ttf"))
-      throw std::runtime_error("couldn't load font");
-  }
-  catch (const std::runtime_error& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-  }
-  sf::Text text;
-  text.setFont(font);
-  LinkedList linkedList(window, text);
+  LinkedList linkedList(window);
 
   // tree params
-  BST bst(window, text);
+  BST bst(window);
 
   // majority of imgui handling done here, with lots of DI
   DrawImgui img(window, algo, graph, linkedList, bst, control, view);

@@ -26,16 +26,16 @@ void Graph::build(const int size) {
   m_histogram.clear();
   std::random_device dev;
   std::mt19937 rng(dev());
-  std::uniform_int_distribution<std::mt19937::result_type> ranHeight(1, SCREEN_HEIGHT-10);
-  float barWidth = SCREEN_WIDTH / size;
+  std::uniform_int_distribution<std::mt19937::result_type> ranHeight(1, GLOBAL::SCREEN_HEIGHT-10);
+  float barWidth = GLOBAL::SCREEN_WIDTH / size;
   int xPos = 0;
-  sf::Vector2f position(xPos, SCREEN_HEIGHT);
+  sf::Vector2f position(xPos, GLOBAL::SCREEN_HEIGHT);
   sf::Vector2f ranSize(barWidth, ranHeight(rng));
   
   for (int i = 0; i < size; ++i) {
     m_histogram.push_back(initShape(position, ranSize));
     xPos += barWidth;
-    position = sf::Vector2f(xPos, SCREEN_HEIGHT);
+    position = sf::Vector2f(xPos, GLOBAL::SCREEN_HEIGHT);
     ranSize = sf::Vector2f(barWidth, ranHeight(rng));
   }
   return;
