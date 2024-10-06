@@ -6,19 +6,18 @@ class BST {
 private:
   std::unique_ptr<TreeNode> root = nullptr;
   sf::RenderWindow& window;
-  // determine node placement when rendering
-  enum class D {
-    LEFT,
-    ROOT,
-    RIGHT
+
+  struct Traversal {
+    TreeNode* prev = nullptr;
   };
+  Traversal raw;
 
 public:
   BST(sf::RenderWindow& win);
   void clear() { clear(root); }
 
   // wrapper functions for basic tree operations
-  void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, D::ROOT); }
+  void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, TreeNode::D::ROOT); }
   void search(const int data) { search(root.get(), data); }
   void display();
 
@@ -50,7 +49,7 @@ public:
   void draw();
 
 private:
-  void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, D direction);
+  void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, TreeNode::D direction);
   void search(TreeNode* node, const int data);
   void remove(std::unique_ptr<TreeNode>& node, const int data);
   void clear(std::unique_ptr<TreeNode>& node);

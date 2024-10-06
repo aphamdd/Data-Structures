@@ -8,18 +8,6 @@
 // Tree node (int data, sf::Vector2f position)
 class TreeNode : public sf::Drawable, public sf::Transformable {
   friend class BST;
-public:
-  TreeNode(const int val, const sf::Vector2f pos);
-  TreeNode& operator=(const int val) {
-    std::cout << "OVERLOADED =" << std::endl;
-    data = val;
-    dataText.setString(std::to_string(val));
-    return *this;
-  }
-
-private:
-  void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-
 private:
   // node data
   // fuck inheritance that shit sucks
@@ -35,4 +23,25 @@ private:
 
   sf::Font font;
   sf::Text dataText; // TODO: this could be a template?
+
+  // determine node placement when rendering
+  enum class D {
+    LEFT,
+    ROOT,
+    RIGHT
+  };
+
+public:
+  TreeNode(const int val, const sf::Vector2f pos);
+  TreeNode& operator=(const int val) {
+    std::cout << "OVERLOADED =" << std::endl;
+    data = val;
+    dataText.setString(std::to_string(val));
+    return *this;
+  }
+
+private:
+  sf::Vector2f calcCircleEdge(const float angle);
+  void updateLine(TreeNode* prev, D direction);
+  void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

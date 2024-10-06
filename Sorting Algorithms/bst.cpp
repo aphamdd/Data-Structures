@@ -12,23 +12,31 @@ BST::BST(sf::RenderWindow& win) :
   }
 }
 
-void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, D direction) {
+void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, TreeNode::D direction) {
   if (!node) {
     sf::Vector2f newPos;
-    if (direction == D::ROOT)
+    if (direction == TreeNode::D::ROOT)
       newPos = pos;
-    else if (direction == D::LEFT)
+    else if (direction == TreeNode::D::LEFT)
       newPos = sf::Vector2f(pos.x - 100, pos.y + 100);
-    else if (direction == D::RIGHT)
+    else if (direction == TreeNode::D::RIGHT)
       newPos = sf::Vector2f(pos.x + 100, pos.y + 100);
     else
       throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
+    if (raw.prev) {
+      node->updateLine(raw.prev, direction);
+      std::cout << raw.prev->data << " " << node->data << std::endl;
+    }
+    else
+      std::cout << "prev is null" << std::endl;
+    raw.prev = nullptr;
   }
   else {
+    raw.prev = node.get();
     data < node->data
-      ? insert(node->left, data, node->sprite.getPosition(), D::LEFT)
-      : insert(node->right, data, node->sprite.getPosition(), D::RIGHT);
+      ? insert(node->left, data, node->sprite.getPosition(), TreeNode::D::LEFT)
+      : insert(node->right, data, node->sprite.getPosition(), TreeNode::D::RIGHT);
   }
 
   return;

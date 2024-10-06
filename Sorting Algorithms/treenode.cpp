@@ -1,4 +1,6 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include "TreeNode.h"
 
 TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
@@ -35,19 +37,44 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
   sprite.setPosition(pos);
   sprite.setColor(sf::Color::White);
 
-  // TODO: set up the lines properly
-  sf::Vector2f leftPos = pos;
-  leftPos.x += size.x * 0.5;
+  sf::Vector2f leftPos(calcCircleEdge(135));
   leftLine[0].position = leftPos;
   leftLine[1].position = leftPos;
   leftLine[0].color = sf::Color::Yellow;
   leftLine[1].color = sf::Color::Yellow;
-  sf::Vector2f rightPos = pos;
-  rightPos.x += size.x * 0.5;
+  sf::Vector2f rightPos(calcCircleEdge(45));
   rightLine[0].position = rightPos;
   rightLine[1].position = rightPos;
   rightLine[0].color = sf::Color::Yellow;
   rightLine[1].color = sf::Color::Yellow;
+}
+
+void TreeNode::updateLine(TreeNode* prev, D direction) {
+  if (!prev)
+    return;
+
+  // update next line
+  sf::Vector2f pos(calcCircleEdge(270));
+  if (prev->left && direction == D::LEFT)
+    prev->leftLine[1].position = pos;
+  if (prev->right && direction == D::RIGHT)
+    prev->rightLine[1].position = pos;
+
+  /* update line behind
+  if (prevNode) {
+    nextPos.x -= size.x;
+    prevNode->nextLine[1].position = nextPos;
+  }
+  */
+}
+
+sf::Vector2f TreeNode::calcCircleEdge(const float angle) {
+  // angle goes clockwise instead of counter
+  sf::Vector2f pos = sprite.getPosition();
+  float theta = angle * (M_PI / 180);
+  float x = pos.x + (size.x / 2) * cos(theta);
+  float y = pos.y + (size.y / 2) * sin(theta);
+  return sf::Vector2f(x, y);
 }
 
 void TreeNode::draw(sf::RenderTarget& target, sf::RenderStates states) const {
