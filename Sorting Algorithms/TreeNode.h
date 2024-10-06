@@ -10,14 +10,19 @@ class TreeNode : public sf::Drawable, public sf::Transformable {
   friend class BST;
 public:
   TreeNode(const int val, const sf::Vector2f pos);
+  TreeNode& operator=(const int val) {
+    std::cout << "OVERLOADED =" << std::endl;
+    data = val;
+    dataText.setString(std::to_string(val));
+    return *this;
+  }
 
 private:
   void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 
 private:
   // node data
-  // how can inheritance work here? i only have a left and right ptr,
-  // will I need a vector of ptrs to expand from?
+  // fuck inheritance that shit sucks
   std::unique_ptr<TreeNode> left;
   std::unique_ptr<TreeNode> right;
   int data;

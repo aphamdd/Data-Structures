@@ -6,6 +6,7 @@ class BST {
 private:
   std::unique_ptr<TreeNode> root = nullptr;
   sf::RenderWindow& window;
+  // determine node placement when rendering
   enum class D {
     LEFT,
     ROOT,
@@ -14,16 +15,21 @@ private:
 
 public:
   BST(sf::RenderWindow& win);
-
-  // wrapper insert function
-  void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, D::ROOT); }
-  void remove();
-  void search(const int data) { search(root.get(), data); }
   void clear() { clear(root); }
+
+  // wrapper functions for basic tree operations
+  void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, D::ROOT); }
+  void search(const int data) { search(root.get(), data); }
   void display();
 
-  void IOS(); // in-order successor handling
+  // 3 Cases: Leaf, one child, two children
+  void remove(const int data) { remove(root, data); }
 
+  void BFSTraversal();
+
+
+
+  // BIG BOI FEATURES
   // store data in their data-structure to represent current step
   void stackFrame();
   void queueFrame();
@@ -39,13 +45,17 @@ public:
   bool isComplete();
   bool isFull() const;
   bool isPerfect();
+  void findios();
 
   void draw();
 
 private:
   void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, D direction);
-  void clear(std::unique_ptr<TreeNode>& node);
   void search(TreeNode* node, const int data);
+  void remove(std::unique_ptr<TreeNode>& node, const int data);
+  void clear(std::unique_ptr<TreeNode>& node);
+
+  void propogatePos(TreeNode* node, const sf::Vector2f shift);
 
   // dfs, tail recursion
   template<typename Func>

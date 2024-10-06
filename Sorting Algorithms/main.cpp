@@ -67,7 +67,10 @@ int main() {
     img.run();
 
     // rendering
-    window.setView(view);
+    if (!control.isTree)
+      window.setView(view);
+    else
+      window.setView(window.getDefaultView());
     window.clear(sf::Color(18, 18, 18));
 
     if (control.isAlgorithm) {

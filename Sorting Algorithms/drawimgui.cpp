@@ -328,6 +328,9 @@ void DrawImgui::treeTab() {
     if (ImGui::Button("Find Node")) {
       bst.search(control.findTreeNum);
     }
+    if (ImGui::Button("Delete Node")) {
+      bst.remove(control.findTreeNum);
+    }
     if (ImGui::Button("Clear")) {
       bst.clear();
     }
