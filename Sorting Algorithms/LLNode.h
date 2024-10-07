@@ -6,17 +6,6 @@
 // handles the node object and drawing
 class LLNode : public sf::Drawable, public sf::Transformable {
   friend class LinkedList;
-public:
-  LLNode(const sf::Vector2f pos);
-  ~LLNode();
-
-  void move(const sf::Vector2f pos);
-  void updateLine(LLNode* prev); // updates the next+previous ptr line
-  int setText(const int val);
-
-private:
-  void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-
 private:
   std::unique_ptr<LLNode> next = nullptr;
   int data = 1;
@@ -28,4 +17,15 @@ private:
 
   sf::Font font;
   sf::Text dataText; // TODO: this could be a template?
+
+public:
+  LLNode(const sf::Vector2f pos);
+  ~LLNode();
+
+  void move(const sf::Vector2f pos);
+  void updateLine(LLNode* prev); // updates the next+previous ptr line
+  int setText(const int val);
+
+private:
+  void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

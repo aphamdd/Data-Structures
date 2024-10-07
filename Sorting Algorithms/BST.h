@@ -1,15 +1,20 @@
 #pragma once
 #include "TreeNode.h"
 
-
 class BST {
 private:
   std::unique_ptr<TreeNode> root = nullptr;
   sf::RenderWindow& window;
 
   struct Traversal {
+    friend class BST;
+  public:
+    TreeNode* active = nullptr;
+  private:
     TreeNode* prev = nullptr;
   };
+
+public:
   Traversal raw;
 
 public:
@@ -18,20 +23,21 @@ public:
 
   // wrapper functions for basic tree operations
   void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, TreeNode::D::ROOT); }
-  void search(const int data) { search(root.get(), data); }
-  void display();
-
-  // 3 Cases: Leaf, one child, two children
+  void findValue(const int data) { findValue(root.get(), data); }
   void remove(const int data) { remove(root, data); }
+  void display();
 
   void BFSTraversal();
 
-
+  // interactive node methods
+  bool search(const sf::Vector2i pos);
+  void move(const sf::Vector2i pos);
 
   // BIG BOI FEATURES
   // store data in their data-structure to represent current step
   void stackFrame();
   void queueFrame();
+  void fitView();
 
   // tree operations
   void findLeaf();
@@ -50,12 +56,15 @@ public:
 
 private:
   void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, TreeNode::D direction);
-  void search(TreeNode* node, const int data);
+  void findValue(TreeNode* node, const int data);
   void remove(std::unique_ptr<TreeNode>& node, const int data);
   void clear(std::unique_ptr<TreeNode>& node);
 
   void propogatePos(TreeNode* node, const sf::Vector2f shift);
 
+  bool search(TreeNode* node, const sf::Vector2f pos);
+
+  // Template experiment
   // dfs, tail recursion
   template<typename Func>
   void preorderTraversal(TreeNode* node, Func fn) const {
@@ -65,7 +74,6 @@ private:
     preorderTraversal(node->left.get(), fn);
     preorderTraversal(node->right.get(), fn);
   }
-
   // dfs, head recursion
   template<typename Func>
   void inorderTraversal(TreeNode* node, Func fn) const {
@@ -75,7 +83,6 @@ private:
     fn(node);
     inorderTraversal(node->right.get(), fn);
   }
-
   // dfs, typically for deleting trees or postfix notation of expressions
   template<typename Func>
   void postorderTraversal(TreeNode* node, Func fn) const {

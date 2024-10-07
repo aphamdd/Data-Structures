@@ -39,22 +39,40 @@ int main() {
         // TODO: check if on linkedlist context, useless operations if not
         case sf::Event::MouseButtonPressed: {
           if (event.mouseButton.button == sf::Mouse::Left) {
-            if (linkedList.search(control.mpos))
-              control.isDragging = true;
+            if (control.isLinkedList) {
+              if (linkedList.search(control.mpos))
+                control.isDragging = true;
+            }
+            else if (control.isTree) {
+              if (bst.search(control.mpos)) {
+                control.isDragging = true;
+                std::cout << "found" << std::endl;
+              }
+              else {
+                std::cout << "not found" << std::endl;
+              }
+            }
           }
         } break;
 
         case sf::Event::MouseButtonReleased: {
-          if (event.mouseButton.button == sf::Mouse::Left) {
-            control.isDragging = false;
-          }
-          else if (event.mouseButton.button == sf::Mouse::Right) {
-            if (linkedList.resetActiveNode())
+          if (control.isLinkedList) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
               control.isDragging = false;
+            }
+            else if (event.mouseButton.button == sf::Mouse::Right) {
+              if (linkedList.resetActiveNode())
+                control.isDragging = false;
+            }
+            else if (event.mouseButton.button == sf::Mouse::Middle) {
+              if (linkedList.mouseInBounds(control.mpos))
+                control.isPopup = true;
+            }
           }
-          else if (event.mouseButton.button == sf::Mouse::Middle) {
-            if (linkedList.mouseInBounds(control.mpos))
-              control.isPopup = true;
+          else if (control.isTree) {
+            if (event.mouseButton.button == sf::Mouse::Left) {
+              control.isDragging = false;
+            }
           }
         } break;
 

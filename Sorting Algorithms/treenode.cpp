@@ -26,7 +26,9 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
   textPos.x -= size.x * 0.3;
   textPos.y -= size.y * 0.3;
   dataText.setPosition(textPos);
-  dataText.setCharacterSize(size.y/2);
+  dataText.setCharacterSize(size.y/3);
+  dataText.setOutlineThickness(1);
+  dataText.setOutlineColor(sf::Color::White);
   dataText.setFillColor(sf::Color::Black);
   dataText.setString(std::to_string(data));
 

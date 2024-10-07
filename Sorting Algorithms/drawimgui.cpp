@@ -168,6 +168,17 @@ void DrawImgui::linkedListTab() {
     control.isLinkedList = true;
     control.isTree = false;
 
+    // drag node
+    if (control.isDragging) {
+      try {
+        if (!linkedList.move(control.mpos))
+          throw std::runtime_error("moving NULL node");
+      }
+      catch (const std::runtime_error& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+      }
+    }
+
     if (ImGui::Button("Add")) {
       linkedList.add();
     }
@@ -192,7 +203,7 @@ void DrawImgui::linkedListTab() {
     ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), white(1.0f, 1.0f, 1.0f, 1.0f);
     sf::Vector2f convertMPos = window.mapPixelToCoords(control.mpos, window.getView());
     ImGui::TextColored(linkedList.mouseInBounds(control.mpos) ? green : white, "Mapped Mouse (x:%0.0f, y:%0.0f)", convertMPos.x, convertMPos.y);
-    ImGui::TextWrapped("pActive: %p", linkedList.rawptr.active);
+    ImGui::TextWrapped("pActive: %p", linkedList.raw.active);
 
     // edit delay between highlights and search
     //ImGui::SliderFloat("Cursor Speed", &, 1.0f, 5.0f);
@@ -207,18 +218,7 @@ void DrawImgui::linkedListTab() {
         control.isSearching = false;
     }
     else
-      linkedList.updateCursor(linkedList.rawptr.active); // cursor sprite
-
-    // drag node
-    if (control.isDragging) {
-      try {
-        if (!linkedList.move(control.mpos))
-          throw std::runtime_error("moving NULL node");
-      }
-      catch (const std::runtime_error& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-      }
-    }
+      linkedList.updateCursor(linkedList.raw.active); // cursor sprite
 
     ImGui::SeparatorText("Info");
 
@@ -241,7 +241,7 @@ void DrawImgui::linkedListTab() {
     if (ImGui::BeginPopup("Node_popup")) {
       ImGui::InputInt("Node Number", &control.setNum);
       if (ImGui::Button("Set"))
-        linkedList.rawptr.active->setText(control.setNum);
+        linkedList.raw.active->setText(control.setNum);
       ImGui::EndPopup();
     }
 
@@ -249,9 +249,9 @@ void DrawImgui::linkedListTab() {
     ImGui::Begin("Linked List Data");
     std::vector<std::string> text;
     if (control.isSearching)
-      text = linkedList.parseString(linkedList.rawptr.currAnimate);
+      text = linkedList.parseString(linkedList.raw.currAnimate);
     else
-      text = linkedList.parseString(linkedList.rawptr.active);
+      text = linkedList.parseString(linkedList.raw.active);
 
     try {
       linkedList.transformText(text);
@@ -315,6 +315,10 @@ void DrawImgui::treeTab() {
     control.isLinkedList = false;
     control.isTree = true;
 
+    //if (control.isDragging) {
+      //bst.move(control.mpos);
+    //}
+
     ImGui::SeparatorText("Binary Search Tree");
 
     ImGui::InputInt("Node Val", &control.setTreeNum);
@@ -326,7 +330,7 @@ void DrawImgui::treeTab() {
     }
     ImGui::InputInt("Find", &control.findTreeNum);
     if (ImGui::Button("Find Node")) {
-      bst.search(control.findTreeNum);
+      bst.findValue(control.findTreeNum);
     }
     if (ImGui::Button("Delete Node")) {
       bst.remove(control.findTreeNum);

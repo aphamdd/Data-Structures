@@ -22,11 +22,11 @@ LinkedList::LinkedList(sf::RenderWindow& win) :
 void LinkedList::clear() {
   while (head)
     head = std::move(head->next);
-  rawptr.active = nullptr;
-  rawptr.currAnimate = nullptr;
+  raw.active = nullptr;
+  raw.currAnimate = nullptr;
   head = nullptr;
-  rawptr.prev = nullptr;
-  rawptr.tail = nullptr;
+  raw.prev = nullptr;
+  raw.tail = nullptr;
 }
 
 // TODO: don't return midway of a statement, return at the end
@@ -37,37 +37,37 @@ int LinkedList::add() {
     sf::Vector2f pos(75.f, 400.f); // random ahh position
     head = std::make_unique<LLNode>(pos);
     head->sprite.setColor(sf::Color::Red);
-    rawptr.tail = head.get();
+    raw.tail = head.get();
   }
   // insert in front of active ptr
-  else if (rawptr.active) {
-    if (rawptr.active->next) {
-      sf::Vector2f pos = rawptr.active->sprite.getPosition();
-      pos.x += rawptr.active->size.x + 10.f;
+  else if (raw.active) {
+    if (raw.active->next) {
+      sf::Vector2f pos = raw.active->sprite.getPosition();
+      pos.x += raw.active->size.x + 10.f;
       std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos);
-      newNode->next = std::move(rawptr.active->next);
-      rawptr.active->next = std::move(newNode);
-      if (rawptr.active != head.get())
-        rawptr.active->sprite.setColor(sf::Color::White);
-      rawptr.active = rawptr.active->next.get();
-      updatePrevPtr(rawptr.active);
-      if (rawptr.active != rawptr.tail)
-        rawptr.active->sprite.setColor(sf::Color::Green);
-      rawptr.active->data += rawptr.prev->data;
-      rawptr.active->updateLine(rawptr.prev);
-      rawptr.active->next.get()->updateLine(rawptr.active);
-      rawptr.active->setText(rawptr.active->data);
+      newNode->next = std::move(raw.active->next);
+      raw.active->next = std::move(newNode);
+      if (raw.active != head.get())
+        raw.active->sprite.setColor(sf::Color::White);
+      raw.active = raw.active->next.get();
+      updatePrevPtr(raw.active);
+      if (raw.active != raw.tail)
+        raw.active->sprite.setColor(sf::Color::Green);
+      raw.active->data += raw.prev->data;
+      raw.active->updateLine(raw.prev);
+      raw.active->next.get()->updateLine(raw.active);
+      raw.active->setText(raw.active->data);
       // TODO: I don't like having a loop like this, fix it. recursion?
-      // bug: only if rawptr.active->next, needs to apply when ANY node is added
-      //while (!shiftForward(rawptr.active, rawptr.active->next.get())) {
+      // bug: only if raw.active->next, needs to apply when ANY node is added
+      //while (!shiftForward(raw.active, raw.active->next.get())) {
         //continue;
       //}
     }
-    else if (!rawptr.active->next) {
+    else if (!raw.active->next) {
       addTail();
-      if (rawptr.active != head.get())
-        rawptr.active->sprite.setColor(sf::Color::White);
-      rawptr.active = rawptr.active->next.get();
+      if (raw.active != head.get())
+        raw.active->sprite.setColor(sf::Color::White);
+      raw.active = raw.active->next.get();
     }
   }
   else
@@ -77,19 +77,19 @@ int LinkedList::add() {
 }
 
 void LinkedList::addTail() {
-  assert(rawptr.tail);
-  sf::Vector2f pos = rawptr.tail->sprite.getPosition();
-  pos.x += rawptr.tail->size.x + 10.f;
+  assert(raw.tail);
+  sf::Vector2f pos = raw.tail->sprite.getPosition();
+  pos.x += raw.tail->size.x + 10.f;
   std::unique_ptr<LLNode> newNode = std::make_unique<LLNode>(pos);
-  rawptr.tail->next = std::move(newNode);
-  rawptr.tail = rawptr.tail->next.get();
-  updatePrevPtr(rawptr.tail);
-  rawptr.tail->updateLine(rawptr.prev);
-  rawptr.tail->data += rawptr.prev->data;
-  rawptr.tail->setText(rawptr.tail->data);
-  if (rawptr.prev != rawptr.active && rawptr.prev != head.get())
-    rawptr.prev->sprite.setColor(sf::Color::White);
-  rawptr.tail->sprite.setColor(sf::Color(50, 140, 235));
+  raw.tail->next = std::move(newNode);
+  raw.tail = raw.tail->next.get();
+  updatePrevPtr(raw.tail);
+  raw.tail->updateLine(raw.prev);
+  raw.tail->data += raw.prev->data;
+  raw.tail->setText(raw.tail->data);
+  if (raw.prev != raw.active && raw.prev != head.get())
+    raw.prev->sprite.setColor(sf::Color::White);
+  raw.tail->sprite.setColor(sf::Color(50, 140, 235));
 }
 
 bool LinkedList::shiftForward(LLNode* prev, LLNode* curr) {
@@ -116,48 +116,48 @@ bool LinkedList::remove() {
   // 1 node
   else if (!head->next) {
     head = nullptr;
-    rawptr.active = nullptr;
-    rawptr.prev = nullptr;
-    rawptr.currAnimate = nullptr;
-    rawptr.tail = nullptr;
+    raw.active = nullptr;
+    raw.prev = nullptr;
+    raw.currAnimate = nullptr;
+    raw.tail = nullptr;
   }
   // 2+ nodes
-  else if (rawptr.active) {
-    if (rawptr.active == head.get()) {
-      rawptr.active = rawptr.active->next.get();
+  else if (raw.active) {
+    if (raw.active == head.get()) {
+      raw.active = raw.active->next.get();
       head = std::move(head->next);
-      rawptr.active->sprite.setColor(sf::Color::Red);
-      updatePrevPtr(rawptr.active);
+      raw.active->sprite.setColor(sf::Color::Red);
+      updatePrevPtr(raw.active);
     }
-    else if (rawptr.active->next.get()) {
-      updatePrevPtr(rawptr.active);
-      rawptr.prev->next = std::move(rawptr.active->next);
-      rawptr.prev->next.get()->updateLine(rawptr.prev);
-      rawptr.active = nullptr;
-      rawptr.prev = nullptr;
+    else if (raw.active->next.get()) {
+      updatePrevPtr(raw.active);
+      raw.prev->next = std::move(raw.active->next);
+      raw.prev->next.get()->updateLine(raw.prev);
+      raw.active = nullptr;
+      raw.prev = nullptr;
     }
-    else if (!rawptr.active->next.get()) {
-      updatePrevPtr(rawptr.active);
-      rawptr.prev->next = nullptr;
-      rawptr.prev->updateLine(nullptr);
-      rawptr.active = rawptr.prev;
-      updatePrevPtr(rawptr.active);
-      rawptr.tail = rawptr.active;
-      if (rawptr.tail != head.get())
-        rawptr.tail->sprite.setColor(sf::Color(50, 140, 235));
+    else if (!raw.active->next.get()) {
+      updatePrevPtr(raw.active);
+      raw.prev->next = nullptr;
+      raw.prev->updateLine(nullptr);
+      raw.active = raw.prev;
+      updatePrevPtr(raw.active);
+      raw.tail = raw.active;
+      if (raw.tail != head.get())
+        raw.tail->sprite.setColor(sf::Color(50, 140, 235));
     }
   }
   // default tail removal
   else {
-    updatePrevPtr(rawptr.tail);
-    if (rawptr.active == rawptr.tail)
-      rawptr.active = nullptr;
-    rawptr.prev->next = nullptr;
-    rawptr.prev->updateLine(nullptr);
-    rawptr.tail = rawptr.prev;
-    if (rawptr.tail != head.get())
-      rawptr.tail->sprite.setColor(sf::Color(50, 140, 235));
-    rawptr.prev = nullptr;
+    updatePrevPtr(raw.tail);
+    if (raw.active == raw.tail)
+      raw.active = nullptr;
+    raw.prev->next = nullptr;
+    raw.prev->updateLine(nullptr);
+    raw.tail = raw.prev;
+    if (raw.tail != head.get())
+      raw.tail->sprite.setColor(sf::Color(50, 140, 235));
+    raw.prev = nullptr;
   }
 
   return true;
@@ -169,7 +169,7 @@ bool LinkedList::remove() {
 // Coordinates are relative (sfml getPositions() returns relative coords)
 // Pixels are absolute
 //
-// I likely need to use mapPixelsToCoords because sprites are all drawptrn
+// I likely need to use mapPixelsToCoords because sprites are all drawn
 // with relative positioning (coords). So I need to map my cursor's absolute
 // position (pixels) to the relative pixels of the view (coords). Also, since
 // I want to keep track of the cursor's positioning within the bounds of the
@@ -184,8 +184,8 @@ bool LinkedList::search(const sf::Vector2i mpos) {
     return false;
 
   // check if we clicked on the same active node
-  if (rawptr.active) {
-    sf::FloatRect activeBounds = rawptr.active->sprite.getGlobalBounds();
+  if (raw.active) {
+    sf::FloatRect activeBounds = raw.active->sprite.getGlobalBounds();
     if (activeBounds.contains(convertMPos.x, convertMPos.y))
       return true;
   }
@@ -193,17 +193,17 @@ bool LinkedList::search(const sf::Vector2i mpos) {
   for (LLNode* curr = head.get(); curr; curr = curr->next.get()) {
     sf::FloatRect currBounds = curr->sprite.getGlobalBounds();
     if (currBounds.contains(convertMPos.x, convertMPos.y)) {
-      if (rawptr.active && rawptr.active != head.get() && rawptr.active != rawptr.tail)
-        rawptr.active->sprite.setColor(sf::Color::White);
-      rawptr.active = curr;
-      if (rawptr.active != head.get() && rawptr.active != rawptr.tail)
-        rawptr.active->sprite.setColor(sf::Color::Green);
-      else if (rawptr.active == head.get() && head->sprite.getColor() == sf::Color::Magenta)
-        rawptr.active->sprite.setColor(sf::Color::Red);
-      else if (rawptr.active == rawptr.tail && rawptr.tail->sprite.getColor() == sf::Color::Magenta)
-        rawptr.active->sprite.setColor(sf::Color(50, 140, 235));
-      // update previous pointer after setting rawptr.active
-      updatePrevPtr(rawptr.active);
+      if (raw.active && raw.active != head.get() && raw.active != raw.tail)
+        raw.active->sprite.setColor(sf::Color::White);
+      raw.active = curr;
+      if (raw.active != head.get() && raw.active != raw.tail)
+        raw.active->sprite.setColor(sf::Color::Green);
+      else if (raw.active == head.get() && head->sprite.getColor() == sf::Color::Magenta)
+        raw.active->sprite.setColor(sf::Color::Red);
+      else if (raw.active == raw.tail && raw.tail->sprite.getColor() == sf::Color::Magenta)
+        raw.active->sprite.setColor(sf::Color(50, 140, 235));
+      // update previous pointer after setting raw.active
+      updatePrevPtr(raw.active);
       return true;
     }
   }
@@ -212,39 +212,39 @@ bool LinkedList::search(const sf::Vector2i mpos) {
 
 int LinkedList::updatePrevPtr(LLNode* ptr) {
   if (!head || !head->next || !ptr || ptr == head.get()) {
-    rawptr.prev = nullptr;
+    raw.prev = nullptr;
     return 0;
   }
 
-  rawptr.prev = head.get();
-  while (rawptr.prev->next.get() != ptr) {
-    rawptr.prev = rawptr.prev->next.get();
+  raw.prev = head.get();
+  while (raw.prev->next.get() != ptr) {
+    raw.prev = raw.prev->next.get();
   }
 
   return 1;
 }
 
 bool LinkedList::move(const sf::Vector2i mpos) {
-  if (rawptr.active) {
+  if (raw.active) {
     sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-    sf::Vector2f lastPos = rawptr.active->sprite.getPosition();
+    sf::Vector2f lastPos = raw.active->sprite.getPosition();
 
-    rawptr.active->move(convertMPos); // moves sprite
-    rawptr.active->updateLine(rawptr.prev); // update lines to follow sprite
+    raw.active->move(convertMPos); // moves sprite
+    raw.active->updateLine(raw.prev); // update lines to follow sprite
 
     /*
-    sf::FloatRect currsprite = rawptr.active->sprite.getGlobalBounds();
-    findAllNodeBounds(rawptr.active);
+    sf::FloatRect currsprite = raw.active->sprite.getGlobalBounds();
+    findAllNodeBounds(raw.active);
     for (const auto& anysprite : nBounds) {
       if (currsprite.intersects(anysprite)) {
         //
         if (abs(velx) > abs(vely))
-          rawptr.active->update(sf::Vector2f(lastPos.x, target.y+vely), rawptr.prev);
+          raw.active->update(sf::Vector2f(lastPos.x, target.y+vely), raw.prev);
         else if (abs(velx) < abs(vely))
-          rawptr.active->update(sf::Vector2f(target.x+velx, lastPos.y), rawptr.prev);
+          raw.active->update(sf::Vector2f(target.x+velx, lastPos.y), raw.prev);
         else
         //
-          rawptr.active->update(lastPos, rawptr.prev);
+          raw.active->update(lastPos, raw.prev);
       }
     }
     */
@@ -255,8 +255,8 @@ bool LinkedList::move(const sf::Vector2i mpos) {
 
 bool LinkedList::mouseInBounds(const sf::Vector2i mpos) const {
   sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
-  if (rawptr.active) {
-    sf::FloatRect globalBounds = rawptr.active->sprite.getGlobalBounds();
+  if (raw.active) {
+    sf::FloatRect globalBounds = raw.active->sprite.getGlobalBounds();
     return globalBounds.contains(convertMPos.x, convertMPos.y);
   }
   return false;
@@ -283,21 +283,21 @@ bool LinkedList::findValueAnimated(const int val) {
     return true;
   }
 
-  updateCursor(rawptr.currAnimate);
+  updateCursor(raw.currAnimate);
   switch (state) {
     case LLState::ENTRY: {
-      rawptr.currAnimate = head.get();
+      raw.currAnimate = head.get();
       state = LLState::HIGHLIGHT;
       // TODO: need to restart clock on the first wait cycle
     } break;
     case LLState::HIGHLIGHT: {
-      if (!rawptr.currAnimate) {
+      if (!raw.currAnimate) {
         resetState();
         return true;
       }
       
-      if (rawptr.currAnimate != head.get() && rawptr.currAnimate != rawptr.tail && rawptr.currAnimate != rawptr.active)
-          rawptr.currAnimate->sprite.setColor(sf::Color::Yellow);
+      if (raw.currAnimate != head.get() && raw.currAnimate != raw.tail && raw.currAnimate != raw.active)
+          raw.currAnimate->sprite.setColor(sf::Color::Yellow);
 
       prevState = state;
       state = LLState::WAIT;
@@ -319,19 +319,19 @@ bool LinkedList::findValueAnimated(const int val) {
       }
     } break;
     case LLState::COMPARE: {
-      if (rawptr.currAnimate->data == val) {
-        rawptr.currAnimate->sprite.setColor(sf::Color::Magenta);
+      if (raw.currAnimate->data == val) {
+        raw.currAnimate->sprite.setColor(sf::Color::Magenta);
         resetState();
         return true;
       }
-      else if (rawptr.currAnimate->next) {
-        if (rawptr.currAnimate != head.get() && rawptr.currAnimate != rawptr.tail && rawptr.currAnimate != rawptr.active)
-          rawptr.currAnimate->sprite.setColor(sf::Color::White);
-        rawptr.currAnimate = rawptr.currAnimate->next.get();
+      else if (raw.currAnimate->next) {
+        if (raw.currAnimate != head.get() && raw.currAnimate != raw.tail && raw.currAnimate != raw.active)
+          raw.currAnimate->sprite.setColor(sf::Color::White);
+        raw.currAnimate = raw.currAnimate->next.get();
       }
       else {
-        if (rawptr.currAnimate != head.get() && rawptr.currAnimate != rawptr.tail && rawptr.currAnimate != rawptr.active)
-          rawptr.currAnimate->sprite.setColor(sf::Color::White);
+        if (raw.currAnimate != head.get() && raw.currAnimate != raw.tail && raw.currAnimate != raw.active)
+          raw.currAnimate->sprite.setColor(sf::Color::White);
         resetState();
         return true;
       }
@@ -455,15 +455,15 @@ std::vector<std::string> LinkedList::parseString(LLNode* follow) {
 }
 
 void LinkedList::resetState() {
-  rawptr.currAnimate = nullptr;
+  raw.currAnimate = nullptr;
   prevState = LLState::ENTRY;
   state = LLState::ENTRY;
 }
 
 bool LinkedList::resetActiveNode() {
-  if (rawptr.active && rawptr.active != head.get() && rawptr.active != rawptr.tail)
-    rawptr.active->sprite.setColor(sf::Color::White);
-  rawptr.active = nullptr;
+  if (raw.active && raw.active != head.get() && raw.active != raw.tail)
+    raw.active->sprite.setColor(sf::Color::White);
+  raw.active = nullptr;
   return true;
 }
 
@@ -472,7 +472,7 @@ int LinkedList::draw() const {
     return 0;
   LLNode* curr = head.get();
   while (curr) {
-    window.draw(*curr); // invokes overridden drawptr function in LLNode
+    window.draw(*curr); // invokes overridden draw function in LLNode
     curr = curr->next.get();
   }
   window.draw(cursor);

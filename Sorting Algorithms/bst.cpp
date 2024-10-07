@@ -4,7 +4,7 @@
 BST::BST(sf::RenderWindow& win) :
   window(win) {
   try {
-    if (!GLOBAL::TREETEXTURE.loadFromFile("./Textures/treenodewhite.png"))
+    if (!GLOBAL::TREETEXTURE.loadFromFile("./Textures/treenodewhitetf.png"))
       throw std::runtime_error("tree node texture error");
   }
   catch (const std::runtime_error& e) {
@@ -24,12 +24,8 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
     else
       throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
-    if (raw.prev) {
+    if (raw.prev)
       node->updateLine(raw.prev, direction);
-      std::cout << raw.prev->data << " " << node->data << std::endl;
-    }
-    else
-      std::cout << "prev is null" << std::endl;
     raw.prev = nullptr;
   }
   else {
@@ -135,7 +131,7 @@ void BST::display() {
   });
 }
 
-void BST::search(TreeNode* node, const int data) {
+void BST::findValue(TreeNode* node, const int data) {
   if (!node)
     return;
 
@@ -144,10 +140,46 @@ void BST::search(TreeNode* node, const int data) {
   }
   else {
     data < node->data
-      ? search(node->left.get(), data)
-      : search(node->right.get(), data);
+      ? findValue(node->left.get(), data)
+      : findValue(node->right.get(), data);
   }
   return;
+}
+
+bool BST::search(const sf::Vector2i mpos) {
+  // TODO: more efficient is to just store node positions in a vector 
+  // and search through that list. update the vector upon changes
+  if (!root)
+    return false;
+
+  sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
+  // check if we clicked on the same active node
+  if (raw.active) {
+    sf::FloatRect activeBounds = raw.active->sprite.getGlobalBounds();
+    if (activeBounds.contains(convertMPos.x, convertMPos.y))
+      return true;
+  }
+  // Decision: is it better to do DFS (stack) or BFS (heap) searches for this?
+  // Problem is I'll be calling this function CONSTANTLY which could cause
+  // a stack overflow. However at the same time, the stack should only get
+  // filled up by n amount of nodes.
+  return search(root.get(), convertMPos);
+}
+
+bool BST::search(TreeNode* node, sf::Vector2f pos) {
+  if (!node)
+    return false;
+
+  sf::FloatRect currBounds = node->sprite.getGlobalBounds();
+  if (currBounds.contains(pos.x, pos.y)) {
+    raw.active = node;
+    raw.active->sprite.setColor(sf::Color::Green);
+    //updateLines();
+    return true;
+  }
+  if (search(node->left.get(), pos))
+    return true;
+  return search(node->right.get(), pos);
 }
 
 void BST::clear(std::unique_ptr<TreeNode>& node) {

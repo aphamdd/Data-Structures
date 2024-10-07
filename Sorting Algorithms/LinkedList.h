@@ -5,6 +5,47 @@
 
 // handles linked list operations
 class LinkedList {
+private:
+  std::unique_ptr<LLNode> head = nullptr;
+
+  // raw traversal pointers
+  struct LinkedListPtrs {
+    friend class LinkedList;
+  public:
+    LLNode* active =  nullptr;
+    LLNode* currAnimate = nullptr;
+  private:
+    LLNode* prev = nullptr;
+    LLNode* tail = nullptr; 
+  };
+
+  sf::CircleShape cursor; 
+  // animated timer starts when the cursor reaches its goal
+  bool cursorReached = false;
+
+  std::vector<sf::FloatRect> nBounds; // vector of all node bounds
+
+  // scales linked list text data
+  float textScale = 5;
+  float prevTextSize = 0;
+
+  // LinkedList Operation Animation State Machine
+  enum class LLState {
+    ENTRY,
+    HIGHLIGHT,
+    WAIT,
+    COMPARE,
+    RESET
+  };
+  LLState state = LLState::ENTRY;
+  LLState prevState = LLState::ENTRY;
+  sf::Clock delayClock;
+
+  sf::RenderWindow& window; // DI
+
+public:
+  LinkedListPtrs raw;
+
 public:
   LinkedList(sf::RenderWindow& win);
   void clear();
@@ -30,41 +71,4 @@ private:
   bool shiftForward(LLNode* prev, LLNode* curr); // move nodes forward after inserting
   void resetState();
   void addTail();
-
-public:
-  // raw traversal pointers
-  struct LinkedListPtrs {
-    LLNode* prev = nullptr;
-    LLNode* tail = nullptr; 
-    LLNode* active =  nullptr;
-    LLNode* currAnimate = nullptr;
-  };
-  LinkedListPtrs rawptr;
-
-private:
-  std::unique_ptr<LLNode> head = nullptr;
-
-  sf::CircleShape cursor; 
-  // animated timer starts when the cursor reaches its goal
-  bool cursorReached = false;
-
-  std::vector<sf::FloatRect> nBounds; // vector of all node bounds
-
-  // scales linked list text data
-  float textScale = 5;
-  float prevTextSize = 0;
-
-  // LinkedList Operation Animation State Machine
-  enum class LLState {
-    ENTRY,
-    HIGHLIGHT,
-    WAIT,
-    COMPARE,
-    RESET
-  };
-  LLState state = LLState::ENTRY;
-  LLState prevState = LLState::ENTRY;
-  sf::Clock delayClock;
-
-  sf::RenderWindow& window; // DI
 };
