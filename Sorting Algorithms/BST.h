@@ -31,7 +31,7 @@ public:
 
   // interactive node methods
   bool search(const sf::Vector2i pos);
-  void move(const sf::Vector2i pos);
+  bool move(const sf::Vector2i pos);
 
   // BIG BOI FEATURES
   // store data in their data-structure to represent current step

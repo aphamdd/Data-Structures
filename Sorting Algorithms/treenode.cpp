@@ -26,7 +26,7 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
   textPos.x -= size.x * 0.3;
   textPos.y -= size.y * 0.3;
   dataText.setPosition(textPos);
-  dataText.setCharacterSize(size.y/3);
+  dataText.setCharacterSize(size.y/4);
   dataText.setOutlineThickness(1);
   dataText.setOutlineColor(sf::Color::White);
   dataText.setFillColor(sf::Color::Black);
@@ -49,6 +49,15 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
   rightLine[1].position = rightPos;
   rightLine[0].color = sf::Color::Yellow;
   rightLine[1].color = sf::Color::Yellow;
+}
+
+void TreeNode::move(const sf::Vector2f goal) {
+  // works but not ideal
+  sf::Vector2f textPos = goal;
+  textPos.x -= size.x * 0.3;
+  textPos.y -= size.y * 0.3;
+  dataText.setPosition(textPos);
+  sprite.setPosition(goal);
 }
 
 void TreeNode::updateLine(TreeNode* prev, D direction) {

@@ -156,8 +156,17 @@ bool BST::search(const sf::Vector2i mpos) {
   // check if we clicked on the same active node
   if (raw.active) {
     sf::FloatRect activeBounds = raw.active->sprite.getGlobalBounds();
-    if (activeBounds.contains(convertMPos.x, convertMPos.y))
+    if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
+      if (raw.active->sprite.getColor() == sf::Color::White)
+        raw.active->sprite.setColor(sf::Color::Green);
+      else if (raw.active->sprite.getColor() == sf::Color::Green)
+        raw.active->sprite.setColor(sf::Color::Blue);
+      else if (raw.active->sprite.getColor() == sf::Color::Blue)
+        raw.active->sprite.setColor(sf::Color::Red);
+      else if (raw.active->sprite.getColor() == sf::Color::Red)
+        raw.active->sprite.setColor(sf::Color::White);
       return true;
+    }
   }
   // Decision: is it better to do DFS (stack) or BFS (heap) searches for this?
   // Problem is I'll be calling this function CONSTANTLY which could cause
@@ -173,13 +182,32 @@ bool BST::search(TreeNode* node, sf::Vector2f pos) {
   sf::FloatRect currBounds = node->sprite.getGlobalBounds();
   if (currBounds.contains(pos.x, pos.y)) {
     raw.active = node;
-    raw.active->sprite.setColor(sf::Color::Green);
+    if (raw.active->sprite.getColor() == sf::Color::White)
+      raw.active->sprite.setColor(sf::Color::Green);
+    else if (raw.active->sprite.getColor() == sf::Color::Green)
+      raw.active->sprite.setColor(sf::Color::Blue);
+    else if (raw.active->sprite.getColor() == sf::Color::Blue)
+      raw.active->sprite.setColor(sf::Color::Red);
+    else if (raw.active->sprite.getColor() == sf::Color::Red)
+      raw.active->sprite.setColor(sf::Color::White);
     //updateLines();
     return true;
   }
   if (search(node->left.get(), pos))
     return true;
   return search(node->right.get(), pos);
+}
+
+bool BST::move(const sf::Vector2i mpos) {
+  if (raw.active) {
+    sf::Vector2f convertMPos = window.mapPixelToCoords(mpos, window.getView());
+    sf::Vector2f lastPos = raw.active->sprite.getPosition();
+
+    raw.active->move(convertMPos); // moves sprite
+    //raw.active->updateLine(raw.prev); // update lines to follow sprite
+    return true;
+  }
+  return false;
 }
 
 void BST::clear(std::unique_ptr<TreeNode>& node) {

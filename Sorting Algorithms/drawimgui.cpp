@@ -315,9 +315,8 @@ void DrawImgui::treeTab() {
     control.isLinkedList = false;
     control.isTree = true;
 
-    //if (control.isDragging) {
-      //bst.move(control.mpos);
-    //}
+    if (control.isDragging)
+      bst.move(control.mpos);
 
     ImGui::SeparatorText("Binary Search Tree");
 
