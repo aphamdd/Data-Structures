@@ -46,10 +46,6 @@ int main() {
             else if (control.isTree) {
               if (bst.search(control.mpos)) {
                 control.isDragging = true;
-                std::cout << "found" << std::endl;
-              }
-              else {
-                std::cout << "not found" << std::endl;
               }
             }
           }

@@ -315,10 +315,12 @@ void DrawImgui::treeTab() {
     control.isLinkedList = false;
     control.isTree = true;
 
-    if (control.isDragging)
+    if (control.isDragging && control.dragEnabled)
       bst.move(control.mpos);
 
     ImGui::SeparatorText("Binary Search Tree");
+
+    ImGui::Checkbox("EnableDrag", &control.dragEnabled);
 
     ImGui::InputInt("Node Val", &control.setTreeNum);
     if (ImGui::Button("Add")) {

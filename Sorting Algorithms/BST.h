@@ -19,7 +19,7 @@ public:
 
 public:
   BST(sf::RenderWindow& win);
-  void clear() { clear(root); }
+  void clear() { clear(root); raw.prev = nullptr; raw.active = nullptr; }
 
   // wrapper functions for basic tree operations
   void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, TreeNode::D::ROOT); }

@@ -39,14 +39,14 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
   sprite.setPosition(pos);
   sprite.setColor(sf::Color::White);
 
-  sf::Vector2f leftPos(calcCircleEdge(135));
-  leftLine[0].position = leftPos;
-  leftLine[1].position = leftPos;
+  sf::Vector2f lPos(calcCircleEdge(135));
+  leftLine[0].position = lPos;
+  leftLine[1].position = lPos;
   leftLine[0].color = sf::Color::Yellow;
   leftLine[1].color = sf::Color::Yellow;
-  sf::Vector2f rightPos(calcCircleEdge(45));
-  rightLine[0].position = rightPos;
-  rightLine[1].position = rightPos;
+  sf::Vector2f rPos(calcCircleEdge(45));
+  rightLine[0].position = rPos;
+  rightLine[1].position = rPos;
   rightLine[0].color = sf::Color::Yellow;
   rightLine[1].color = sf::Color::Yellow;
 }
@@ -64,19 +64,34 @@ void TreeNode::updateLine(TreeNode* prev, D direction) {
   if (!prev)
     return;
 
-  // update next line
+  // update next line behind the current node
   sf::Vector2f pos(calcCircleEdge(270));
   if (prev->left && direction == D::LEFT)
     prev->leftLine[1].position = pos;
   if (prev->right && direction == D::RIGHT)
     prev->rightLine[1].position = pos;
+}
 
-  /* update line behind
-  if (prevNode) {
-    nextPos.x -= size.x;
-    prevNode->nextLine[1].position = nextPos;
+void TreeNode::updateLine2(TreeNode* prev) {
+  // offsetting would be better here using move() instead of repeatedly recalculating
+  sf::Vector2f lPos(calcCircleEdge(135));
+  sf::Vector2f rPos(calcCircleEdge(45));
+  leftLine[0].position = lPos;
+  rightLine[0].position = rPos;
+  if (!left)
+    leftLine[1].position = lPos;
+  if (!right)
+    rightLine[1].position = rPos;
+
+  // track previous node line
+  if (prev) {
+    sf::Vector2f current(sprite.getPosition());
+    current.y -= size.y / 2;
+    if (prev->left.get() == this)
+      prev->leftLine[1].position = current;
+    else if (prev->right.get() == this)
+      prev->rightLine[1].position = current;
   }
-  */
 }
 
 sf::Vector2f TreeNode::calcCircleEdge(const float angle) {

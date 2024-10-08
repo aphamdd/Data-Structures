@@ -31,4 +31,5 @@ struct Control {
   // Trees
   int setTreeNum = 0;
   int findTreeNum = 0;
+  bool dragEnabled = false;
 };

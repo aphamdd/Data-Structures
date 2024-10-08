@@ -43,14 +43,16 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
     return;
 
   if (node->data == data) {
+    if (raw.active == node.get()) {
+      raw.prev = nullptr;
+      raw.active = nullptr;
+    }
     // leaf
     if (!node->left && !node->right) {
       node.reset();
     }
     // 1 child
     else if (!node->left || !node->right) {
-      //sf::Vector2f nodePos = node->sprite.getPosition();
-      //sf::Vector2f textPos = node->dataText.getPosition();
       sf::Vector2f shift(100, -100);
       if (node->left) {
         node = std::move(node->left);
@@ -61,7 +63,6 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
         shift.x *= -1;
         propogatePos(node.get(), shift);
       }
-      //propogatePos(node.get(), nodePos, textPos);
     }
     // 2 children
     else {
@@ -193,8 +194,11 @@ bool BST::search(TreeNode* node, sf::Vector2f pos) {
     //updateLines();
     return true;
   }
+  raw.prev = node;
   if (search(node->left.get(), pos))
     return true;
+
+  raw.prev = node;
   return search(node->right.get(), pos);
 }
 
@@ -204,7 +208,7 @@ bool BST::move(const sf::Vector2i mpos) {
     sf::Vector2f lastPos = raw.active->sprite.getPosition();
 
     raw.active->move(convertMPos); // moves sprite
-    //raw.active->updateLine(raw.prev); // update lines to follow sprite
+    raw.active->updateLine2(raw.prev); // update lines to follow sprite
     return true;
   }
   return false;
