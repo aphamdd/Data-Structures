@@ -42,7 +42,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
   if (!node)
     return;
 
-  if (node->data == data) {
+  if (node->data == data && node.get() == raw.active) {
     if (raw.active == node.get()) {
       raw.prev = nullptr;
       raw.active = nullptr;
@@ -158,14 +158,7 @@ bool BST::search(const sf::Vector2i mpos) {
   if (raw.active) {
     sf::FloatRect activeBounds = raw.active->sprite.getGlobalBounds();
     if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
-      if (raw.active->sprite.getColor() == sf::Color::White)
-        raw.active->sprite.setColor(sf::Color::Green);
-      else if (raw.active->sprite.getColor() == sf::Color::Green)
-        raw.active->sprite.setColor(sf::Color::Blue);
-      else if (raw.active->sprite.getColor() == sf::Color::Blue)
-        raw.active->sprite.setColor(sf::Color::Red);
-      else if (raw.active->sprite.getColor() == sf::Color::Red)
-        raw.active->sprite.setColor(sf::Color::White);
+      raw.active->sprite.setColor(sf::Color::Green);
       return true;
     }
   }
@@ -182,15 +175,11 @@ bool BST::search(TreeNode* node, sf::Vector2f pos) {
 
   sf::FloatRect currBounds = node->sprite.getGlobalBounds();
   if (currBounds.contains(pos.x, pos.y)) {
-    raw.active = node;
-    if (raw.active->sprite.getColor() == sf::Color::White)
-      raw.active->sprite.setColor(sf::Color::Green);
-    else if (raw.active->sprite.getColor() == sf::Color::Green)
-      raw.active->sprite.setColor(sf::Color::Blue);
-    else if (raw.active->sprite.getColor() == sf::Color::Blue)
-      raw.active->sprite.setColor(sf::Color::Red);
-    else if (raw.active->sprite.getColor() == sf::Color::Red)
+    if (raw.active)
       raw.active->sprite.setColor(sf::Color::White);
+
+    raw.active = node;
+    raw.active->sprite.setColor(sf::Color::Green);
     //updateLines();
     return true;
   }
