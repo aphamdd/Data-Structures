@@ -27,30 +27,35 @@ public:
   void remove() { if (raw.active) remove(root, raw.active->data); }
   void display();
 
-  void BFSTraversal();
-
   // interactive node methods
   bool search(const sf::Vector2i pos);
   bool move(const sf::Vector2i pos);
 
-  // BIG BOI FEATURES
+  // tree operations
+  // TODO: highlight timer? highlight for a couple seconds and then revert
+  void findLeaves() { findLeaves(root.get()); } // highlight all leaves
+  void findChildren() { findChildren(raw.active); } // highlight children of selected node
+  void findParent() { findParent(raw.active); } // highlight parent of selected node
+  void findIOS(); // highlight the IOS of selected node
+  int treeHeight() { if (!raw.active) return treeHeight(root.get()); return treeHeight(raw.active);  } // return height of tree
+  int treeSize() { return treeSize(root.get()); } // return number of nodes in tree
+  bool isBalanced(); // check if tree is balanced
+  bool isComplete(); // check if tree is complete
+  bool isFull() const; // check if tree is full
+  bool isPerfect(); // check if all conditions are met
+
+  // tree traversal animations
+  // active cursor
+  void BFSTraversal(); // animate bfs traversal of tree
+  // animate preorder traversal of tree
+  // animate inorder traversal of tree
+  // animate postorder traversal of tree
+
+  // BIG BOI FEATURE
   // store data in their data-structure to represent current step
   void stackFrame();
   void queueFrame();
   void fitView();
-
-  // tree operations
-  void findLeaf();
-  void findChild();
-  void findParent();
-  void treeHeight();
-  void treeSize();
-  void findNode();
-  bool isBalanced();
-  bool isComplete();
-  bool isFull() const;
-  bool isPerfect();
-  void findios();
 
   void draw();
 
@@ -59,10 +64,17 @@ private:
   void findValue(TreeNode* node, const int data);
   void remove(std::unique_ptr<TreeNode>& node, const int data);
   void clear(std::unique_ptr<TreeNode>& node);
-
   void propogatePos(TreeNode* node, const sf::Vector2f shift);
-
   bool search(TreeNode* node, const sf::Vector2f pos);
+  void findLeaves(TreeNode* node);
+  void findChildren(TreeNode* node);
+  void findParent(TreeNode* node);
+  int treeHeight(TreeNode* node); 
+  int treeSize(TreeNode* node); 
+
+  
+  
+
 
   // Template experiment
   // dfs, tail recursion

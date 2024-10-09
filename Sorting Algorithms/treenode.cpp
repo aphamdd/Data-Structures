@@ -60,19 +60,7 @@ void TreeNode::move(const sf::Vector2f goal) {
   sprite.setPosition(goal);
 }
 
-void TreeNode::updateLine(TreeNode* prev, D direction) {
-  if (!prev)
-    return;
-
-  // update next line behind the current node
-  sf::Vector2f pos(calcCircleEdge(270));
-  if (prev->left && direction == D::LEFT)
-    prev->leftLine[1].position = pos;
-  if (prev->right && direction == D::RIGHT)
-    prev->rightLine[1].position = pos;
-}
-
-void TreeNode::updateLine2(TreeNode* prev) {
+void TreeNode::updateLine(TreeNode* prev) {
   // offsetting would be better here using move() instead of repeatedly recalculating
   sf::Vector2f lPos(calcCircleEdge(135));
   sf::Vector2f rPos(calcCircleEdge(45));

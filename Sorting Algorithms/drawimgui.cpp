@@ -323,19 +323,27 @@ void DrawImgui::treeTab() {
     ImGui::Checkbox("EnableDrag", &control.dragEnabled);
 
     ImGui::InputInt("Node Val", &control.setTreeNum);
-    if (ImGui::Button("Add")) {
+    if (ImGui::Button("Add"))
       bst.insert(control.setTreeNum, sf::Vector2f(900, 100));
-    }
-    if (ImGui::Button("Display")) {
+    if (ImGui::Button("Display"))
       bst.display();
-    }
     ImGui::InputInt("Find", &control.findTreeNum);
-    if (ImGui::Button("Find Node")) {
+    if (ImGui::Button("Find Node"))
       bst.findValue(control.findTreeNum);
-    }
-    if (ImGui::Button("Delete Node")) {
+    if (ImGui::Button("Delete Node"))
       bst.remove();
-    }
+    if (ImGui::Button("Leaves"))
+      bst.findLeaves();
+    if (ImGui::Button("Children"))
+      bst.findChildren();
+    if (ImGui::Button("Parent (WIP)"))
+      bst.findParent();
+    if (ImGui::Button("In-Order-Successor (WIP)"))
+      bst.findIOS();
+    if (ImGui::Button("Tree Height"))
+      std::cout << bst.treeHeight() - 1 << std::endl;
+    if (ImGui::Button("Tree Size"))
+      std::cout << bst.treeSize() << std::endl;
     if (ImGui::Button("Clear")) {
       bst.clear();
     }

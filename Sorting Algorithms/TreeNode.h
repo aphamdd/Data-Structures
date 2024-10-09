@@ -43,7 +43,6 @@ public:
 private:
   void move(const sf::Vector2f pos);
   sf::Vector2f calcCircleEdge(const float angle);
-  void updateLine(TreeNode* prev, D direction);
-  void updateLine2(TreeNode* prev);
+  void updateLine(TreeNode* prev);
   void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 };

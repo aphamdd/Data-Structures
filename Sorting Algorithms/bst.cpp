@@ -25,7 +25,7 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
       throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
     if (raw.prev)
-      node->updateLine(raw.prev, direction);
+      node->updateLine(raw.prev);
     raw.prev = nullptr;
   }
   else {
@@ -180,7 +180,7 @@ bool BST::search(TreeNode* node, sf::Vector2f pos) {
 
     raw.active = node;
     raw.active->sprite.setColor(sf::Color::Green);
-    //updateLines();
+    raw.active->updateLine(raw.prev); // update lines to follow sprite
     return true;
   }
   raw.prev = node;
@@ -197,10 +197,55 @@ bool BST::move(const sf::Vector2i mpos) {
     sf::Vector2f lastPos = raw.active->sprite.getPosition();
 
     raw.active->move(convertMPos); // moves sprite
-    raw.active->updateLine2(raw.prev); // update lines to follow sprite
+    raw.active->updateLine(raw.prev); // update lines to follow sprite
     return true;
   }
   return false;
+}
+
+void BST::findLeaves(TreeNode* node) {
+  if (!node)
+    return;
+
+  if (!node->left && !node->right)
+    node->sprite.setColor(sf::Color::Magenta);
+  findLeaves(node->left.get());
+  findLeaves(node->right.get());
+}
+
+void BST::findChildren(TreeNode* node) {
+  if (!node)
+    return;
+  if (node->left)
+    node->left->sprite.setColor(sf::Color::Blue);
+  if (node->right)
+    node->right->sprite.setColor(sf::Color::Blue);
+}
+
+void BST::findParent(TreeNode* node) {
+  if (!node)
+    return;
+
+  if (raw.prev)
+    raw.prev->sprite.setColor(sf::Color::Red);
+  else
+    std::cout << "Node has no parent" << std::endl;
+}
+
+void BST::findIOS() {
+  return;
+}
+
+int BST::treeHeight(TreeNode* node) {
+  if (!node)
+    return 0;
+  return std::max(treeHeight(node->left.get()), treeHeight(node->right.get())) + 1;
+}
+
+int BST::treeSize(TreeNode* node) {
+  if (!node)
+    return 0;
+  return treeSize(node->left.get()) + treeSize(node->right.get()) + 1;
 }
 
 void BST::clear(std::unique_ptr<TreeNode>& node) {
