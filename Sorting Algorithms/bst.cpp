@@ -248,6 +248,34 @@ int BST::treeSize(TreeNode* node) {
   return treeSize(node->left.get()) + treeSize(node->right.get()) + 1;
 }
 
+void BST::bfs() {
+  if (!root)
+    return;
+
+  /* emplace_back usage (better than push_back because of unecessary copies)
+  std::vector<TreeNode> q;
+  q.emplace_back(1, sf::Vector2f(1, 1));
+  std::cout << q.at(0).data << std::endl;
+  */
+
+  std::vector<TreeNode*> queue;
+  queue.emplace_back(root.get());
+  while (!queue.empty()) {
+    int levelWidth = queue.size();
+    std::vector<TreeNode*> levelQueue;
+    for (int i = 0; i < levelWidth; ++i) {
+      TreeNode* node = queue.at(0);
+      std::cout << node->data << " ";
+      if (node->left)
+        queue.emplace_back(node->left.get());
+      if (node->right)
+        queue.emplace_back(node->right.get());
+      queue.erase(queue.begin());
+    }
+  }
+  return;
+}
+
 void BST::clear(std::unique_ptr<TreeNode>& node) {
   if (!node)
     return;

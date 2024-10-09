@@ -341,9 +341,11 @@ void DrawImgui::treeTab() {
     if (ImGui::Button("In-Order-Successor (WIP)"))
       bst.findIOS();
     if (ImGui::Button("Tree Height"))
-      std::cout << bst.treeHeight() - 1 << std::endl;
+      std::cout << bst.treeHeight() << std::endl;
     if (ImGui::Button("Tree Size"))
       std::cout << bst.treeSize() << std::endl;
+    if (ImGui::Button("BFS Traversal"))
+      bst.bfs();
     if (ImGui::Button("Clear")) {
       bst.clear();
     }
