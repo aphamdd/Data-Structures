@@ -317,11 +317,11 @@ void DrawImgui::treeTab() {
 
     if (control.isDragging && control.dragEnabled)
       bst.move(control.mpos);
+    bst.updateCursor(bst.raw.active);
 
     ImGui::SeparatorText("Binary Search Tree");
 
     ImGui::Checkbox("EnableDrag", &control.dragEnabled);
-
     ImGui::InputInt("Node Val", &control.setTreeNum);
     if (ImGui::Button("Add"))
       bst.insert(control.setTreeNum, sf::Vector2f(900, 100));
@@ -336,7 +336,7 @@ void DrawImgui::treeTab() {
       bst.findLeaves();
     if (ImGui::Button("Children"))
       bst.findChildren();
-    if (ImGui::Button("Parent (WIP)"))
+    if (ImGui::Button("Parent"))
       bst.findParent();
     if (ImGui::Button("In-Order-Successor (WIP)"))
       bst.findIOS();

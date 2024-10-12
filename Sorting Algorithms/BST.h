@@ -5,6 +5,7 @@ class BST {
 private:
   std::unique_ptr<TreeNode> root = nullptr;
   sf::RenderWindow& window;
+  sf::CircleShape cursor; 
 
   struct Traversal {
     friend class BST;
@@ -46,7 +47,7 @@ public:
 
   void bfs();
   // tree traversal animations
-  // active cursor
+  void updateCursor(TreeNode* target); // cursor follows ptr
   void BFSTraversal(); // animate bfs traversal of tree
   // animate preorder traversal of tree
   // animate inorder traversal of tree
@@ -73,9 +74,7 @@ private:
   int treeHeight(TreeNode* node); 
   int treeSize(TreeNode* node); 
 
-  
-  
-
+  bool updatePrevPtr(TreeNode* node);
 
   // Template experiment
   // dfs, tail recursion

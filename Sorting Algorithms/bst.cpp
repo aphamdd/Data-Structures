@@ -2,7 +2,13 @@
 #include "BST.h"
 
 BST::BST(sf::RenderWindow& win) :
-  window(win) {
+  window(win),
+  cursor(0.f, 3) {
+  cursor.setFillColor(sf::Color::White);
+  cursor.setOutlineThickness(1.5f);
+  cursor.setOutlineColor(sf::Color::Black);
+  cursor.setRotation(180.f);
+
   try {
     if (!GLOBAL::TREETEXTURE.loadFromFile("./Textures/treenodewhitetf.png"))
       throw std::runtime_error("tree node texture error");
@@ -226,7 +232,7 @@ void BST::findParent(TreeNode* node) {
   if (!node)
     return;
 
-  if (raw.prev)
+  if (updatePrevPtr(node))
     raw.prev->sprite.setColor(sf::Color::Red);
   else
     std::cout << "Node has no parent" << std::endl;
@@ -252,11 +258,9 @@ void BST::bfs() {
   if (!root)
     return;
 
-  /* emplace_back usage (better than push_back because of unecessary copies)
-  std::vector<TreeNode> q;
-  q.emplace_back(1, sf::Vector2f(1, 1));
-  std::cout << q.at(0).data << std::endl;
-  */
+  // Notes
+  // push_back: when you want to move an existing object into a vector
+  // emplace_back: when you want to create a new object into a vector, using the objects constructor arguments
 
   std::vector<TreeNode*> queue;
   queue.emplace_back(root.get());
@@ -276,6 +280,26 @@ void BST::bfs() {
   return;
 }
 
+bool BST::updatePrevPtr(TreeNode* node) {
+  if (!node) {
+    raw.prev = nullptr;
+    return false;
+  }
+
+  raw.prev = root.get();
+  while (raw.prev) {
+    if ((raw.prev->left.get() == node) || (raw.prev->right.get() == node))
+      return true;
+
+    if (raw.prev->data < node->data)
+      raw.prev = raw.prev->right.get();
+    else
+      raw.prev = raw.prev->left.get();
+  }
+  raw.prev = nullptr;
+  return false;
+}
+
 void BST::clear(std::unique_ptr<TreeNode>& node) {
   if (!node)
     return;
@@ -283,6 +307,38 @@ void BST::clear(std::unique_ptr<TreeNode>& node) {
   clear(node->left);
   clear(node->right);
   node.reset();
+}
+
+void BST::updateCursor(TreeNode* target) {
+  sf::Clock clock;
+  if (!target) {
+    cursor.setRadius(0.f);
+    return;
+  }
+  
+  cursor.setRadius(10.f);
+  cursor.setFillColor(target->sprite.getColor());
+
+  sf::Vector2f currPos = cursor.getPosition();
+  sf::Vector2f goal = target->sprite.getPosition();
+  goal.y -= (target->size.y * 0.5) + 20;
+  float dx = goal.x - currPos.x;
+  float dy = goal.y - currPos.y;
+  float distance = float(sqrt(pow(dx, 2) + pow(dy, 2))); // euclidean distance formula
+  if (distance >= 3) { 
+    // calculate whats necessary
+    float deltaTime = clock.restart().asSeconds();
+    float k = 2000 * deltaTime; // dampening constant
+    sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
+    float velx = (k * distance * direction.x);
+    float vely = (k * distance * direction.y);
+    sf::Vector2f offset(velx, vely);
+    cursor.move(offset);
+  } 
+  else {
+    // TODO: idle animation
+    cursor.setPosition(goal);
+  }
 }
 
 void BST::draw() {
@@ -293,4 +349,5 @@ void BST::draw() {
   preorderTraversal(root.get(), [&](TreeNode* node) {
     window.draw(*node);
   });
+  window.draw(cursor);
 }
