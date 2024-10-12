@@ -165,6 +165,8 @@ bool BST::search(const sf::Vector2i mpos) {
     sf::FloatRect activeBounds = raw.active->sprite.getGlobalBounds();
     if (activeBounds.contains(convertMPos.x, convertMPos.y)) {
       raw.active->sprite.setColor(sf::Color::Green);
+      updatePrevPtr(raw.active);
+      raw.active->updateLine(raw.prev); // update lines to follow sprite
       return true;
     }
   }
@@ -185,15 +187,13 @@ bool BST::search(TreeNode* node, sf::Vector2f pos) {
       raw.active->sprite.setColor(sf::Color::White);
 
     raw.active = node;
+    updatePrevPtr(raw.active);
     raw.active->sprite.setColor(sf::Color::Green);
     raw.active->updateLine(raw.prev); // update lines to follow sprite
     return true;
   }
-  raw.prev = node;
   if (search(node->left.get(), pos))
     return true;
-
-  raw.prev = node;
   return search(node->right.get(), pos);
 }
 
@@ -254,6 +254,19 @@ int BST::treeSize(TreeNode* node) {
   return treeSize(node->left.get()) + treeSize(node->right.get()) + 1;
 }
 
+bool BST::isBalanced() const {
+  return true;
+}
+bool BST::isComplete() const {
+  return true;
+}
+bool BST::isFull() const {
+  return true;
+}
+bool BST::isPerfect() const {
+  return true;
+}
+
 void BST::bfs() {
   if (!root)
     return;
@@ -291,7 +304,7 @@ bool BST::updatePrevPtr(TreeNode* node) {
     if ((raw.prev->left.get() == node) || (raw.prev->right.get() == node))
       return true;
 
-    if (raw.prev->data < node->data)
+    if (raw.prev->data <= node->data)
       raw.prev = raw.prev->right.get();
     else
       raw.prev = raw.prev->left.get();

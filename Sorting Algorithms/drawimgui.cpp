@@ -350,6 +350,9 @@ void DrawImgui::treeTab() {
       bst.clear();
     }
 
+    ImGui::Text("Prev: %d", bst.getPrevData());
+    ImGui::Text("Active: %d", bst.getActiveData());
+
     ImGui::EndTabItem();
   }
 }

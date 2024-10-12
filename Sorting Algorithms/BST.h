@@ -22,6 +22,9 @@ public:
   BST(sf::RenderWindow& win);
   void clear() { clear(root); raw.prev = nullptr; raw.active = nullptr; }
 
+  int getActiveData() { if (raw.active) return raw.active->data; else return 0; }
+  int getPrevData() { if (raw.prev) return raw.prev->data; else return 0; }
+
   // wrapper functions for basic tree operations
   void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, TreeNode::D::ROOT); }
   void findValue(const int data) { findValue(root.get(), data); }
@@ -40,10 +43,10 @@ public:
   void findIOS(); // highlight the IOS of selected node
   int treeHeight() { if (!raw.active) return treeHeight(root.get()-1); return treeHeight(raw.active)-1;  } // return height of tree
   int treeSize() { return treeSize(root.get()); } // return number of nodes in tree
-  bool isBalanced(); // check if tree is balanced
-  bool isComplete(); // check if tree is complete
+  bool isBalanced() const; // check if tree is balanced
+  bool isComplete() const; // check if tree is complete
   bool isFull() const; // check if tree is full
-  bool isPerfect(); // check if all conditions are met
+  bool isPerfect() const; // check if all conditions are met
 
   void bfs();
   // tree traversal animations
