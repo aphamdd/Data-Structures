@@ -22,6 +22,7 @@ public:
   BST(sf::RenderWindow& win);
   void clear() { clear(root); raw.prev = nullptr; raw.active = nullptr; }
 
+  // getter
   int getActiveData() { if (raw.active) return raw.active->data; else return 0; }
   int getPrevData() { if (raw.prev) return raw.prev->data; else return 0; }
 
@@ -31,27 +32,26 @@ public:
   void remove() { if (raw.active) remove(root, raw.active->data); }
   void display();
 
-  // interactive node methods
-  bool search(const sf::Vector2i pos);
-  bool move(const sf::Vector2i pos);
-
   // tree operations
   // TODO: highlight timer? highlight for a couple seconds and then revert
   void findLeaves() { findLeaves(root.get()); } // highlight all leaves
   void findChildren() { findChildren(raw.active); } // highlight children of selected node
   bool findParent() { return findParent(raw.active); } // highlight parent of selected node
   void findIOS(); // highlight the IOS of selected node
-  int treeHeight() { if (!raw.active) return treeHeight(root.get()-1); return treeHeight(raw.active)-1;  } // return height of tree
+  int treeHeight() { return treeHeight(root.get()); } // return height of tree
   int treeSize() { return treeSize(root.get()); } // return number of nodes in tree
   bool isBalanced() const { int height = 0; return isBalanced(root.get(), &height); }
-  bool isComplete() const; // check if tree is complete
-  bool isFull() const; // check if tree is full
-  bool isPerfect() const; // check if all conditions are met
+  bool isComplete(const int size) const { return isComplete(root.get(), 0, size); }
+  bool isFull() const { return isFull(root.get()); }
+  bool isPerfect(const int height) const { return isPerfect(root.get(), height, 0); }
 
-  void bfs();
+  // interactive node methods
+  bool search(const sf::Vector2i pos);
+  bool move(const sf::Vector2i pos);
   // tree traversal animations
   void updateCursor(TreeNode* target); // cursor follows ptr
   void BFSTraversal(); // animate bfs traversal of tree
+  void bfs();
   // animate preorder traversal of tree
   // animate inorder traversal of tree
   // animate postorder traversal of tree
@@ -80,9 +80,9 @@ private:
   bool updatePrevPtr(TreeNode* node);
 
   bool isBalanced(TreeNode* node, int* height) const; // check if tree is balanced
-  bool isComplete(TreeNode* node) const; // check if tree is complete
+  bool isComplete(TreeNode* node, const int index, const int numNodes) const; // check if tree is complete
   bool isFull(TreeNode* node) const; // check if tree is full
-  bool isPerfect(TreeNode* node) const; // check if all conditions are met
+  bool isPerfect(TreeNode* node, const int depth, int level) const; 
 
 
 
