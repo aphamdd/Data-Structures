@@ -228,14 +228,15 @@ void BST::findChildren(TreeNode* node) {
     node->right->sprite.setColor(sf::Color::Blue);
 }
 
-void BST::findParent(TreeNode* node) {
+bool BST::findParent(TreeNode* node) {
   if (!node)
-    return;
+    return false;
 
-  if (updatePrevPtr(node))
-    raw.prev->sprite.setColor(sf::Color::Red);
-  else
-    std::cout << "Node has no parent" << std::endl;
+  if (!updatePrevPtr(node))
+    return false;
+
+  raw.prev->sprite.setColor(sf::Color::Red);
+  return true;
 }
 
 void BST::findIOS() {
@@ -254,9 +255,28 @@ int BST::treeSize(TreeNode* node) {
   return treeSize(node->left.get()) + treeSize(node->right.get()) + 1;
 }
 
-bool BST::isBalanced() const {
-  return true;
+bool BST::isBalanced(TreeNode* node, int* height) const {
+  if (!node) {
+    *height = 0;
+    return 1;
+  }
+  // current node left and right subtree height
+  int left = 0, right = 0; 
+
+  // l and r tells us if the left and right subtrees are balanced
+  int l = isBalanced(node->left.get(), &left);
+  int r = isBalanced(node->right.get(), &right);
+
+  // height propogates left or right subtree height up the tree
+  *height = (left > right ? left : right) + 1;
+
+  // if the difference of left and right >= 2, then we're not balanced.
+  if (std::abs(left - right) >= 2)
+    return 0;
+
+  return l && r; // true if left and right subtrees are balanced
 }
+
 bool BST::isComplete() const {
   return true;
 }

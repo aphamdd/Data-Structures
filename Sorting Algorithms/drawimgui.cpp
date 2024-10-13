@@ -336,8 +336,10 @@ void DrawImgui::treeTab() {
       bst.findLeaves();
     if (ImGui::Button("Children"))
       bst.findChildren();
-    if (ImGui::Button("Parent"))
+    if (ImGui::Button("Parent")) {
+      ImGui::SameLine();
       bst.findParent();
+    }
     if (ImGui::Button("In-Order-Successor (WIP)"))
       bst.findIOS();
     if (ImGui::Button("Tree Height"))
@@ -346,6 +348,8 @@ void DrawImgui::treeTab() {
       std::cout << bst.treeSize() << std::endl;
     if (ImGui::Button("BFS Traversal"))
       bst.bfs();
+    if (ImGui::Button("isBalanced"))
+      std::cout << bst.isBalanced() << std::endl;
     if (ImGui::Button("Clear")) {
       bst.clear();
     }

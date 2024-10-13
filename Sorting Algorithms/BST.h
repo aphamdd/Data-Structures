@@ -39,11 +39,11 @@ public:
   // TODO: highlight timer? highlight for a couple seconds and then revert
   void findLeaves() { findLeaves(root.get()); } // highlight all leaves
   void findChildren() { findChildren(raw.active); } // highlight children of selected node
-  void findParent() { findParent(raw.active); } // highlight parent of selected node
+  bool findParent() { return findParent(raw.active); } // highlight parent of selected node
   void findIOS(); // highlight the IOS of selected node
   int treeHeight() { if (!raw.active) return treeHeight(root.get()-1); return treeHeight(raw.active)-1;  } // return height of tree
   int treeSize() { return treeSize(root.get()); } // return number of nodes in tree
-  bool isBalanced() const; // check if tree is balanced
+  bool isBalanced() const { int height = 0; return isBalanced(root.get(), &height); }
   bool isComplete() const; // check if tree is complete
   bool isFull() const; // check if tree is full
   bool isPerfect() const; // check if all conditions are met
@@ -73,11 +73,21 @@ private:
   bool search(TreeNode* node, const sf::Vector2f pos);
   void findLeaves(TreeNode* node);
   void findChildren(TreeNode* node);
-  void findParent(TreeNode* node);
+  bool findParent(TreeNode* node);
   int treeHeight(TreeNode* node); 
   int treeSize(TreeNode* node); 
 
   bool updatePrevPtr(TreeNode* node);
+
+  bool isBalanced(TreeNode* node, int* height) const; // check if tree is balanced
+  bool isComplete(TreeNode* node) const; // check if tree is complete
+  bool isFull(TreeNode* node) const; // check if tree is full
+  bool isPerfect(TreeNode* node) const; // check if all conditions are met
+
+
+
+
+  
 
   // Template experiment
   // dfs, tail recursion
