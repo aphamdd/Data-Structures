@@ -307,19 +307,20 @@ void DrawImgui::treeTab() {
       bst.move(control.mpos);
     bst.updateCursor(bst.raw.active);
 
-    ImGui::SeparatorText("Binary Search Tree");
-
-    ImGui::Checkbox("EnableDrag", &control.dragEnabled);
+    ImGui::SeparatorText("Actions");
     ImGui::InputInt("Node Val", &control.setTreeNum);
     if (ImGui::Button("Add"))
       bst.insert(control.setTreeNum, sf::Vector2f(900, 100));
-    if (ImGui::Button("Display"))
-      bst.display();
-    ImGui::InputInt("Find", &control.findTreeNum);
-    if (ImGui::Button("Find Node"))
-      bst.findValue(control.findTreeNum);
     if (ImGui::Button("Delete Node"))
       bst.remove();
+    if (ImGui::Button("Clear")) {
+      bst.clear();
+    }
+    ImGui::Checkbox("EnableDrag", &control.dragEnabled);
+
+    ImGui::SeparatorText("Tree Info");
+    if (ImGui::Button("Display"))
+      bst.display();
     if (ImGui::Button("Leaves"))
       bst.findLeaves();
     if (ImGui::Button("Children"))
@@ -329,14 +330,14 @@ void DrawImgui::treeTab() {
     }
     if (ImGui::Button("In-Order-Successor (WIP)"))
       bst.findIOS();
-    if (ImGui::Button("Tree Height"))
-      std::cout << bst.treeHeight()-1 << std::endl;
-    if (ImGui::Button("Tree Size"))
-      std::cout << bst.treeSize() << std::endl;
+    ImGui::InputInt("Find", &control.findTreeNum);
+    if (ImGui::Button("Find Node"))
+      bst.findValue(control.findTreeNum);
     if (ImGui::Button("BFS Traversal"))
       bst.bfs();
 
     // TODO: only do checks if tree state ever changes
+    ImGui::SeparatorText("Tree State");
     ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), red(1.0f, 0.0f, 0.0f, 1.0f);
     ImGui::Text("isBalanced");
     ImGui::SameLine(); ImGui::TextDisabled("(?)");
@@ -409,11 +410,10 @@ void DrawImgui::treeTab() {
       control.perfect ? green : red, 
       control.perfect ? "True" : "False"
     );
+    ImGui::Text("Tree Height: %d", bst.treeHeight()-1);
+    ImGui::Text("Tree Size: %d", bst.treeSize());
 
-    if (ImGui::Button("Clear")) {
-      bst.clear();
-    }
-
+    ImGui::SeparatorText("Debugging");
     ImGui::Text("Prev: %d", bst.getPrevData());
     ImGui::Text("Active: %d", bst.getActiveData());
 
