@@ -263,43 +263,31 @@ void DrawImgui::linkedListTab() {
     if (text.size() > 0) {
       if (text.size() == 1) {
         ImGui::Text("head->%s", text.at(0).c_str());
-        ImGui::SameLine(0, 0);
-        ImGui::Text("null");
+        ImGui::SameLine(0, 0); ImGui::Text("null");
       }
       else if (text.size() == 2) {
         if (text.at(0).at(0) == 'f') {
           text.at(0).erase(text.at(0).begin());
-          ImGui::Text("head->");
-          ImGui::SameLine(0, 0);
-          ImGui::TextColored(green, "%s", text.at(0).c_str());
-          ImGui::SameLine(0, 0);
-          ImGui::Text("->");
-          ImGui::SameLine(0, 0);
-          ImGui::Text("%s", text.at(1).c_str());
-          ImGui::SameLine(0, 0);
-          ImGui::Text("null");
+          ImGui::Text("head->"); 
+          ImGui::SameLine(0, 0); ImGui::TextColored(green, "%s", text.at(0).c_str()); 
+          ImGui::SameLine(0, 0); ImGui::Text("->"); 
+          ImGui::SameLine(0, 0); ImGui::Text("%s", text.at(1).c_str()); 
+          ImGui::SameLine(0, 0); ImGui::Text("null");
         }
         else if (text.at(0).at(0) == 'b') {
           text.at(0).erase(text.at(0).begin());
-          ImGui::Text("head->%s", text.at(1).c_str());
-          ImGui::SameLine(0, 0);
-          ImGui::TextColored(green, "%s", text.at(0).c_str());
-          ImGui::SameLine(0, 0);
-          ImGui::Text("->");
-          ImGui::SameLine(0, 0);
-          ImGui::Text("null");
+          ImGui::Text("head->%s", text.at(1).c_str()); 
+          ImGui::SameLine(0, 0); ImGui::TextColored(green, "%s", text.at(0).c_str()); 
+          ImGui::SameLine(0, 0); ImGui::Text("->"); 
+          ImGui::SameLine(0, 0); ImGui::Text("null");
         }
       }
       else if (text.size() == 3) {
-        ImGui::Text("head->%s", text.at(0).c_str());
-        ImGui::SameLine(0, 0);
-        ImGui::TextColored(green, "%s", text.at(1).c_str());
-        ImGui::SameLine(0, 0);
-        ImGui::Text("->");
-        ImGui::SameLine(0, 0);
-        ImGui::Text("%s", text.at(2).c_str());
-        ImGui::SameLine(0, 0);
-        ImGui::Text("null");
+        ImGui::Text("head->%s", text.at(0).c_str()); 
+        ImGui::SameLine(0, 0); ImGui::TextColored(green, "%s", text.at(1).c_str()); 
+        ImGui::SameLine(0, 0); ImGui::Text("->");
+        ImGui::SameLine(0, 0); ImGui::Text("%s", text.at(2).c_str());
+        ImGui::SameLine(0, 0); ImGui::Text("null");
       }
     }
     ImGui::End();
@@ -337,8 +325,7 @@ void DrawImgui::treeTab() {
     if (ImGui::Button("Children"))
       bst.findChildren();
     if (ImGui::Button("Parent")) {
-      ImGui::SameLine();
-      bst.findParent();
+      ImGui::SameLine(); bst.findParent();
     }
     if (ImGui::Button("In-Order-Successor (WIP)"))
       bst.findIOS();
@@ -348,14 +335,81 @@ void DrawImgui::treeTab() {
       std::cout << bst.treeSize() << std::endl;
     if (ImGui::Button("BFS Traversal"))
       bst.bfs();
-    if (ImGui::Button("isBalanced"))
-      std::cout << bst.isBalanced() << std::endl;
-    if (ImGui::Button("isComplete"))
-      std::cout << bst.isComplete(bst.treeSize()) << std::endl;
-    if (ImGui::Button("isFull"))
-      std::cout << bst.isFull() << std::endl;
-    if (ImGui::Button("isPerfect"))
-      std::cout << bst.isPerfect(bst.treeHeight()) << std::endl;
+
+    // TODO: only do checks if tree state ever changes
+    ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), red(1.0f, 0.0f, 0.0f, 1.0f);
+    ImGui::Text("isBalanced");
+    ImGui::SameLine(); ImGui::TextDisabled("(?)");
+    control.balanced = bst.isBalanced();
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
+      if (ImGui::BeginItemTooltip()) {
+        ImGui::SeparatorText("Info");
+        ImGui::Text("A balanced binary tree, also referred to as a "
+          "height-balanced binary tree, is defined as a "
+          "\nbinary tree in which the height of the left and right subtree "
+          "of any node differ by not more than 1."
+          "\n1. difference between the left and the right subtree for any node is <= 1."
+          "\n2. the left subtree is balanced"
+          "\n3. the right subtree is balanced");
+        ImGui::EndTooltip();
+      }
+    }
+    ImGui::SameLine(); ImGui::TextColored(
+      control.balanced ? green : red, 
+      control.balanced ? "True" : "False"
+    );
+
+    ImGui::Text("isComplete");
+    ImGui::SameLine(); ImGui::TextDisabled("(?)");
+    control.complete = bst.isComplete(bst.treeSize());
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
+      if (ImGui::BeginItemTooltip()) {
+        ImGui::SeparatorText("Info");
+        ImGui::Text("A complete binary tree is a binary tree in which all " 
+          "the levels are completely \nfilled except possibly the lowest one, "
+          "which is filled from the left."
+          "\n1. All the leaf elements must lean towards the left."
+          "\n2. The last leaf element might not have a right sibling i.e. complete != full");
+        ImGui::EndTooltip();
+      }
+    }
+    ImGui::SameLine(); ImGui::TextColored(
+      control.complete ? green : red, 
+      control.complete ? "True" : "False"
+    );
+
+    ImGui::Text("isFull");
+    ImGui::SameLine(); ImGui::TextDisabled("(?)");
+    control.full = bst.isFull();
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
+      if (ImGui::BeginItemTooltip()) {
+        ImGui::SeparatorText("Info");
+        ImGui::Text("A full Binary tree is a special type of binary tree in which every "
+          "\nparent node / internal node has either two or no children.");
+        ImGui::EndTooltip();
+      }
+    }
+    ImGui::SameLine(); ImGui::TextColored(
+      control.full ? green : red, 
+      control.full ? "True" : "False"
+    );
+
+    ImGui::Text("isPerfect");
+    ImGui::SameLine(); ImGui::TextDisabled("(?)");
+    control.perfect = bst.isPerfect(bst.treeHeight());
+    if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
+      if (ImGui::BeginItemTooltip()) {
+        ImGui::SeparatorText("Info");
+        ImGui::Text("A perfect binary tree is a type of binary tree in which every internal node "
+          "\nhas exactly two child nodes and all the leaf nodes are at the same level.");
+        ImGui::EndTooltip();
+      }
+    }
+    ImGui::SameLine(); ImGui::TextColored(
+      control.perfect ? green : red, 
+      control.perfect ? "True" : "False"
+    );
+
     if (ImGui::Button("Clear")) {
       bst.clear();
     }

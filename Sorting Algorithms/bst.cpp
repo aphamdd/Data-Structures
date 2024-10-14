@@ -255,12 +255,6 @@ int BST::treeSize(TreeNode* node) {
   return treeSize(node->left.get()) + treeSize(node->right.get()) + 1;
 }
 
-// A balanced binary tree, also referred to as a height-balanced binary tree, 
-// is defined as a binary tree in which the height of the leftand right subtree 
-// of any node differ by not more than 1.
-// 1. difference between the left and the right subtree for any node is <= 1.
-// 2. the left subtree is balanced
-// 3. the right subtree is balanced
 bool BST::isBalanced(TreeNode* node, int* height) const {
   if (!node) {
     *height = 0;
@@ -283,10 +277,6 @@ bool BST::isBalanced(TreeNode* node, int* height) const {
   return l && r; // true if left and right subtrees are balanced
 }
 
-// A complete binary tree is a binary tree in which all the levels are 
-// completely filled except possibly the lowest one, which is filled from the left.
-// 1. All the leaf elements must lean towards the left.
-// 2. The last leaf element might not have a right sibling i.e. complete != full
 bool BST::isComplete(TreeNode* node, const int index, const int numNodes) const {
   if (!node)
     return true;
@@ -302,8 +292,6 @@ bool BST::isComplete(TreeNode* node, const int index, const int numNodes) const 
          isComplete(node->right.get(), 2 * index + 2, numNodes);
 }
 
-// A full Binary tree is a special type of binary tree in which every 
-// parent node / internal node has either two or no children.
 bool BST::isFull(TreeNode* node) const {
   if (!node)
     return true;
@@ -315,8 +303,6 @@ bool BST::isFull(TreeNode* node) const {
   return false;
 }
 
-// A perfect binary tree is a type of binary tree in which every internal node 
-// has exactly two child nodes and all the leaf nodes are at the same level.
 bool BST::isPerfect(TreeNode* node, const int depth, int level) const {
   // if tree is empty
   if (!node)
