@@ -42,6 +42,11 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
               // TODO: i have to pass in the node that's the parent of the nodes
               // colliding. passing root means it could be the ancestor of the collided
               // nodes. shifting the entire tree instead of the affected subtrees
+              // but this gets recursively annoying. if the subtree's subtree gets shifted
+              // it could collide with the subtree on the other side again, needing another
+              // shift once more.
+
+              // TreeNode* ptr = findCommonParent();
               raw.prev = root.get();
               shiftSubtrees(root->left.get(), sf::Vector2f(-100, 0));
               raw.prev = root.get();
@@ -84,6 +89,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
     return;
 
   if (node->data == data && node.get() == raw.active) {
+    raw.active->sprite.setColor(sf::Color::White);
     if (raw.active == node.get()) {
       raw.prev = nullptr;
       raw.active = nullptr;
@@ -107,6 +113,8 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
         shift.x *= -1;
         propogatePos(node.get(), shift);
       }
+      updatePrevPtr(node.get());
+      node->updateLine(raw.prev);
     }
     // 2 children
     else {
@@ -121,9 +129,9 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
         node->data = current->data;
         node->dataText.setString(std::to_string(current->data));
         raw.prev->left = std::move(current->right);
-        raw.prev->updateLine(nullptr);
         if (raw.prev->left)
           propogatePos(raw.prev->left.get(), sf::Vector2f(-100, -100));
+        raw.prev->updateLine(nullptr);
       }
       // if there's no left subtree
       else {
@@ -153,8 +161,10 @@ void BST::propogatePos(TreeNode* node, const sf::Vector2f shift) {
   node->sprite.move(shift);
   node->dataText.move(shift);
   node->updateLine(raw.prev);
+
   raw.prev = node;
   propogatePos(node->left.get(), shift);
+  raw.prev = node;
   propogatePos(node->right.get(), shift);
 }
 
