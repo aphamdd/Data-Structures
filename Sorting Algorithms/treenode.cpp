@@ -68,8 +68,19 @@ void TreeNode::updateLine(TreeNode* prev) {
   rightLine[0].position = rPos;
   if (!left)
     leftLine[1].position = lPos;
+  else {
+    sf::Vector2f nextNode(left->sprite.getPosition());
+    nextNode.y -= size.y / 2;
+    leftLine[1].position = nextNode;
+  }
+
   if (!right)
     rightLine[1].position = rPos;
+  else {
+    sf::Vector2f nextNode(right->sprite.getPosition());
+    nextNode.y -= size.y / 2;
+    rightLine[1].position = nextNode;
+  }
 
   // track previous node line
   if (prev) {

@@ -55,7 +55,10 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
     }
     // leaf
     if (!node->left && !node->right) {
+      updatePrevPtr(node.get()); // have prev ptr ready
       node.reset();
+      if (raw.prev)
+        raw.prev->updateLine(nullptr);
     }
     // 1 child
     else if (!node->left || !node->right) {
@@ -72,26 +75,30 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
     }
     // 2 children
     else {
-      // if there's a left subtree
+      // if there's a left subtree, remove farthest left, keep its right subtree 
       TreeNode* current = node->right.get();
       if (current->left.get()) {
-        while (current->left->left.get()) {
+        while (current->left.get()) {
+          raw.prev = current;
           current = current->left.get();
         }
         // TODO: operator overloading = for data and dataText
-        node->data = current->left->data;
-        node->dataText.setString(std::to_string(current->left->data));
-        current->left.reset();
-        std::cout << "Right subtree with left subtree" << std::endl;
+        node->data = current->data;
+        node->dataText.setString(std::to_string(current->data));
+        raw.prev->left = std::move(current->right);
+        raw.prev->updateLine(nullptr);
+        if (raw.prev->left)
+          propogatePos(raw.prev->left.get(), sf::Vector2f(-100, -100));
       }
       // if there's no left subtree
       else {
-        std::cout << "Right subtree with no left subtree" << std::endl;
         // TODO: operator overloading = for data and dataText
         node->data = node->right->data;
         node->dataText.setString(std::to_string(node->right->data));
+        updatePrevPtr(node.get()); // have prev ptr ready
         node->right = std::move(node->right->right);
         propogatePos(node->right.get(), sf::Vector2f(-100, -100));
+        node->updateLine(raw.prev);
       }
     }
   }
@@ -110,6 +117,8 @@ void BST::propogatePos(TreeNode* node, const sf::Vector2f shift) {
     return;
   node->sprite.move(shift);
   node->dataText.move(shift);
+  node->updateLine(raw.prev);
+  raw.prev = node;
   propogatePos(node->left.get(), shift);
   propogatePos(node->right.get(), shift);
 }
