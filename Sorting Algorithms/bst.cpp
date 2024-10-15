@@ -20,6 +20,7 @@ BST::BST(sf::RenderWindow& win) :
 
 void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, TreeNode::D direction) {
   if (!node) {
+    // TODO: theres definitely a better way to do this but not a priority
     sf::Vector2f newPos;
     if (direction == TreeNode::D::ROOT)
       newPos = pos;
@@ -30,8 +31,28 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
     else
       throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
-    if (raw.prev)
+    if (raw.prev) {
+      // a way to save on memory is to just store node bounds on the same level
+      // as the node being inserted. assumes nodes are in their original positions
+      // shifts left and right subtree if nodes collide on insertion
+      if (findAllNodeBounds(node.get())) {
+        for (const auto& anysprite : nBounds) {
+          if (node->sprite.getGlobalBounds().intersects(anysprite)) {
+            if (root) {
+              // TODO: i have to pass in the node that's the parent of the nodes
+              // colliding. passing root means it could be the ancestor of the collided
+              // nodes. shifting the entire tree instead of the affected subtrees
+              raw.prev = root.get();
+              shiftSubtrees(root->left.get(), sf::Vector2f(-100, 0));
+              raw.prev = root.get();
+              shiftSubtrees(root->right.get(), sf::Vector2f(100, 0));
+            }
+          }
+        }
+      }
+
       node->updateLine(raw.prev);
+    }
     raw.prev = nullptr;
   }
   else {
@@ -42,6 +63,20 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
   }
 
   return;
+}
+
+void BST::shiftSubtrees(TreeNode* node, const sf::Vector2f shift) {
+  if (!node)
+    return;
+
+  node->sprite.move(shift);
+  node->dataText.move(shift);
+  node->updateLine(raw.prev);
+
+  raw.prev = node;
+  shiftSubtrees(node->left.get(), shift);
+  raw.prev = node;
+  shiftSubtrees(node->right.get(), shift);
 }
 
 void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
@@ -412,6 +447,30 @@ void BST::updateCursor(TreeNode* target) {
     // TODO: idle animation
     cursor.setPosition(goal);
   }
+}
+
+bool BST::findAllNodeBounds(TreeNode* ptr) {
+  nBounds.clear();
+  if (!root)
+    return false;
+
+  std::vector<TreeNode*> queue;
+  queue.emplace_back(root.get());
+  while (!queue.empty()) {
+    int levelWidth = queue.size();
+    std::vector<TreeNode*> levelQueue;
+    for (int i = 0; i < levelWidth; ++i) {
+      TreeNode* node = queue.at(0);
+      if (node != ptr)
+        nBounds.emplace_back(node->sprite.getGlobalBounds());
+      if (node->left)
+        queue.emplace_back(node->left.get());
+      if (node->right)
+        queue.emplace_back(node->right.get());
+      queue.erase(queue.begin());
+    }
+  }
+  return true;
 }
 
 void BST::draw() {

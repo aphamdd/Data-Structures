@@ -7,6 +7,8 @@ private:
   sf::RenderWindow& window;
   sf::CircleShape cursor; 
 
+  std::vector<sf::FloatRect> nBounds; // vector of all node bounds
+
   struct Traversal {
     friend class BST;
   public:
@@ -84,8 +86,8 @@ private:
   bool isFull(TreeNode* node) const; // check if tree is full
   bool isPerfect(TreeNode* node, const int depth, int level) const; 
 
-
-
+  bool findAllNodeBounds(TreeNode* ptr); // excludes passed node bound
+  void shiftSubtrees(TreeNode* node, const sf::Vector2f shift);
 
   
 
