@@ -38,20 +38,11 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
       if (findAllNodeBounds(node.get())) {
         for (const auto& anysprite : nBounds) {
           if (node->sprite.getGlobalBounds().intersects(anysprite)) {
-            if (root) {
-              // TODO: i have to pass in the node that's the parent of the nodes
-              // colliding. passing root means it could be the ancestor of the collided
-              // nodes. shifting the entire tree instead of the affected subtrees
-              // but this gets recursively annoying. if the subtree's subtree gets shifted
-              // it could collide with the subtree on the other side again, needing another
-              // shift once more.
-
-              // TreeNode* ptr = findCommonParent();
-              raw.prev = root.get();
-              shiftSubtrees(root->left.get(), sf::Vector2f(-100, 0));
-              raw.prev = root.get();
-              shiftSubtrees(root->right.get(), sf::Vector2f(100, 0));
-            }
+            TreeNode* parent = lca(root.get(), node.get(), findOverlapNode(root.get(), node.get(), anysprite));
+            raw.prev = parent;
+            shiftSubtrees(parent->left.get(), sf::Vector2f(-100, 0));
+            raw.prev = parent;
+            shiftSubtrees(parent->right.get(), sf::Vector2f(100, 0));
           }
         }
       }
@@ -68,6 +59,36 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
   }
 
   return;
+}
+
+TreeNode* BST::findOverlapNode(TreeNode* node, const TreeNode* ogNode, const sf::FloatRect overlap) {
+  if (!node)
+    return nullptr;
+
+  if (node != ogNode && node->sprite.getGlobalBounds().intersects(overlap))
+    return node;
+
+  TreeNode* left = findOverlapNode(node->left.get(), ogNode, overlap);
+  TreeNode* right = findOverlapNode(node->right.get(), ogNode, overlap);
+
+  return left ? left : right;
+}
+
+TreeNode* BST::lca(TreeNode* node, const TreeNode* const a, const TreeNode* const b) {
+  if (!node)
+    return nullptr;
+  if (node == a || node == b)
+    return node;
+
+  TreeNode* left = lca(node->left.get(), a, b);
+  TreeNode* right = lca(node->right.get(), a, b);
+
+  if (left && right)
+    return node;
+  else if (!left && !right)
+    return nullptr;
+
+  return left ? left : right;
 }
 
 void BST::shiftSubtrees(TreeNode* node, const sf::Vector2f shift) {

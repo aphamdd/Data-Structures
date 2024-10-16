@@ -88,6 +88,8 @@ private:
 
   bool findAllNodeBounds(TreeNode* ptr); // excludes passed node bound
   void shiftSubtrees(TreeNode* node, const sf::Vector2f shift);
+  TreeNode* findOverlapNode(TreeNode* node, const TreeNode* ogNode, const sf::FloatRect overlap);
+  TreeNode* lca(TreeNode* node, const TreeNode* const a, const TreeNode* const b); // lowest common ancestor
 
   
 
