@@ -31,7 +31,8 @@ struct Control {
   // Trees
   int setTreeNum = 0;
   int findTreeNum = 0;
-  bool dragEnabled = false;
+  bool isAnimate = false;
+  bool isDrag = false;
   bool balanced = false;
   bool full = false;
   bool complete = false;

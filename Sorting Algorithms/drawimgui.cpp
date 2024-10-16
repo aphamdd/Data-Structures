@@ -303,26 +303,32 @@ void DrawImgui::treeTab() {
     control.isLinkedList = false;
     control.isTree = true;
 
-    if (control.isDragging && control.dragEnabled)
+    if (control.isDragging && control.isDrag)
       bst.move(control.mpos);
     bst.updateCursor(bst.raw.active);
 
     ImGui::SeparatorText("Actions");
     ImGui::InputInt("Node Val", &control.setTreeNum);
-    if (ImGui::Button("Add"))
+    if (ImGui::Button("Add")) {
       bst.insert(control.setTreeNum, sf::Vector2f(900, 100));
-    if (ImGui::Button("Delete Node"))
+    }
+    if (ImGui::Button("Delete Node")) {
       bst.remove();
-    if (ImGui::Button("Clear")) {
+    }
+    if (ImGui::Button("Clear")) { 
       bst.clear();
     }
-    ImGui::Checkbox("EnableDrag", &control.dragEnabled);
+    ImGui::Checkbox("Enable Drag", &control.isDrag);
+    ImGui::Checkbox("Enable Animate", &control.isAnimate);
 
     ImGui::SeparatorText("Tree Info");
-    if (ImGui::Button("Display"))
-      bst.display();
-    if (ImGui::Button("Leaves"))
+    if (ImGui::Button("Leaves")) {
       bst.findLeaves();
+      bst.anistate.inUse = true;
+    }
+    if (bst.anistate.inUse)
+      bst.nodeBlink();
+
     if (ImGui::Button("Children"))
       bst.findChildren();
     if (ImGui::Button("Parent")) {

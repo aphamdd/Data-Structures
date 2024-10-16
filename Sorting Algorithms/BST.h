@@ -17,8 +17,19 @@ private:
     TreeNode* prev = nullptr;
   };
 
+  struct AnimationState {
+    friend class BST;
+  public:
+    bool inUse = false;
+  private:
+    int blinks = 0;
+    std::vector<TreeNode*> pointers = {};
+  };
+  sf::Clock delayClock;
+
 public:
   Traversal raw;
+  AnimationState anistate;
 
 public:
   BST(sf::RenderWindow& win);
@@ -50,8 +61,10 @@ public:
   // interactive node methods
   bool search(const sf::Vector2i pos);
   bool move(const sf::Vector2i pos);
+
   // tree traversal animations
   void updateCursor(TreeNode* target); // cursor follows ptr
+  void nodeBlink();
   void BFSTraversal(); // animate bfs traversal of tree
   void bfs();
   // animate preorder traversal of tree
@@ -91,7 +104,8 @@ private:
   TreeNode* findOverlapNode(TreeNode* node, const TreeNode* ogNode, const sf::FloatRect overlap);
   TreeNode* lca(TreeNode* node, const TreeNode* const a, const TreeNode* const b); // lowest common ancestor
 
-  
+  void resetAnistate() { anistate = {}; }
+
 
   // Template experiment
   // dfs, tail recursion

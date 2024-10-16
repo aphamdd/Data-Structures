@@ -25,9 +25,9 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
     if (direction == TreeNode::D::ROOT)
       newPos = pos;
     else if (direction == TreeNode::D::LEFT)
-      newPos = sf::Vector2f(pos.x - 100, pos.y + 100);
+      newPos = sf::Vector2f(pos.x - 132, pos.y + 88);
     else if (direction == TreeNode::D::RIGHT)
-      newPos = sf::Vector2f(pos.x + 100, pos.y + 100);
+      newPos = sf::Vector2f(pos.x + 132, pos.y + 88);
     else
       throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
@@ -40,9 +40,9 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
           if (node->sprite.getGlobalBounds().intersects(anysprite)) {
             TreeNode* parent = lca(root.get(), node.get(), findOverlapNode(root.get(), node.get(), anysprite));
             raw.prev = parent;
-            shiftSubtrees(parent->left.get(), sf::Vector2f(-100, 0));
+            shiftSubtrees(parent->left.get(), sf::Vector2f(-88, 0));
             raw.prev = parent;
-            shiftSubtrees(parent->right.get(), sf::Vector2f(100, 0));
+            shiftSubtrees(parent->right.get(), sf::Vector2f(88, 0));
           }
         }
       }
@@ -124,7 +124,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
     }
     // 1 child
     else if (!node->left || !node->right) {
-      sf::Vector2f shift(100, -100);
+      sf::Vector2f shift(88, -88);
       if (node->left) {
         node = std::move(node->left);
         propogatePos(node.get(), shift);
@@ -151,7 +151,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
         node->dataText.setString(std::to_string(current->data));
         raw.prev->left = std::move(current->right);
         if (raw.prev->left)
-          propogatePos(raw.prev->left.get(), sf::Vector2f(-100, -100));
+          propogatePos(raw.prev->left.get(), sf::Vector2f(-88, -88));
         raw.prev->updateLine(nullptr);
       }
       // if there's no left subtree
@@ -161,7 +161,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
         node->dataText.setString(std::to_string(node->right->data));
         updatePrevPtr(node.get()); // have prev ptr ready
         node->right = std::move(node->right->right);
-        propogatePos(node->right.get(), sf::Vector2f(-100, -100));
+        propogatePos(node->right.get(), sf::Vector2f(-88, -88));
         node->updateLine(raw.prev);
       }
     }
@@ -189,21 +189,6 @@ void BST::propogatePos(TreeNode* node, const sf::Vector2f shift) {
   propogatePos(node->right.get(), shift);
 }
 
-/*
-// sorta works? doesn't work for sibling nodes
-// another method is to just shift all the nodes by a fixed amount
-void BST::propogatePos(TreeNode* node, const sf::Vector2f prevNode, const sf::Vector2f prevText) {
-  if (!node)
-    return;
-  sf::Vector2f nodePos = node->sprite.getPosition();
-  sf::Vector2f textPos = node->dataText.getPosition();
-  node->sprite.setPosition(prevNode);
-  node->dataText.setPosition(prevText);
-  propogatePos(node->left.get(), nodePos, textPos);
-  propogatePos(node->right.get(), nodePos, textPos);
-}
-*/
-
 void BST::display() {
   if (!root)
     return;
@@ -211,6 +196,29 @@ void BST::display() {
   preorderTraversal(root.get(), [](TreeNode* node) {
     std::cout << node->data << std::endl;
   });
+}
+
+void BST::nodeBlink() {
+  if (anistate.blinks < 6 && anistate.inUse) {
+    if (delayClock.getElapsedTime().asSeconds() >= 0.5) {
+      if (anistate.blinks % 2 == 0) {
+        for (TreeNode* const node : anistate.pointers) {
+          node->sprite.setColor(sf::Color::Yellow);
+        }
+      }
+      else {
+        for (TreeNode* const node : anistate.pointers) {
+          node->sprite.setColor(sf::Color::White);
+        }
+      }
+      ++anistate.blinks;
+      delayClock.restart();
+    }
+  }
+  else
+    resetAnistate();
+
+  return;
 }
 
 void BST::findValue(TreeNode* node, const int data) {
@@ -289,7 +297,7 @@ void BST::findLeaves(TreeNode* node) {
     return;
 
   if (!node->left && !node->right)
-    node->sprite.setColor(sf::Color::Magenta);
+    anistate.pointers.emplace_back(node);
   findLeaves(node->left.get());
   findLeaves(node->right.get());
 }
