@@ -322,25 +322,28 @@ void DrawImgui::treeTab() {
     ImGui::Checkbox("Enable Animate", &control.isAnimate);
 
     ImGui::SeparatorText("Tree Info");
-    if (ImGui::Button("Leaves")) {
+    if (ImGui::Button("Leaves") && !bst.anistate.inUse) {
       bst.findLeaves();
       bst.anistate.inUse = true;
     }
-    if (bst.anistate.inUse)
-      bst.nodeBlink();
-
-    if (ImGui::Button("Children"))
+    if (ImGui::Button("Children") && !bst.anistate.inUse) {
       bst.findChildren();
-    if (ImGui::Button("Parent")) {
-      ImGui::SameLine(); bst.findParent();
+      bst.anistate.inUse = true;
     }
-    if (ImGui::Button("In-Order-Successor (WIP)"))
+    if (ImGui::Button("Parent") && !bst.anistate.inUse) {
+      ImGui::SameLine(); bst.findParent();
+      bst.anistate.inUse = true;
+    }
+    if (ImGui::Button("In-Order-Successor (WIP)") && !bst.anistate.inUse)
       bst.findIOS();
     ImGui::InputInt("Find", &control.findTreeNum);
-    if (ImGui::Button("Find Node"))
+    if (ImGui::Button("Find Node") && !bst.anistate.inUse) {
       bst.findValue(control.findTreeNum);
-    if (ImGui::Button("BFS Traversal"))
-      bst.bfs();
+      bst.anistate.inUse = true;
+    }
+
+    if (bst.anistate.inUse)
+      bst.nodeBlink();
 
     // TODO: only do checks if tree state ever changes
     ImGui::SeparatorText("Tree State");

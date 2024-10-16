@@ -199,7 +199,7 @@ void BST::display() {
 }
 
 void BST::nodeBlink() {
-  if (anistate.blinks < 6 && anistate.inUse) {
+  if (anistate.blinks < 6 && anistate.inUse && !anistate.pointers.empty()) {
     if (delayClock.getElapsedTime().asSeconds() >= 0.5) {
       if (anistate.blinks % 2 == 0) {
         for (TreeNode* const node : anistate.pointers) {
@@ -225,9 +225,8 @@ void BST::findValue(TreeNode* node, const int data) {
   if (!node)
     return;
 
-  if (node->data == data) {
-    node->sprite.setColor(sf::Color::Green);
-  }
+  if (node->data == data)
+    anistate.pointers.emplace_back(node);
   else {
     data < node->data
       ? findValue(node->left.get(), data)
@@ -306,9 +305,9 @@ void BST::findChildren(TreeNode* node) {
   if (!node)
     return;
   if (node->left)
-    node->left->sprite.setColor(sf::Color::Blue);
+    anistate.pointers.emplace_back(node->left.get());
   if (node->right)
-    node->right->sprite.setColor(sf::Color::Blue);
+    anistate.pointers.emplace_back(node->right.get());
 }
 
 bool BST::findParent(TreeNode* node) {
@@ -318,7 +317,7 @@ bool BST::findParent(TreeNode* node) {
   if (!updatePrevPtr(node))
     return false;
 
-  raw.prev->sprite.setColor(sf::Color::Red);
+  anistate.pointers.emplace_back(raw.prev);
   return true;
 }
 
