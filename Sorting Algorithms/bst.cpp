@@ -511,6 +511,71 @@ bool BST::findAllNodeBounds(TreeNode* ptr) {
   return true;
 }
 
+bool BST::dfsAnimate() {
+  if (!root) {
+    resetAnistate();
+    return true;
+  }
+
+  updateCursor(visit.statePtr);
+  switch (anistate.state) {
+    case TreeState::ENTRY: {
+      visit.statePtr = root.get();
+
+      anistate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case TreeState::HIGHLIGHT: {
+      // base case: if null or visited left & right
+      if (!visit.statePtr || (visit.l && visit.r)) {
+        if (!anistate.treeStack.empty()) {
+          visit = anistate.treeStack.top();
+          anistate.treeStack.pop();
+        }
+        else { // if stack is empty, we've searched the entire tree
+          resetAnistate();
+          return true;
+        }
+      }
+
+      anistate.state = TreeState::WAIT;
+      delayClock.restart();
+    } break;
+    case TreeState::WAIT: {
+      if (delayClock.getElapsedTime().asSeconds() >= 0.5) {
+        anistate.state = TreeState::COMPARE;
+        delayClock.restart();
+      }
+    } break;
+    case TreeState::COMPARE: {
+      if (!visit.l) {
+        visit.l = true;
+        anistate.treeStack.push(visit);
+
+        visit.l = false;
+        visit.r = false;
+        visit.statePtr = visit.statePtr->left.get();
+      }
+      else if (!visit.r) {
+        visit.r = true;
+        anistate.treeStack.push(visit);
+
+        visit.l = false;
+        visit.r = false;
+        visit.statePtr = visit.statePtr->right.get();
+      }
+      else if (visit.l && visit.r)
+        std::cout << "pop back" << std::endl;
+
+      anistate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case TreeState::RESET: {
+    } break;
+  }
+  return false;
+}
+
 void BST::draw() {
   if (!root)
     return;

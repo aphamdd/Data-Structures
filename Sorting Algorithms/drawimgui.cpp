@@ -223,7 +223,6 @@ void DrawImgui::linkedListTab() {
     ImGui::SeparatorText("Info");
 
     ImGui::TextWrapped(
-      "This data structure is an actual linked list, not a simulated one\n"
       "Left click: click to select the node\n"
       "Right click: anywhere to de-select node\n"
       "Middle click: select node first, then middle click on node to popup\n"
@@ -305,7 +304,6 @@ void DrawImgui::treeTab() {
 
     if (control.isDragging && control.isDrag)
       bst.move(control.mpos);
-    bst.updateCursor(bst.raw.active);
 
     ImGui::SeparatorText("Actions");
     ImGui::InputInt("Node Val", &control.setTreeNum);
@@ -320,6 +318,18 @@ void DrawImgui::treeTab() {
     }
     ImGui::Checkbox("Enable Drag", &control.isDrag);
     ImGui::Checkbox("Enable Animate", &control.isAnimate);
+
+    ImGui::SeparatorText("Tree Animations");
+    if (ImGui::Button("DFS Traverse"))
+      control.animateDFS = true;
+    if (control.animateDFS) {
+      if (bst.dfsAnimate()) {
+        std::cout << "Done DFS Traverse" << std::endl;
+        control.animateDFS = false;
+      }
+    }
+    else
+      bst.updateCursor(bst.raw.active);
 
     ImGui::SeparatorText("Tree Info");
     if (ImGui::Button("Leaves") && !bst.anistate.inUse) {

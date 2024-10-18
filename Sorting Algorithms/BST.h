@@ -1,5 +1,6 @@
 #pragma once
 #include "TreeNode.h"
+#include <stack>
 
 class BST {
 private:
@@ -17,6 +18,21 @@ private:
     TreeNode* prev = nullptr;
   };
 
+  // This is all really confusing, refactor this into better structures and names
+  enum class TreeState {
+    ENTRY,
+    HIGHLIGHT,
+    WAIT,
+    COMPARE,
+    RIGHT,
+    LEFT,
+    RESET
+  };
+  struct NodeState {
+    bool l = false;
+    bool r = false;
+    TreeNode* statePtr = nullptr;
+  };
   struct AnimationState {
     friend class BST;
   public:
@@ -24,7 +40,11 @@ private:
   private:
     int blinks = 0;
     std::vector<TreeNode*> pointers = {};
+    std::stack<NodeState> treeStack;
+    TreeState state = TreeState::ENTRY;
   };
+  NodeState visit;
+  /// ///////////////////////////////////////////////////////////
   sf::Clock delayClock;
 
 public:
@@ -65,7 +85,7 @@ public:
   // tree traversal animations
   void updateCursor(TreeNode* target); // cursor follows ptr
   void nodeBlink();
-  void BFSTraversal(); // animate bfs traversal of tree
+  bool dfsAnimate(); // animate dfs traversal of tree
   void bfs();
   // animate preorder traversal of tree
   // animate inorder traversal of tree
@@ -104,7 +124,7 @@ private:
   TreeNode* findOverlapNode(TreeNode* node, const TreeNode* ogNode, const sf::FloatRect overlap);
   TreeNode* lca(TreeNode* node, const TreeNode* const a, const TreeNode* const b); // lowest common ancestor
 
-  void resetAnistate() { anistate = {}; }
+  void resetAnistate() { anistate = {}; visit = {}; }
 
 
   // Template experiment

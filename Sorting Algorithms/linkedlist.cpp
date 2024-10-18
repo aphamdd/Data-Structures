@@ -11,7 +11,7 @@ LinkedList::LinkedList(sf::RenderWindow& win) :
   cursor.setOutlineColor(sf::Color::Black);
 
   try {
-    if (!GLOBAL::LLTEXTURE.loadFromFile("./Textures/linkedlistframePepe.png"))
+    if (!GLOBAL::LLTEXTURE.loadFromFile("./Textures/linkedlistframe.png"))
       throw std::runtime_error("linked list node texture error");
   }
   catch (const std::runtime_error& e) {
