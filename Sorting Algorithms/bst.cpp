@@ -25,9 +25,9 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
     if (direction == TreeNode::D::ROOT)
       newPos = pos;
     else if (direction == TreeNode::D::LEFT)
-      newPos = sf::Vector2f(pos.x - 132, pos.y + 88);
+      newPos = sf::Vector2f(pos.x - 100, pos.y + 100);
     else if (direction == TreeNode::D::RIGHT)
-      newPos = sf::Vector2f(pos.x + 132, pos.y + 88);
+      newPos = sf::Vector2f(pos.x + 100, pos.y + 100);
     else
       throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
@@ -40,9 +40,9 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
           if (node->sprite.getGlobalBounds().intersects(anysprite)) {
             TreeNode* parent = lca(root.get(), node.get(), findOverlapNode(root.get(), node.get(), anysprite));
             raw.prev = parent;
-            shiftSubtrees(parent->left.get(), sf::Vector2f(-88, 0));
+            shiftSubtrees(parent->left.get(), sf::Vector2f(-100, 0));
             raw.prev = parent;
-            shiftSubtrees(parent->right.get(), sf::Vector2f(88, 0));
+            shiftSubtrees(parent->right.get(), sf::Vector2f(100, 0));
           }
         }
       }
@@ -124,7 +124,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
     }
     // 1 child
     else if (!node->left || !node->right) {
-      sf::Vector2f shift(88, -88);
+      sf::Vector2f shift(100, -100);
       if (node->left) {
         node = std::move(node->left);
         propogatePos(node.get(), shift);
@@ -151,7 +151,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
         node->dataText.setString(std::to_string(current->data));
         raw.prev->left = std::move(current->right);
         if (raw.prev->left)
-          propogatePos(raw.prev->left.get(), sf::Vector2f(-88, -88));
+          propogatePos(raw.prev->left.get(), sf::Vector2f(-100, -100));
         raw.prev->updateLine(nullptr);
       }
       // if there's no left subtree
@@ -161,7 +161,7 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
         node->dataText.setString(std::to_string(node->right->data));
         updatePrevPtr(node.get()); // have prev ptr ready
         node->right = std::move(node->right->right);
-        propogatePos(node->right.get(), sf::Vector2f(-88, -88));
+        propogatePos(node->right.get(), sf::Vector2f(-100, -100));
         node->updateLine(raw.prev);
       }
     }
@@ -400,32 +400,6 @@ bool BST::isPerfect(TreeNode* node, const int depth, int level) const {
          isPerfect(node->right.get(), depth, level + 1);
 }
 
-void BST::bfs() {
-  if (!root)
-    return;
-
-  // Notes
-  // push_back: when you want to move an existing object into a vector
-  // emplace_back: when you want to create a new object into a vector, using the objects constructor arguments
-
-  std::vector<TreeNode*> queue;
-  queue.emplace_back(root.get());
-  while (!queue.empty()) {
-    int levelWidth = queue.size();
-    std::vector<TreeNode*> levelQueue;
-    for (int i = 0; i < levelWidth; ++i) {
-      TreeNode* node = queue.at(0);
-      std::cout << node->data << " ";
-      if (node->left)
-        queue.emplace_back(node->left.get());
-      if (node->right)
-        queue.emplace_back(node->right.get());
-      queue.erase(queue.begin());
-    }
-  }
-  return;
-}
-
 bool BST::updatePrevPtr(TreeNode* node) {
   if (!node) {
     raw.prev = nullptr;
@@ -511,6 +485,7 @@ bool BST::findAllNodeBounds(TreeNode* ptr) {
   return true;
 }
 
+// did i just write an iterative dfs
 bool BST::dfsAnimate() {
   if (!root) {
     resetAnistate();
@@ -528,6 +503,7 @@ bool BST::dfsAnimate() {
     case TreeState::HIGHLIGHT: {
       // base case: if null or visited left & right
       if (!visit.statePtr || (visit.l && visit.r)) {
+        anistate.timer = 0.25;
         if (!anistate.treeStack.empty()) {
           visit = anistate.treeStack.top();
           anistate.treeStack.pop();
@@ -537,12 +513,16 @@ bool BST::dfsAnimate() {
           return true;
         }
       }
+      else
+        anistate.timer = 0.5;
 
+      visit.statePtr->sprite.setColor(sf::Color::Red);
       anistate.state = TreeState::WAIT;
       delayClock.restart();
     } break;
     case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= 0.5) {
+      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
+        visit.statePtr->sprite.setColor(sf::Color::White);
         anistate.state = TreeState::COMPARE;
         delayClock.restart();
       }
@@ -564,16 +544,93 @@ bool BST::dfsAnimate() {
         visit.r = false;
         visit.statePtr = visit.statePtr->right.get();
       }
-      else if (visit.l && visit.r)
-        std::cout << "pop back" << std::endl;
 
       anistate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
     } break;
-    case TreeState::RESET: {
-    } break;
   }
   return false;
+}
+
+bool BST::bfsAnimate() {
+  if (!root) {
+    resetAnistate();
+    return true;
+  }
+
+  updateCursor(anistate.node);
+  switch (anistate.state) {
+    case TreeState::ENTRY: {
+      anistate.queue.emplace_back(root.get());
+      anistate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case TreeState::HIGHLIGHT: {
+      if (!anistate.queue.empty()) {
+        anistate.i = 0;
+        anistate.node = nullptr;
+        anistate.levelWidth = anistate.queue.size();
+        anistate.state = TreeState::COMPARE;
+      }
+      else {
+        resetAnistate();
+        return true;
+      }
+      delayClock.restart();
+    } break;
+    case TreeState::WAIT: {
+      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
+        anistate.node->sprite.setColor(sf::Color::White);
+        anistate.state = TreeState::COMPARE;
+        delayClock.restart();
+      }
+    } break;
+    case TreeState::COMPARE: {
+      if (anistate.i < anistate.levelWidth) {
+        anistate.node = anistate.queue.at(0);
+        anistate.node->sprite.setColor(sf::Color::Red);
+        if (anistate.node->left)
+          anistate.queue.emplace_back(anistate.node->left.get());
+        if (anistate.node->right)
+          anistate.queue.emplace_back(anistate.node->right.get());
+        anistate.queue.erase(anistate.queue.begin());
+        ++anistate.i;
+
+        anistate.state = TreeState::WAIT;
+      }
+      else
+        anistate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+  }
+
+  return false;
+}
+
+void BST::bfs() {
+  if (!root)
+    return;
+
+  // Notes
+  // push_back: when you want to move an existing object into a vector
+  // emplace_back: when you want to create a new object into a vector, using the objects constructor arguments
+
+  std::vector<TreeNode*> queue;
+  queue.emplace_back(root.get());
+  while (!queue.empty()) {
+    int levelWidth = queue.size();
+    std::vector<TreeNode*> levelQueue;
+    for (int i = 0; i < levelWidth; ++i) {
+      TreeNode* node = queue.at(0);
+      std::cout << node->data << " ";
+      if (node->left)
+        queue.emplace_back(node->left.get());
+      if (node->right)
+        queue.emplace_back(node->right.get());
+      queue.erase(queue.begin());
+    }
+  }
+  return;
 }
 
 void BST::draw() {

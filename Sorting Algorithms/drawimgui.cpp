@@ -322,10 +322,18 @@ void DrawImgui::treeTab() {
     ImGui::SeparatorText("Tree Animations");
     if (ImGui::Button("DFS Traverse"))
       control.animateDFS = true;
+    if (ImGui::Button("BFS Traverse"))
+      control.animateBFS = true;
     if (control.animateDFS) {
       if (bst.dfsAnimate()) {
         std::cout << "Done DFS Traverse" << std::endl;
         control.animateDFS = false;
+      }
+    }
+    else if (control.animateBFS) {
+      if (bst.bfsAnimate()) {
+        std::cout << "Done BFS Traverse" << std::endl;
+        control.animateBFS = false;
       }
     }
     else

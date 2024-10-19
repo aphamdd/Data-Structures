@@ -23,10 +23,7 @@ private:
     ENTRY,
     HIGHLIGHT,
     WAIT,
-    COMPARE,
-    RIGHT,
-    LEFT,
-    RESET
+    COMPARE
   };
   struct NodeState {
     bool l = false;
@@ -39,11 +36,19 @@ private:
     bool inUse = false;
   private:
     int blinks = 0;
-    std::vector<TreeNode*> pointers = {};
-    std::stack<NodeState> treeStack;
-    TreeState state = TreeState::ENTRY;
+    float timer = 0.5;
+    std::vector<TreeNode*> pointers = {}; // list of nodes to be blinking
+
+    std::stack<NodeState> treeStack; // stack of node visited states
+    TreeState state = TreeState::ENTRY; // state machine
+
+    std::vector<TreeNode*> queue;
+    std::vector<TreeNode*> levelQueue;
+    int i = 0;
+    int levelWidth = 0;
+    TreeNode* node = nullptr;
   };
-  NodeState visit;
+  NodeState visit; // current node state
   /// ///////////////////////////////////////////////////////////
   sf::Clock delayClock;
 
@@ -86,6 +91,7 @@ public:
   void updateCursor(TreeNode* target); // cursor follows ptr
   void nodeBlink();
   bool dfsAnimate(); // animate dfs traversal of tree
+  bool bfsAnimate(); // animate dfs traversal of tree
   void bfs();
   // animate preorder traversal of tree
   // animate inorder traversal of tree

@@ -33,6 +33,7 @@ struct Control {
   int findTreeNum = 0;
   bool isAnimate = false;
   bool animateDFS = false;
+  bool animateBFS = false;
   bool isDrag = false;
   bool balanced = false;
   bool full = false;
