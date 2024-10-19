@@ -320,10 +320,13 @@ void DrawImgui::treeTab() {
     ImGui::Checkbox("Enable Animate", &control.isAnimate);
 
     ImGui::SeparatorText("Tree Animations");
+    // TODO: prevent clicks after initial click
     if (ImGui::Button("DFS Traverse"))
       control.animateDFS = true;
     if (ImGui::Button("BFS Traverse"))
       control.animateBFS = true;
+    if (ImGui::Button("Search"))
+      control.animateSearch = true;
     if (control.animateDFS) {
       if (bst.dfsAnimate()) {
         std::cout << "Done DFS Traverse" << std::endl;
@@ -334,6 +337,12 @@ void DrawImgui::treeTab() {
       if (bst.bfsAnimate()) {
         std::cout << "Done BFS Traverse" << std::endl;
         control.animateBFS = false;
+      }
+    }
+    else if (control.animateSearch) {
+      if (bst.searchAnimate(control.findTreeNum)) {
+        std::cout << "Done Searching" << std::endl;
+        control.animateSearch = false;
       }
     }
     else

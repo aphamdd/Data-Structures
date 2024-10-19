@@ -92,6 +92,7 @@ public:
   void nodeBlink();
   bool dfsAnimate(); // animate dfs traversal of tree
   bool bfsAnimate(); // animate dfs traversal of tree
+  bool searchAnimate(const int value); // animate node search
   void bfs();
   // animate preorder traversal of tree
   // animate inorder traversal of tree

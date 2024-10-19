@@ -607,6 +607,49 @@ bool BST::bfsAnimate() {
   return false;
 }
 
+bool BST::searchAnimate(const int value) {
+  if (!root) {
+    resetAnistate();
+    return true;
+  }
+
+  updateCursor(visit.statePtr);
+  switch (anistate.state) {
+    case TreeState::ENTRY: {
+      visit.statePtr = root.get();
+      anistate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case TreeState::HIGHLIGHT: {
+      if (!visit.statePtr) {
+        resetAnistate();
+        return true;
+      }
+
+      visit.statePtr->sprite.setColor(sf::Color::Red);
+      anistate.state = TreeState::WAIT;
+      delayClock.restart();
+    } break;
+    case TreeState::WAIT: {
+      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
+        if (visit.statePtr->data == value) {
+          visit.statePtr->sprite.setColor(sf::Color::Cyan);
+          resetAnistate();
+          return true;
+        }
+        visit.statePtr->sprite.setColor(sf::Color::White);
+        value < visit.statePtr->data ?
+          visit.statePtr = visit.statePtr->left.get() :
+          visit.statePtr = visit.statePtr->right.get();
+        anistate.state = TreeState::HIGHLIGHT;
+        delayClock.restart();
+      }
+    } break;
+  }
+
+  return false;
+}
+
 void BST::bfs() {
   if (!root)
     return;
