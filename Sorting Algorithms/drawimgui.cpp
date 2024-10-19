@@ -327,6 +327,8 @@ void DrawImgui::treeTab() {
       control.animateBFS = true;
     if (ImGui::Button("Search"))
       control.animateSearch = true;
+    if (ImGui::Button("Insert"))
+      control.animateInsert = true;
     if (control.animateDFS) {
       if (bst.dfsAnimate()) {
         std::cout << "Done DFS Traverse" << std::endl;
@@ -343,6 +345,12 @@ void DrawImgui::treeTab() {
       if (bst.searchAnimate(control.findTreeNum)) {
         std::cout << "Done Searching" << std::endl;
         control.animateSearch = false;
+      }
+    }
+    else if (control.animateInsert) {
+      if (bst.insertAnimate(control.setTreeNum)) {
+        std::cout << "Done Inserting" << std::endl;
+        control.animateInsert = false;
       }
     }
     else

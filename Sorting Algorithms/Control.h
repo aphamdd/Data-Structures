@@ -35,6 +35,7 @@ struct Control {
   bool animateDFS = false;
   bool animateBFS = false;
   bool animateSearch = false;
+  bool animateInsert = false;
   bool isDrag = false;
   bool balanced = false;
   bool full = false;

@@ -31,6 +31,7 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
     else
       throw("tree node insert error");
     node = std::make_unique<TreeNode>(data, newPos);
+    updatePrevPtr(node.get());
     if (raw.prev) {
       // a way to save on memory is to just store node bounds on the same level
       // as the node being inserted. assumes nodes are in their original positions
@@ -52,7 +53,7 @@ void BST::insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vect
     raw.prev = nullptr;
   }
   else {
-    raw.prev = node.get();
+    //raw.prev = node.get(); // while this works, it doesn't guarantee 
     data < node->data
       ? insert(node->left, data, node->sprite.getPosition(), TreeNode::D::LEFT)
       : insert(node->right, data, node->sprite.getPosition(), TreeNode::D::RIGHT);
@@ -641,6 +642,56 @@ bool BST::searchAnimate(const int value) {
         value < visit.statePtr->data ?
           visit.statePtr = visit.statePtr->left.get() :
           visit.statePtr = visit.statePtr->right.get();
+        anistate.state = TreeState::HIGHLIGHT;
+        delayClock.restart();
+      }
+    } break;
+  }
+
+  return false;
+}
+
+// TODO: animate the actual node insertion, not just the traversal
+bool BST::insertAnimate(const int value) {
+  if (!root) {
+    insert(root, value, sf::Vector2f(900, 100), TreeNode::D::ROOT);
+    resetAnistate();
+    return true;
+  }
+  updateCursor(visit.statePtr);
+  switch (anistate.state) {
+    case TreeState::ENTRY: {
+      visit.statePtr = root.get();
+      anistate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case TreeState::HIGHLIGHT: {
+      visit.statePtr->sprite.setColor(sf::Color::Red);
+      anistate.state = TreeState::WAIT;
+      delayClock.restart();
+    } break;
+    case TreeState::WAIT: {
+      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
+        visit.statePtr->sprite.setColor(sf::Color::White);
+        sf::Vector2f pos = visit.statePtr->sprite.getPosition();
+        if (value < visit.statePtr->data) {
+          if (!visit.statePtr->left) {
+            insert(visit.statePtr->left, value, pos, TreeNode::D::LEFT);
+            resetAnistate();
+            return true;
+          }
+          else
+            visit.statePtr = visit.statePtr->left.get();
+        }
+        else {
+          if (!visit.statePtr->right) {
+            insert(visit.statePtr->right, value, pos, TreeNode::D::RIGHT);
+            resetAnistate();
+            return true;
+          }
+          else
+            visit.statePtr = visit.statePtr->right.get();
+        }
         anistate.state = TreeState::HIGHLIGHT;
         delayClock.restart();
       }

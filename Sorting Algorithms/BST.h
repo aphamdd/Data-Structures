@@ -93,6 +93,7 @@ public:
   bool dfsAnimate(); // animate dfs traversal of tree
   bool bfsAnimate(); // animate dfs traversal of tree
   bool searchAnimate(const int value); // animate node search
+  bool insertAnimate(const int value); // animate insertion
   void bfs();
   // animate preorder traversal of tree
   // animate inorder traversal of tree
