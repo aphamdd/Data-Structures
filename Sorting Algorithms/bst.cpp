@@ -672,29 +672,34 @@ bool BST::insertAnimate(const int value) {
     } break;
     case TreeState::WAIT: {
       if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
-        visit.statePtr->sprite.setColor(sf::Color::White);
-        sf::Vector2f pos = visit.statePtr->sprite.getPosition();
-        if (value < visit.statePtr->data) {
-          if (!visit.statePtr->left) {
-            insert(visit.statePtr->left, value, pos, TreeNode::D::LEFT);
-            resetAnistate();
-            return true;
-          }
-          else
-            visit.statePtr = visit.statePtr->left.get();
-        }
-        else {
-          if (!visit.statePtr->right) {
-            insert(visit.statePtr->right, value, pos, TreeNode::D::RIGHT);
-            resetAnistate();
-            return true;
-          }
-          else
-            visit.statePtr = visit.statePtr->right.get();
-        }
-        anistate.state = TreeState::HIGHLIGHT;
+        anistate.state = TreeState::COMPARE;
         delayClock.restart();
       }
+    } break;
+    case TreeState::COMPARE: {
+      visit.statePtr->sprite.setColor(sf::Color::White);
+      sf::Vector2f pos = visit.statePtr->sprite.getPosition();
+      if (value < visit.statePtr->data) {
+        if (!visit.statePtr->left) {
+          insert(visit.statePtr->left, value, pos, TreeNode::D::LEFT);
+          resetAnistate();
+          return true;
+        }
+        else
+          visit.statePtr = visit.statePtr->left.get();
+      }
+      else {
+        if (!visit.statePtr->right) {
+          insert(visit.statePtr->right, value, pos, TreeNode::D::RIGHT);
+          resetAnistate();
+          return true;
+        }
+        else
+          visit.statePtr = visit.statePtr->right.get();
+      }
+
+      anistate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
     } break;
   }
 
