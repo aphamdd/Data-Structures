@@ -23,7 +23,8 @@ private:
     ENTRY,
     HIGHLIGHT,
     WAIT,
-    COMPARE
+    COMPARE,
+    INSERT
   };
   struct NodeState {
     bool l = false;
@@ -47,6 +48,8 @@ private:
     int i = 0;
     int levelWidth = 0;
     TreeNode* node = nullptr;
+    sf::Vector2f goal;
+    std::unique_ptr<TreeNode> newNode = nullptr;
   };
   NodeState visit; // current node state
   /// ///////////////////////////////////////////////////////////
@@ -132,6 +135,7 @@ private:
   TreeNode* findOverlapNode(TreeNode* node, const TreeNode* ogNode, const sf::FloatRect overlap);
   TreeNode* lca(TreeNode* node, const TreeNode* const a, const TreeNode* const b); // lowest common ancestor
 
+  bool insertNodeAnimation(TreeNode* node, const sf::Vector2f pos);
   void resetAnistate() { anistate = {}; visit = {}; }
 
 

@@ -661,6 +661,7 @@ bool BST::insertAnimate(const int value) {
   updateCursor(visit.statePtr);
   switch (anistate.state) {
     case TreeState::ENTRY: {
+      anistate.newNode = std::make_unique<TreeNode>(value, sf::Vector2f(100, 100));
       visit.statePtr = root.get();
       anistate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
@@ -678,31 +679,76 @@ bool BST::insertAnimate(const int value) {
     } break;
     case TreeState::COMPARE: {
       visit.statePtr->sprite.setColor(sf::Color::White);
-      sf::Vector2f pos = visit.statePtr->sprite.getPosition();
       if (value < visit.statePtr->data) {
+        // set a goal position for the temp node
+        // link up the pointers before moving
+        // move the temp node to its position
         if (!visit.statePtr->left) {
-          insert(visit.statePtr->left, value, pos, TreeNode::D::LEFT);
-          resetAnistate();
-          return true;
+          anistate.goal = visit.statePtr->sprite.getPosition();
+          anistate.goal = sf::Vector2f(anistate.goal.x - 100, anistate.goal.y + 100);
+          anistate.node = anistate.newNode.get();
+          visit.statePtr->left = std::move(anistate.newNode);
+          anistate.state = TreeState::INSERT;
         }
-        else
+        else {
+          anistate.state = TreeState::HIGHLIGHT;
           visit.statePtr = visit.statePtr->left.get();
+        }
       }
       else {
         if (!visit.statePtr->right) {
-          insert(visit.statePtr->right, value, pos, TreeNode::D::RIGHT);
-          resetAnistate();
-          return true;
+          anistate.goal = visit.statePtr->sprite.getPosition();
+          anistate.goal = sf::Vector2f(anistate.goal.x + 100, anistate.goal.y + 100);
+          anistate.node = anistate.newNode.get();
+          visit.statePtr->right = std::move(anistate.newNode);
+          anistate.state = TreeState::INSERT;
         }
-        else
+        else {
+          anistate.state = TreeState::HIGHLIGHT;
           visit.statePtr = visit.statePtr->right.get();
+        }
       }
 
-      anistate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
+    } break;
+    case TreeState::INSERT: {
+      if (insertNodeAnimation(anistate.node, anistate.goal)) {
+        resetAnistate();
+        return true;
+      }
     } break;
   }
 
+  return false;
+}
+
+// TODO: HEAVY REFACTORING THIS NAMING AND STRUCTS SUCK ASSSS
+bool BST::insertNodeAnimation(TreeNode* target, const sf::Vector2f goal) {
+  if (!target)
+    return true;
+
+  sf::Clock clock;
+  sf::Vector2f currPos = target->sprite.getPosition();
+  float dx = goal.x - currPos.x;
+  float dy = goal.y - currPos.y;
+  float distance = float(sqrt(pow(dx, 2) + pow(dy, 2))); // euclidean distance formula
+  if (distance >= 3) { 
+    // calculate whats necessary
+    float deltaTime = clock.restart().asSeconds();
+    float k = 10000 * deltaTime; // dampening constant
+    sf::Vector2f direction(dx / distance, dy / distance); // normalize dx,dy direction
+    float velx = (k * distance * direction.x);
+    float vely = (k * distance * direction.y);
+    sf::Vector2f offset(velx, vely);
+
+    target->sprite.move(offset);
+    target->dataText.move(offset);
+  } 
+  else {
+    target->sprite.setPosition(goal);
+    target->updateLine(visit.statePtr); // update lines to follow sprite
+    return true;
+  }
   return false;
 }
 
@@ -741,4 +787,6 @@ void BST::draw() {
     window.draw(*node);
   });
   window.draw(cursor);
+  if (anistate.newNode)
+    window.draw(*anistate.newNode);
 }
