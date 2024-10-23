@@ -61,7 +61,7 @@ int main() {
   // window and gui params
   sf::ContextSettings settings;
   settings.antialiasingLevel = 8;
-  sf::RenderWindow window(sf::VideoMode(GLOBAL::SCREEN_WIDTH, GLOBAL::SCREEN_HEIGHT), "Algorithm Visualizer", sf::Style::Default);
+  sf::RenderWindow window(sf::VideoMode(GLOBAL::SCREEN_WIDTH, GLOBAL::SCREEN_HEIGHT), "DSA Visualizer", sf::Style::Default);
   sf::View view = window.getDefaultView();
   window.setFramerateLimit(GLOBAL::FPS);
   ImGui::SFML::Init(window);

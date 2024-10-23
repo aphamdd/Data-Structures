@@ -504,8 +504,8 @@ bool BST::dfsAnimate() {
       // base case: if null or visited left & right
       if (!visit.statePtr || (visit.l && visit.r)) {
         if (!animate.treeStack.empty()) {
-          visit = animate.treeStack.top();
-          animate.treeStack.pop();
+          visit = animate.treeStack.back();
+          animate.treeStack.pop_back();
         }
         else { // if stack is empty, we've searched the entire tree
           resetAnimateState();
@@ -527,7 +527,7 @@ bool BST::dfsAnimate() {
     case TreeState::COMPARE: {
       if (!visit.l) {
         visit.l = true;
-        animate.treeStack.push(visit);
+        animate.treeStack.push_back(visit);
 
         visit.l = false;
         visit.r = false;
@@ -535,7 +535,7 @@ bool BST::dfsAnimate() {
       }
       else if (!visit.r) {
         visit.r = true;
-        animate.treeStack.push(visit);
+        animate.treeStack.push_back(visit);
 
         visit.l = false;
         visit.r = false;

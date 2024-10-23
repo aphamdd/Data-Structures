@@ -8,7 +8,7 @@ void DrawImgui::run() {
   ImGui::SFML::Update(window, imguiClock.restart());
 
   dockspace();
-  //ImGui::ShowDemoWindow();
+  ImGui::ShowDemoWindow();
 
   ImGui::Begin("Visualizer");
   ImGui::SetWindowFontScale(fontScale);
@@ -466,6 +466,26 @@ void DrawImgui::treeTab() {
     ImGui::SeparatorText("Debugging");
     ImGui::Text("Prev: %d", bst.getPrevData());
     ImGui::Text("Active: %d", bst.getActiveData());
+
+    ImGui::Begin("Stack Frames");
+    // TODO: make this upside-down
+    for (int i = 0; i < bst.animate.treeStack.size(); ++i) {
+      std::string label = "Frame " + std::to_string(i);
+      ImGui::Button(label.c_str());
+      if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
+        if (ImGui::BeginItemTooltip()) {
+          ImGui::SeparatorText("Stack Frame");
+          ImGui::Text(
+            "A perfect binary tree "
+            "is a type of binary tree in which every internal node "
+            "\nhas exactly two child nodes and "
+            "all the leaf nodes are at the same level."
+          );
+          ImGui::EndTooltip();
+        }
+      }
+    }
+    ImGui::End();
 
     ImGui::EndTabItem();
   }

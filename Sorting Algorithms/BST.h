@@ -1,6 +1,5 @@
 #pragma once
 #include "TreeNode.h"
-#include <stack>
 
 class BST {
 private:
@@ -39,13 +38,13 @@ private:
     friend class BST;
   public:
     bool inUse = false;
+    // dfs animation
+    std::vector<NodeState> treeStack; // stack of node visited states
+
   private:
     // blinking nodes
     int blinks = 0;
     std::vector<TreeNode*> pointers = {}; // list of nodes to be blinking
-
-    // dfs animation
-    std::stack<NodeState> treeStack; // stack of node visited states
 
     // bfs animation
     std::vector<TreeNode*> queue;
