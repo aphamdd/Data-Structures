@@ -42,7 +42,6 @@ private:
   private:
     // blinking nodes
     int blinks = 0;
-    float timer = 0.5;
     std::vector<TreeNode*> pointers = {}; // list of nodes to be blinking
 
     // dfs animation
@@ -64,11 +63,11 @@ private:
     TreeNode* animatePtr = nullptr;
   };
   /// ///////////////////////////////////////////////////////////
-  sf::Clock delayClock;
 
 public:
   Traversal raw;
   AnimationState animate;
+  sf::Clock delayClock;
 
 public:
   BST(sf::RenderWindow& win);

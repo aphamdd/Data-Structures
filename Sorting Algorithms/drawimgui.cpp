@@ -17,9 +17,9 @@ void DrawImgui::run() {
   view.setViewport(calcViewport());
 
   if (ImGui::BeginTabBar("Tab Bar")) {
-    sortingAlgsTab();
-    linkedListTab();
     treeTab();
+    linkedListTab();
+    sortingAlgsTab();
     ImGui::EndTabBar();
   }
 
@@ -355,6 +355,12 @@ void DrawImgui::treeTab() {
     }
     else
       bst.updateCursor(bst.raw.active);
+    if (ImGui::Button(control.isPaused ? "Play" : "Pause")) {
+      control.isPaused = !control.isPaused;
+    }
+    if (control.isPaused)
+      bst.delayClock.restart();
+    ImGui::SliderFloat("Speed", &GLOBAL::DELAY, 0.f, 1.f);
 
     ImGui::SeparatorText("Tree Info");
     if (ImGui::Button("Leaves") && !bst.animate.inUse) {

@@ -503,7 +503,6 @@ bool BST::dfsAnimate() {
     case TreeState::HIGHLIGHT: {
       // base case: if null or visited left & right
       if (!visit.statePtr || (visit.l && visit.r)) {
-        animate.timer = 0.25;
         if (!animate.treeStack.empty()) {
           visit = animate.treeStack.top();
           animate.treeStack.pop();
@@ -513,15 +512,13 @@ bool BST::dfsAnimate() {
           return true;
         }
       }
-      else
-        animate.timer = 0.5;
 
       visit.statePtr->sprite.setColor(sf::Color::Red);
       animate.state = TreeState::WAIT;
       delayClock.restart();
     } break;
     case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= animate.timer) {
+      if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
         visit.statePtr->sprite.setColor(sf::Color::White);
         animate.state = TreeState::COMPARE;
         delayClock.restart();
@@ -579,7 +576,7 @@ bool BST::bfsAnimate() {
       delayClock.restart();
     } break;
     case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= animate.timer) {
+      if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
         animate.temp->sprite.setColor(sf::Color::White);
         animate.state = TreeState::COMPARE;
         delayClock.restart();
@@ -669,7 +666,7 @@ bool BST::traverseToAnimate(const int value, const int flag) {
       delayClock.restart();
     } break;
     case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= animate.timer) {
+      if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
         // for finding a node and highlighting found node
         if (flag == 0) {
           animate.state = TreeState::SEARCH;
