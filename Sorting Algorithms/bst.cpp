@@ -168,7 +168,6 @@ void BST::remove(std::unique_ptr<TreeNode>& node, const int data) {
     }
   }
   else {
-    // preorder traversal
     data < node->data
       ? remove(node->left, data)
       : remove(node->right, data);
@@ -200,24 +199,24 @@ void BST::display() {
 }
 
 void BST::nodeBlink() {
-  if (anistate.blinks < 6 && anistate.inUse && !anistate.pointers.empty()) {
+  if (animate.blinks < 6 && animate.inUse && !animate.pointers.empty()) {
     if (delayClock.getElapsedTime().asSeconds() >= 0.5) {
-      if (anistate.blinks % 2 == 0) {
-        for (TreeNode* const node : anistate.pointers) {
+      if (animate.blinks % 2 == 0) {
+        for (TreeNode* const node : animate.pointers) {
           node->sprite.setColor(sf::Color::Yellow);
         }
       }
       else {
-        for (TreeNode* const node : anistate.pointers) {
+        for (TreeNode* const node : animate.pointers) {
           node->sprite.setColor(sf::Color::White);
         }
       }
-      ++anistate.blinks;
+      ++animate.blinks;
       delayClock.restart();
     }
   }
   else
-    resetAnistate();
+    resetAnimateState();
 
   return;
 }
@@ -227,7 +226,7 @@ void BST::findValue(TreeNode* node, const int data) {
     return;
 
   if (node->data == data)
-    anistate.pointers.emplace_back(node);
+    animate.pointers.emplace_back(node);
   else {
     data < node->data
       ? findValue(node->left.get(), data)
@@ -297,7 +296,7 @@ void BST::findLeaves(TreeNode* node) {
     return;
 
   if (!node->left && !node->right)
-    anistate.pointers.emplace_back(node);
+    animate.pointers.emplace_back(node);
   findLeaves(node->left.get());
   findLeaves(node->right.get());
 }
@@ -306,9 +305,9 @@ void BST::findChildren(TreeNode* node) {
   if (!node)
     return;
   if (node->left)
-    anistate.pointers.emplace_back(node->left.get());
+    animate.pointers.emplace_back(node->left.get());
   if (node->right)
-    anistate.pointers.emplace_back(node->right.get());
+    animate.pointers.emplace_back(node->right.get());
 }
 
 bool BST::findParent(TreeNode* node) {
@@ -318,7 +317,7 @@ bool BST::findParent(TreeNode* node) {
   if (!updatePrevPtr(node))
     return false;
 
-  anistate.pointers.emplace_back(raw.prev);
+  animate.pointers.emplace_back(raw.prev);
   return true;
 }
 
@@ -489,49 +488,49 @@ bool BST::findAllNodeBounds(TreeNode* ptr) {
 // did i just write an iterative dfs
 bool BST::dfsAnimate() {
   if (!root) {
-    resetAnistate();
+    resetAnimateState();
     return true;
   }
 
   updateCursor(visit.statePtr);
-  switch (anistate.state) {
+  switch (animate.state) {
     case TreeState::ENTRY: {
       visit.statePtr = root.get();
 
-      anistate.state = TreeState::HIGHLIGHT;
+      animate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
     } break;
     case TreeState::HIGHLIGHT: {
       // base case: if null or visited left & right
       if (!visit.statePtr || (visit.l && visit.r)) {
-        anistate.timer = 0.25;
-        if (!anistate.treeStack.empty()) {
-          visit = anistate.treeStack.top();
-          anistate.treeStack.pop();
+        animate.timer = 0.25;
+        if (!animate.treeStack.empty()) {
+          visit = animate.treeStack.top();
+          animate.treeStack.pop();
         }
         else { // if stack is empty, we've searched the entire tree
-          resetAnistate();
+          resetAnimateState();
           return true;
         }
       }
       else
-        anistate.timer = 0.5;
+        animate.timer = 0.5;
 
       visit.statePtr->sprite.setColor(sf::Color::Red);
-      anistate.state = TreeState::WAIT;
+      animate.state = TreeState::WAIT;
       delayClock.restart();
     } break;
     case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
+      if (delayClock.getElapsedTime().asSeconds() >= animate.timer) {
         visit.statePtr->sprite.setColor(sf::Color::White);
-        anistate.state = TreeState::COMPARE;
+        animate.state = TreeState::COMPARE;
         delayClock.restart();
       }
     } break;
     case TreeState::COMPARE: {
       if (!visit.l) {
         visit.l = true;
-        anistate.treeStack.push(visit);
+        animate.treeStack.push(visit);
 
         visit.l = false;
         visit.r = false;
@@ -539,14 +538,14 @@ bool BST::dfsAnimate() {
       }
       else if (!visit.r) {
         visit.r = true;
-        anistate.treeStack.push(visit);
+        animate.treeStack.push(visit);
 
         visit.l = false;
         visit.r = false;
         visit.statePtr = visit.statePtr->right.get();
       }
 
-      anistate.state = TreeState::HIGHLIGHT;
+      animate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
     } break;
   }
@@ -555,52 +554,52 @@ bool BST::dfsAnimate() {
 
 bool BST::bfsAnimate() {
   if (!root) {
-    resetAnistate();
+    resetAnimateState();
     return true;
   }
 
-  updateCursor(anistate.node);
-  switch (anistate.state) {
+  updateCursor(animate.temp);
+  switch (animate.state) {
     case TreeState::ENTRY: {
-      anistate.queue.emplace_back(root.get());
-      anistate.state = TreeState::HIGHLIGHT;
+      animate.queue.emplace_back(root.get());
+      animate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
     } break;
     case TreeState::HIGHLIGHT: {
-      if (!anistate.queue.empty()) {
-        anistate.i = 0;
-        anistate.node = nullptr;
-        anistate.levelWidth = anistate.queue.size();
-        anistate.state = TreeState::COMPARE;
+      if (!animate.queue.empty()) {
+        animate.i = 0;
+        animate.temp = nullptr;
+        animate.levelWidth = animate.queue.size();
+        animate.state = TreeState::COMPARE;
       }
       else {
-        resetAnistate();
+        resetAnimateState();
         return true;
       }
       delayClock.restart();
     } break;
     case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
-        anistate.node->sprite.setColor(sf::Color::White);
-        anistate.state = TreeState::COMPARE;
+      if (delayClock.getElapsedTime().asSeconds() >= animate.timer) {
+        animate.temp->sprite.setColor(sf::Color::White);
+        animate.state = TreeState::COMPARE;
         delayClock.restart();
       }
     } break;
     case TreeState::COMPARE: {
-      if (anistate.i < anistate.levelWidth) {
-        anistate.node = anistate.queue.at(0);
-        anistate.node->sprite.setColor(sf::Color::Red);
-        if (anistate.node->left)
-          anistate.queue.emplace_back(anistate.node->left.get());
-        if (anistate.node->right)
-          anistate.queue.emplace_back(anistate.node->right.get());
-        anistate.queue.erase(anistate.queue.begin());
-        ++anistate.i;
+      if (animate.i < animate.levelWidth) {
+        animate.temp = animate.queue.at(0);
+        animate.temp->sprite.setColor(sf::Color::Red);
+        if (animate.temp->left)
+          animate.queue.emplace_back(animate.temp->left.get());
+        if (animate.temp->right)
+          animate.queue.emplace_back(animate.temp->right.get());
+        animate.queue.erase(animate.queue.begin());
+        ++animate.i;
 
-        anistate.state = TreeState::WAIT;
+        animate.state = TreeState::WAIT;
       }
       else
-        anistate.state = TreeState::HIGHLIGHT;
+        animate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
     } break;
   }
@@ -608,121 +607,7 @@ bool BST::bfsAnimate() {
   return false;
 }
 
-bool BST::searchAnimate(const int value) {
-  if (!root) {
-    resetAnistate();
-    return true;
-  }
-
-  updateCursor(visit.statePtr);
-  switch (anistate.state) {
-    case TreeState::ENTRY: {
-      visit.statePtr = root.get();
-      anistate.state = TreeState::HIGHLIGHT;
-      delayClock.restart();
-    } break;
-    case TreeState::HIGHLIGHT: {
-      if (!visit.statePtr) {
-        resetAnistate();
-        return true;
-      }
-
-      visit.statePtr->sprite.setColor(sf::Color::Red);
-      anistate.state = TreeState::WAIT;
-      delayClock.restart();
-    } break;
-    case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
-        if (visit.statePtr->data == value) {
-          visit.statePtr->sprite.setColor(sf::Color::Cyan);
-          resetAnistate();
-          return true;
-        }
-        visit.statePtr->sprite.setColor(sf::Color::White);
-        value < visit.statePtr->data ?
-          visit.statePtr = visit.statePtr->left.get() :
-          visit.statePtr = visit.statePtr->right.get();
-        anistate.state = TreeState::HIGHLIGHT;
-        delayClock.restart();
-      }
-    } break;
-  }
-
-  return false;
-}
-
-// TODO: animate the actual node insertion, not just the traversal
-bool BST::insertAnimate(const int value) {
-  if (!root) {
-    insert(root, value, sf::Vector2f(900, 100), TreeNode::D::ROOT);
-    resetAnistate();
-    return true;
-  }
-  updateCursor(visit.statePtr);
-  switch (anistate.state) {
-    case TreeState::ENTRY: {
-      anistate.newNode = std::make_unique<TreeNode>(value, sf::Vector2f(100, 100));
-      visit.statePtr = root.get();
-      anistate.state = TreeState::HIGHLIGHT;
-      delayClock.restart();
-    } break;
-    case TreeState::HIGHLIGHT: {
-      visit.statePtr->sprite.setColor(sf::Color::Red);
-      anistate.state = TreeState::WAIT;
-      delayClock.restart();
-    } break;
-    case TreeState::WAIT: {
-      if (delayClock.getElapsedTime().asSeconds() >= anistate.timer) {
-        anistate.state = TreeState::COMPARE;
-        delayClock.restart();
-      }
-    } break;
-    case TreeState::COMPARE: {
-      visit.statePtr->sprite.setColor(sf::Color::White);
-      if (value < visit.statePtr->data) {
-        // set a goal position for the temp node
-        // link up the pointers before moving
-        // move the temp node to its position
-        if (!visit.statePtr->left) {
-          anistate.goal = visit.statePtr->sprite.getPosition();
-          anistate.goal = sf::Vector2f(anistate.goal.x - 100, anistate.goal.y + 100);
-          anistate.node = anistate.newNode.get();
-          visit.statePtr->left = std::move(anistate.newNode);
-          anistate.state = TreeState::INSERT;
-        }
-        else {
-          anistate.state = TreeState::HIGHLIGHT;
-          visit.statePtr = visit.statePtr->left.get();
-        }
-      }
-      else {
-        if (!visit.statePtr->right) {
-          anistate.goal = visit.statePtr->sprite.getPosition();
-          anistate.goal = sf::Vector2f(anistate.goal.x + 100, anistate.goal.y + 100);
-          anistate.node = anistate.newNode.get();
-          visit.statePtr->right = std::move(anistate.newNode);
-          anistate.state = TreeState::INSERT;
-        }
-        else {
-          anistate.state = TreeState::HIGHLIGHT;
-          visit.statePtr = visit.statePtr->right.get();
-        }
-      }
-
-      delayClock.restart();
-    } break;
-    case TreeState::INSERT: {
-      if (insertNodeAnimation(anistate.node, anistate.goal)) {
-        resetAnistate();
-        return true;
-      }
-    } break;
-  }
-
-  return false;
-}
-
-// TODO: HEAVY REFACTORING THIS NAMING AND STRUCTS SUCK ASSSS
+// TODO: make this a template so I can use this both for cursor and inserting nodes?
 bool BST::insertNodeAnimation(TreeNode* target, const sf::Vector2f goal) {
   if (!target)
     return true;
@@ -746,8 +631,114 @@ bool BST::insertNodeAnimation(TreeNode* target, const sf::Vector2f goal) {
   } 
   else {
     target->sprite.setPosition(goal);
-    target->updateLine(visit.statePtr); // update lines to follow sprite
+    target->updateLine(animate.animatePtr); // update lines to follow sprite
     return true;
+  }
+  return false;
+}
+
+// flag 0 : search and highlight
+// flag 1 : insert new node
+bool BST::traverseToAnimate(const int value, const int flag) {
+  if (!root) {
+    if (flag == 1) {
+      insert(root, value, sf::Vector2f(900, 100), TreeNode::D::ROOT);
+    }
+    resetAnimateState();
+    return true;
+  }
+
+  updateCursor(animate.animatePtr);
+  switch (animate.state) {
+    case TreeState::ENTRY: {
+      if (flag == 1) {
+        animate.newNode = std::make_unique<TreeNode>(value, sf::Vector2f(100, 100));
+      }
+      animate.animatePtr = root.get();
+      animate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case TreeState::HIGHLIGHT: {
+      if (!animate.animatePtr) {
+        resetAnimateState();
+        return true;
+      }
+
+      animate.animatePtr->sprite.setColor(sf::Color::Red);
+      animate.state = TreeState::WAIT;
+      delayClock.restart();
+    } break;
+    case TreeState::WAIT: {
+      if (delayClock.getElapsedTime().asSeconds() >= animate.timer) {
+        // for finding a node and highlighting found node
+        if (flag == 0) {
+          animate.state = TreeState::SEARCH;
+        }
+        // inserting a new node
+        else if (flag == 1) {
+          animate.state = TreeState::COMPARE;
+        }
+        else {
+          std::cout << "there isn't a state for this flag" << std::endl;
+          return true;
+        }
+        delayClock.restart();
+      }
+    } break;
+    case TreeState::SEARCH: {
+      if (animate.animatePtr->data == value) {
+        animate.animatePtr->sprite.setColor(sf::Color::Cyan);
+        resetAnimateState();
+        return true;
+      }
+      animate.animatePtr->sprite.setColor(sf::Color::White);
+      value < animate.animatePtr->data ?
+        animate.animatePtr = animate.animatePtr->left.get() :
+        animate.animatePtr = animate.animatePtr->right.get();
+
+      animate.state = TreeState::HIGHLIGHT;
+      delayClock.restart();
+    } break;
+    case TreeState::COMPARE: {
+      animate.animatePtr->sprite.setColor(sf::Color::White);
+      if (value < animate.animatePtr->data) {
+        // set a goal position for the temp node
+        // link up the pointers before moving
+        // move the temp node to its position
+        if (!animate.animatePtr->left) {
+          animate.goal = animate.animatePtr->sprite.getPosition();
+          animate.goal = sf::Vector2f(animate.goal.x - 100, animate.goal.y + 100);
+          animate.temp = animate.newNode.get();
+          animate.animatePtr->left = std::move(animate.newNode);
+          animate.state = TreeState::INSERT;
+        }
+        else {
+          animate.state = TreeState::HIGHLIGHT;
+          animate.animatePtr = animate.animatePtr->left.get();
+        }
+      }
+      else {
+        if (!animate.animatePtr->right) {
+          animate.goal = animate.animatePtr->sprite.getPosition();
+          animate.goal = sf::Vector2f(animate.goal.x + 100, animate.goal.y + 100);
+          animate.temp = animate.newNode.get();
+          animate.animatePtr->right = std::move(animate.newNode);
+          animate.state = TreeState::INSERT;
+        }
+        else {
+          animate.state = TreeState::HIGHLIGHT;
+          animate.animatePtr = animate.animatePtr->right.get();
+        }
+      }
+
+      delayClock.restart();
+    } break;
+    case TreeState::INSERT: {
+      if (insertNodeAnimation(animate.temp, animate.goal)) {
+        resetAnimateState();
+        return true;
+      }
+    } break;
   }
   return false;
 }
@@ -787,6 +778,6 @@ void BST::draw() {
     window.draw(*node);
   });
   window.draw(cursor);
-  if (anistate.newNode)
-    window.draw(*anistate.newNode);
+  if (animate.newNode)
+    window.draw(*animate.newNode);
 }

@@ -24,40 +24,51 @@ private:
     HIGHLIGHT,
     WAIT,
     COMPARE,
-    INSERT
+    INSERT,
+    SEARCH
   };
+
+  // only for dfs stack
   struct NodeState {
     bool l = false;
     bool r = false;
     TreeNode* statePtr = nullptr;
-  };
+  } visit;
+
   struct AnimationState {
     friend class BST;
   public:
     bool inUse = false;
   private:
+    // blinking nodes
     int blinks = 0;
     float timer = 0.5;
     std::vector<TreeNode*> pointers = {}; // list of nodes to be blinking
 
+    // dfs animation
     std::stack<NodeState> treeStack; // stack of node visited states
-    TreeState state = TreeState::ENTRY; // state machine
 
+    // bfs animation
     std::vector<TreeNode*> queue;
     std::vector<TreeNode*> levelQueue;
     int i = 0;
     int levelWidth = 0;
-    TreeNode* node = nullptr;
+
+    // insertion animation
     sf::Vector2f goal;
     std::unique_ptr<TreeNode> newNode = nullptr;
+
+    // general
+    TreeState state = TreeState::ENTRY;
+    TreeNode* temp = nullptr;
+    TreeNode* animatePtr = nullptr;
   };
-  NodeState visit; // current node state
   /// ///////////////////////////////////////////////////////////
   sf::Clock delayClock;
 
 public:
   Traversal raw;
-  AnimationState anistate;
+  AnimationState animate;
 
 public:
   BST(sf::RenderWindow& win);
@@ -95,8 +106,7 @@ public:
   void nodeBlink();
   bool dfsAnimate(); // animate dfs traversal of tree
   bool bfsAnimate(); // animate dfs traversal of tree
-  bool searchAnimate(const int value); // animate node search
-  bool insertAnimate(const int value); // animate insertion
+  bool traverseToAnimate(const int value, const int flag); // same as search animate but better
   void bfs();
   // animate preorder traversal of tree
   // animate inorder traversal of tree
@@ -136,7 +146,7 @@ private:
   TreeNode* lca(TreeNode* node, const TreeNode* const a, const TreeNode* const b); // lowest common ancestor
 
   bool insertNodeAnimation(TreeNode* node, const sf::Vector2f pos);
-  void resetAnistate() { anistate = {}; visit = {}; }
+  void resetAnimateState() { animate = {}; visit = {}; }
 
 
   // Template experiment

@@ -342,13 +342,13 @@ void DrawImgui::treeTab() {
       }
     }
     else if (control.animateSearch) {
-      if (bst.searchAnimate(control.findTreeNum)) {
+      if (bst.traverseToAnimate(control.setTreeNum, 0)) {
         std::cout << "Done Searching" << std::endl;
         control.animateSearch = false;
       }
     }
     else if (control.animateInsert) {
-      if (bst.insertAnimate(control.setTreeNum)) {
+      if (bst.traverseToAnimate(control.setTreeNum, 1)) {
         std::cout << "Done Inserting" << std::endl;
         control.animateInsert = false;
       }
@@ -357,27 +357,27 @@ void DrawImgui::treeTab() {
       bst.updateCursor(bst.raw.active);
 
     ImGui::SeparatorText("Tree Info");
-    if (ImGui::Button("Leaves") && !bst.anistate.inUse) {
+    if (ImGui::Button("Leaves") && !bst.animate.inUse) {
       bst.findLeaves();
-      bst.anistate.inUse = true;
+      bst.animate.inUse = true;
     }
-    if (ImGui::Button("Children") && !bst.anistate.inUse) {
+    if (ImGui::Button("Children") && !bst.animate.inUse) {
       bst.findChildren();
-      bst.anistate.inUse = true;
+      bst.animate.inUse = true;
     }
-    if (ImGui::Button("Parent") && !bst.anistate.inUse) {
+    if (ImGui::Button("Parent") && !bst.animate.inUse) {
       ImGui::SameLine(); bst.findParent();
-      bst.anistate.inUse = true;
+      bst.animate.inUse = true;
     }
-    if (ImGui::Button("In-Order-Successor (WIP)") && !bst.anistate.inUse)
+    if (ImGui::Button("In-Order-Successor (WIP)") && !bst.animate.inUse)
       bst.findIOS();
     ImGui::InputInt("Find", &control.findTreeNum);
-    if (ImGui::Button("Find Node") && !bst.anistate.inUse) {
+    if (ImGui::Button("Find Node") && !bst.animate.inUse) {
       bst.findValue(control.findTreeNum);
-      bst.anistate.inUse = true;
+      bst.animate.inUse = true;
     }
 
-    if (bst.anistate.inUse)
+    if (bst.animate.inUse)
       bst.nodeBlink();
 
     // TODO: only do checks if tree state ever changes
