@@ -470,17 +470,22 @@ void DrawImgui::treeTab() {
     ImGui::Begin("Stack Frames");
     // TODO: make this upside-down
     for (int i = 0; i < bst.animate.treeStack.size(); ++i) {
-      // i could've used the struct but it's private
-      int data = bst.animate.treeStack[i].statePtr->data;
-      bool l = bst.animate.treeStack[i].l;
-      bool r = bst.animate.treeStack[i].r;
-
+      ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(15.0f, 15.0f));
+      ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
+      ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.4f, 0.2f, 0.6f, 1.0f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.5f, 0.3f, 0.7f, 1.0f));
+      ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.3f, 0.1f, 0.5f, 1.0f));
+      float buttonWidth = ImGui::GetContentRegionAvail().x;
       std::string label = "Frame " + std::to_string(i);
-      ImGui::Button(label.c_str());
+      ImGui::Button(label.c_str(), ImVec2(buttonWidth, 0));
       if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
         // auto pause when hovering and highlight the node
-        bst.animate.treeStack[i].statePtr->sprite.setColor(sf::Color::Cyan);
+        bst.animate.treeStack[i].statePtr->sprite.setColor(sf::Color::Green);
         if (ImGui::BeginItemTooltip()) {
+          // i could've used the struct but it's private
+          int data = bst.animate.treeStack[i].statePtr->data;
+          bool l = bst.animate.treeStack[i].l;
+          bool r = bst.animate.treeStack[i].r;
           ImGui::SeparatorText("Stack Frame");
           ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), red(1.0f, 0.0f, 0.0f, 1.0f);
           ImGui::Text("Visited Left: ");
@@ -494,6 +499,9 @@ void DrawImgui::treeTab() {
       else {
         bst.animate.treeStack[i].statePtr->sprite.setColor(sf::Color::White);
       }
+      ImGui::PopStyleColor(3);
+      ImGui::PopStyleVar(2);
+
     }
     ImGui::End();
 
