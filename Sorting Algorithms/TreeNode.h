@@ -10,13 +10,10 @@ class TreeNode : public sf::Drawable, public sf::Transformable {
   friend class BST;
 private:
   // node data
-  // fuck inheritance that shit sucks
   std::unique_ptr<TreeNode> left;
   std::unique_ptr<TreeNode> right;
-  int data;
 
   // rendering 
-  sf::Sprite sprite;
   sf::VertexArray leftLine;
   sf::VertexArray rightLine;
   sf::Vector2f size;
@@ -30,6 +27,10 @@ private:
     ROOT,
     RIGHT
   };
+
+public:
+  sf::Sprite sprite;
+  int data;
 
 public:
   TreeNode(const int val, const sf::Vector2f pos);

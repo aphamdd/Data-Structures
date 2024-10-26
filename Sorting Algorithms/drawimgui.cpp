@@ -470,19 +470,29 @@ void DrawImgui::treeTab() {
     ImGui::Begin("Stack Frames");
     // TODO: make this upside-down
     for (int i = 0; i < bst.animate.treeStack.size(); ++i) {
+      // i could've used the struct but it's private
+      int data = bst.animate.treeStack[i].statePtr->data;
+      bool l = bst.animate.treeStack[i].l;
+      bool r = bst.animate.treeStack[i].r;
+
       std::string label = "Frame " + std::to_string(i);
       ImGui::Button(label.c_str());
       if (ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary)) {
+        // auto pause when hovering and highlight the node
+        bst.animate.treeStack[i].statePtr->sprite.setColor(sf::Color::Cyan);
         if (ImGui::BeginItemTooltip()) {
           ImGui::SeparatorText("Stack Frame");
-          ImGui::Text(
-            "A perfect binary tree "
-            "is a type of binary tree in which every internal node "
-            "\nhas exactly two child nodes and "
-            "all the leaf nodes are at the same level."
-          );
+          ImVec4 green(0.0f, 1.0f, 0.0f, 1.0f), red(1.0f, 0.0f, 0.0f, 1.0f);
+          ImGui::Text("Visited Left: ");
+          ImGui::SameLine(0, 0); ImGui::TextColored(l ? green : red, "%s", l ? "True" : "False");
+          ImGui::Text("Visited Right: ");
+          ImGui::SameLine(0, 0); ImGui::TextColored(r ? green : red, "%s", r ? "True" : "False");
+          ImGui::Text("Data: %d", data);
           ImGui::EndTooltip();
         }
+      }
+      else {
+        bst.animate.treeStack[i].statePtr->sprite.setColor(sf::Color::White);
       }
     }
     ImGui::End();
