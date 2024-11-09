@@ -431,17 +431,31 @@ void BST::clear(std::unique_ptr<TreeNode>& node) {
 
 void BST::updateCursor(TreeNode* target) {
   sf::Clock clock;
+
   if (!target) {
     cursor.setRadius(0.f);
     return;
   }
-  
-  cursor.setRadius(10.f);
-  cursor.setFillColor(target->sprite.getColor());
 
-  sf::Vector2f currPos = cursor.getPosition();
   sf::Vector2f goal = target->sprite.getPosition();
-  goal.y -= (target->size.y * 0.5) + 20;
+  // allows cursor to point at a fake node
+  if (!visit.statePtr) {
+    if (currStep == "Visit Left") {
+      goal.x -= 100;
+      goal.y += 100;
+    }
+    else if (currStep == "Visit Right") {
+      goal.x += 100;
+      goal.y += 100;
+    }
+  }
+  else {
+    goal.y -= (target->size.y * 0.5) + 20;
+  }
+  
+  cursor.setFillColor(target->sprite.getColor());
+  cursor.setRadius(10.f);
+  sf::Vector2f currPos = cursor.getPosition();
   float dx = goal.x - currPos.x;
   float dy = goal.y - currPos.y;
   float distance = float(sqrt(pow(dx, 2) + pow(dy, 2))); // euclidean distance formula
@@ -492,17 +506,28 @@ bool BST::dfsAnimate() {
     return true;
   }
 
-  updateCursor(visit.statePtr);
+  if (visit.statePtr)
+    updateCursor(visit.statePtr);
+  else {
+    if (!animate.treeStack.empty()) {
+      TreeNode* temp = animate.treeStack.back().statePtr;
+      updateCursor(temp);
+    }
+  }
   switch (animate.state) {
     case TreeState::ENTRY: {
       visit.statePtr = root.get();
 
+      animate.prevState = animate.state;
       animate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
+      currStep = "DFS Traversal";
     } break;
     case TreeState::HIGHLIGHT: {
       // base case: if null or visited left & right
       if (!visit.statePtr || (visit.l && visit.r)) {
+        if (!visit.statePtr)
+          currStep = "Empty: Pop Back";
         if (!animate.treeStack.empty()) {
           visit = animate.treeStack.back();
           animate.treeStack.pop_back();
@@ -512,15 +537,31 @@ bool BST::dfsAnimate() {
           return true;
         }
       }
+      else {
+        if (!visit.l)
+          currStep = "Left Unvisited";
+      }
+
 
       visit.statePtr->sprite.setColor(sf::Color::Red);
+      animate.prevState = animate.state;
       animate.state = TreeState::WAIT;
       delayClock.restart();
     } break;
     case TreeState::WAIT: {
       if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
-        visit.statePtr->sprite.setColor(sf::Color::White);
-        animate.state = TreeState::COMPARE;
+        if (visit.l && !visit.r && currStep != "Right Unvisited") {
+          currStep = "Right Unvisited";
+        }
+        else if (animate.prevState == TreeState::HIGHLIGHT) {
+          visit.statePtr->sprite.setColor(sf::Color::White);
+          animate.prevState = animate.state;
+          animate.state = TreeState::COMPARE;
+        }
+        else if (animate.prevState == TreeState::COMPARE) {
+          animate.prevState = animate.state;
+          animate.state = TreeState::HIGHLIGHT;
+        }
         delayClock.restart();
       }
     } break;
@@ -532,6 +573,7 @@ bool BST::dfsAnimate() {
         visit.l = false;
         visit.r = false;
         visit.statePtr = visit.statePtr->left.get();
+        currStep = "Visit Left";
       }
       else if (!visit.r) {
         visit.r = true;
@@ -540,9 +582,13 @@ bool BST::dfsAnimate() {
         visit.l = false;
         visit.r = false;
         visit.statePtr = visit.statePtr->right.get();
+        currStep = "Visit Right";
       }
+      if (visit.l && visit.r)
+        currStep = "L&R Visited: Pop Back";
 
-      animate.state = TreeState::HIGHLIGHT;
+      animate.prevState = animate.state;
+      animate.state = TreeState::WAIT;
       delayClock.restart();
     } break;
   }

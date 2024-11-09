@@ -317,7 +317,6 @@ void DrawImgui::treeTab() {
       bst.clear();
     }
     ImGui::Checkbox("Enable Drag", &control.isDrag);
-    ImGui::Checkbox("Enable Animate", &control.isAnimate);
 
     ImGui::SeparatorText("Tree Animations");
     // TODO: prevent clicks after initial click
@@ -373,13 +372,6 @@ void DrawImgui::treeTab() {
     }
     if (ImGui::Button("Parent") && !bst.animate.inUse) {
       ImGui::SameLine(); bst.findParent();
-      bst.animate.inUse = true;
-    }
-    if (ImGui::Button("In-Order-Successor (WIP)") && !bst.animate.inUse)
-      bst.findIOS();
-    ImGui::InputInt("Find", &control.findTreeNum);
-    if (ImGui::Button("Find Node") && !bst.animate.inUse) {
-      bst.findValue(control.findTreeNum);
       bst.animate.inUse = true;
     }
 
@@ -463,9 +455,8 @@ void DrawImgui::treeTab() {
     ImGui::Text("Tree Height: %d", bst.treeHeight()-1);
     ImGui::Text("Tree Size: %d", bst.treeSize());
 
-    ImGui::SeparatorText("Debugging");
-    ImGui::Text("Prev: %d", bst.getPrevData());
-    ImGui::Text("Active: %d", bst.getActiveData());
+    ImGui::SeparatorText("State");
+    ImGui::Text("Step: %s", bst.currStep.c_str());
 
     ImGui::Begin("Stack Frames");
     // TODO: make this upside-down

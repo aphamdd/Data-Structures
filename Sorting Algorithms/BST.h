@@ -58,6 +58,7 @@ private:
 
     // general
     TreeState state = TreeState::ENTRY;
+    TreeState prevState = TreeState::ENTRY;
     TreeNode* temp = nullptr;
     TreeNode* animatePtr = nullptr;
   };
@@ -67,6 +68,8 @@ public:
   Traversal raw;
   AnimationState animate;
   sf::Clock delayClock;
+
+  std::string currStep = "None";
 
 public:
   BST(sf::RenderWindow& win);
@@ -144,7 +147,7 @@ private:
   TreeNode* lca(TreeNode* node, const TreeNode* const a, const TreeNode* const b); // lowest common ancestor
 
   bool insertNodeAnimation(TreeNode* node, const sf::Vector2f pos);
-  void resetAnimateState() { animate = {}; visit = {}; }
+  void resetAnimateState() { animate = {}; visit = {}; currStep = "None"; }
 
 
   // Template experiment
