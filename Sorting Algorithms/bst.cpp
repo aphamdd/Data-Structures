@@ -10,7 +10,7 @@ BST::BST(sf::RenderWindow& win) :
   cursor.setRotation(180.f);
 
   try {
-    if (!GLOBAL::TREETEXTURE.loadFromFile("./Textures/treenodewhitetf.png"))
+    if (!GLOBAL::TREETEXTURE.loadFromFile("./Textures/shield_4.png"))
       throw std::runtime_error("tree node texture error");
   }
   catch (const std::runtime_error& e) {
@@ -438,6 +438,9 @@ void BST::updateCursor(TreeNode* target) {
   }
 
   sf::Vector2f goal = target->sprite.getPosition();
+  goal.x += 10;
+  goal.y -= (target->size.y * 0.5) + 20;
+
   // allows cursor to point at a fake node
   if (!visit.statePtr) {
     if (currStep == "Visit Left") {
@@ -448,9 +451,6 @@ void BST::updateCursor(TreeNode* target) {
       goal.x += 100;
       goal.y += 100;
     }
-  }
-  else {
-    goal.y -= (target->size.y * 0.5) + 20;
   }
   
   cursor.setFillColor(target->sprite.getColor());
@@ -605,14 +605,17 @@ bool BST::bfsAnimate() {
   switch (animate.state) {
     case TreeState::ENTRY: {
       animate.queue.emplace_back(root.get());
+      animate.prevState = animate.state;
       animate.state = TreeState::HIGHLIGHT;
       delayClock.restart();
+      currStep = "Entry";
     } break;
     case TreeState::HIGHLIGHT: {
       if (!animate.queue.empty()) {
         animate.i = 0;
         animate.temp = nullptr;
         animate.levelWidth = animate.queue.size();
+        animate.prevState = animate.state;
         animate.state = TreeState::COMPARE;
       }
       else {
@@ -624,6 +627,7 @@ bool BST::bfsAnimate() {
     case TreeState::WAIT: {
       if (delayClock.getElapsedTime().asSeconds() >= GLOBAL::DELAY) {
         animate.temp->sprite.setColor(sf::Color::White);
+        animate.prevState = animate.state;
         animate.state = TreeState::COMPARE;
         delayClock.restart();
       }
@@ -632,17 +636,22 @@ bool BST::bfsAnimate() {
       if (animate.i < animate.levelWidth) {
         animate.temp = animate.queue.at(0);
         animate.temp->sprite.setColor(sf::Color::Red);
-        if (animate.temp->left)
+        if (animate.temp->left) {
           animate.queue.emplace_back(animate.temp->left.get());
-        if (animate.temp->right)
+        }
+        if (animate.temp->right) {
           animate.queue.emplace_back(animate.temp->right.get());
+        }
         animate.queue.erase(animate.queue.begin());
         ++animate.i;
 
+        animate.prevState = animate.state;
         animate.state = TreeState::WAIT;
       }
-      else
+      else {
+        animate.prevState = animate.state;
         animate.state = TreeState::HIGHLIGHT;
+      }
       delayClock.restart();
     } break;
   }
@@ -682,6 +691,7 @@ bool BST::insertNodeAnimation(TreeNode* target, const sf::Vector2f goal) {
 
 // flag 0 : search and highlight
 // flag 1 : insert new node
+// flag 2 : delete node
 bool BST::traverseToAnimate(const int value, const int flag) {
   if (!root) {
     if (flag == 1) {

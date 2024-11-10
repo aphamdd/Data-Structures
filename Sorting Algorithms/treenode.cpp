@@ -11,6 +11,13 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
   rightLine(sf::Lines, 2),
   size(88.f, 88.f) {
 
+  // set texture
+  sprite.setTexture(GLOBAL::TREETEXTURE);
+  sprite.setTextureRect(sf::IntRect(0, 0, size.x, size.y));
+  sprite.setOrigin(size.x * 0.5, size.y * 0.5);
+  sprite.setPosition(pos);
+  sprite.setColor(sf::Color::White);
+
   // set font
   try {
     if (!font.loadFromFile("./Fonts/arial.ttf"))
@@ -20,24 +27,15 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
     std::cerr << "Error: " << e.what() << std::endl;
   }
   dataText.setFont(font);
-
-  // TODO: set the text position properly
-  sf::Vector2f textPos = pos;
-  textPos.x -= size.x * 0.3;
-  textPos.y -= size.y * 0.3;
-  dataText.setPosition(textPos);
-  dataText.setCharacterSize(size.y/4);
+  dataText.setCharacterSize(30);
   dataText.setOutlineThickness(1);
   dataText.setOutlineColor(sf::Color::White);
   dataText.setFillColor(sf::Color::Black);
   dataText.setString(std::to_string(data));
-
-  // set texture
-  sprite.setTexture(GLOBAL::TREETEXTURE);
-  sprite.setTextureRect(sf::IntRect(0, 0, size.x, size.y));
-  sprite.setOrigin(size.x * 0.5, size.y * 0.5);
-  sprite.setPosition(pos);
-  sprite.setColor(sf::Color::White);
+  sf::FloatRect textRect = dataText.getLocalBounds();
+  dataText.setOrigin(textRect.left + textRect.width / 2.0f,
+    textRect.top + textRect.height / 2.0f);
+  dataText.setPosition(sprite.getPosition());
 
   sf::Vector2f lPos(calcCircleEdge(135));
   leftLine[0].position = lPos;
