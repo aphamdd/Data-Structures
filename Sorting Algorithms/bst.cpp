@@ -221,18 +221,25 @@ void BST::nodeBlink() {
   return;
 }
 
-void BST::findValue(TreeNode* node, const int data) {
+bool BST::findValue(TreeNode* node, const int data) {
   if (!node)
-    return;
+    return false;
 
-  if (node->data == data)
+  if (node->data == data) {
     animate.pointers.emplace_back(node);
+    return true;
+  }
+  if (data < node->data)
+    return findValue(node->left.get(), data);
+  else
+    return findValue(node->right.get(), data);
+  /*
   else {
     data < node->data
-      ? findValue(node->left.get(), data)
-      : findValue(node->right.get(), data);
+      ? return findValue(node->left.get(), data)
+      : return findValue(node->right.get(), data);
   }
-  return;
+  */
 }
 
 bool BST::search(const sf::Vector2i mpos) {

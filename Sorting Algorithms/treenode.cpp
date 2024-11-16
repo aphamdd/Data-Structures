@@ -37,6 +37,7 @@ TreeNode::TreeNode(const int val, const sf::Vector2f pos) :
     textRect.top + textRect.height / 2.0f);
   dataText.setPosition(sprite.getPosition());
 
+  // set edges
   sf::Vector2f lPos(calcCircleEdge(135));
   leftLine[0].position = lPos;
   leftLine[1].position = lPos;

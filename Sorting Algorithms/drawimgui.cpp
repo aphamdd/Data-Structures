@@ -313,6 +313,11 @@ void DrawImgui::treeTab() {
     if (ImGui::Button("Delete Node")) {
       bst.remove();
     }
+    if (ImGui::Button("Find")) {
+      if (bst.findValue(control.setTreeNum)) {
+        std::cout << "Found" << std::endl;
+      }
+    }
     if (ImGui::Button("Clear")) { 
       bst.clear();
     }

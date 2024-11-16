@@ -2,7 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <gtest/gtest.h>
 #include "C:\Users\antho\Documents\Code\Sorting Algorithms\Sorting Algorithms\graph.cpp"
-#include "C:\Users\antho\Documents\Code\Sorting Algorithms\Sorting Algorithms\common.cpp"
+#include "C:\Users\antho\Documents\Code\Sorting Algorithms\Sorting Algorithms\common.h"
 
 bool vectorCompare(const sf::RectangleShape& rect1, const sf::RectangleShape& rect2) {
   return (rect1.getPosition() == rect2.getPosition()) &&

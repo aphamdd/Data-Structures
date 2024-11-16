@@ -81,7 +81,7 @@ public:
 
   // wrapper functions for basic tree operations
   void insert(const int data, const sf::Vector2f pos) { insert(root, data, pos, TreeNode::D::ROOT); }
-  void findValue(const int data) { findValue(root.get(), data); }
+  bool findValue(const int data) { return findValue(root.get(), data); }
   void remove() { if (raw.active) remove(root, raw.active->data); updatePrevPtr(raw.active); }
   void display();
 
@@ -123,7 +123,7 @@ public:
 
 private:
   void insert(std::unique_ptr<TreeNode>& node, const int data, const sf::Vector2f pos, TreeNode::D direction);
-  void findValue(TreeNode* node, const int data);
+  bool findValue(TreeNode* node, const int data);
   void remove(std::unique_ptr<TreeNode>& node, const int data);
   void clear(std::unique_ptr<TreeNode>& node);
   void propogatePos(TreeNode* node, const sf::Vector2f shift);
